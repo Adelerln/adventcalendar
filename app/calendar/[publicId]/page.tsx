@@ -4,6 +4,7 @@ import { useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import CalendarGrid from "@/components/CalendarGrid";
 import DayModal from "@/components/DayModal";
+import Header from "@/components/Header";
 
 type Props = { params: { publicId: string } };
 
@@ -70,7 +71,8 @@ export default function PublicCalendarPage({ params }: Props) {
   const selectedDayContent = selectedDay ? (days.find(d => d.day === selectedDay) as any) : null;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-600 via-green-600 to-red-600 relative overflow-hidden">
+    <main className="min-h-screen bg-gradient-to-br from-red-600 via-green-600 to-red-600 relative overflow-hidden pt-20">
+      <Header />
       {/* Effet de neige décoratif en arrière-plan */}
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[url('/snowflakes.svg')] animate-snow"></div>

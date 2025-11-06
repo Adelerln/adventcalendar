@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function MarketingHomePage() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen pt-16">
+      <Header />
       <section className="relative overflow-hidden bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950">
         <div className="absolute inset-0 bg-[url('/snowflakes.svg')] opacity-10 animate-snow"></div>
         <div className="relative mx-auto max-w-6xl px-6 py-20 text-center">

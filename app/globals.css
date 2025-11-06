@@ -156,3 +156,7 @@ body {
   background: linear-gradient(to bottom, #b91c1c, #15803d);
 }
 
+/* Forme de l'enveloppe */
+.clip-envelope {
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+}

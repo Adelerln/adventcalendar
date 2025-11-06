@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function FaqPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950">
+    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 pt-20">
+      <Header />
       <div className="mx-auto max-w-4xl px-6 py-16">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent">

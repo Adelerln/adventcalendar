@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Header from "@/components/Header";
 
 export default function PricingPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 py-16">
+    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 py-16 pt-24">
+      <Header />
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent">
@@ -20,29 +22,34 @@ export default function PricingPage() {
               <div className="text-6xl font-bold text-red-600 mb-4">10€</div>
               <p className="text-gray-600 dark:text-gray-400">Achat unique</p>
             </div>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">24 Photos personnalisées</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux souvenirs</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">24 Messages personnalisés</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">Outil de dessin</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Créativité sans limites</p>
-                </div>
-              </li>
-            </ul>
+            <div className="mb-8">
+              <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
+                24 intentions composées de :
+              </div>
+              <ul className="space-y-3 ml-4">
+                <li className="flex items-start">
+                  <span className="text-red-500 mr-3 text-xl">📷</span>
+                  <div>
+                    <div className="font-medium">Photos personnalisées</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux souvenirs</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-500 mr-3 text-xl">💌</span>
+                  <div>
+                    <div className="font-medium">Messages personnalisés</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-red-500 mr-3 text-xl">🎨</span>
+                  <div>
+                    <div className="font-medium">Dessins créatifs</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Créativité sans limites</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
             <form action="/api/stripe/checkout" method="post">
               <input type="hidden" name="productId" value="plan_essentiel" />
               <button className="w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all">
@@ -60,36 +67,41 @@ export default function PricingPage() {
               <div className="text-6xl font-bold text-green-600 mb-4">15€</div>
               <p className="text-gray-600 dark:text-gray-400">Achat unique</p>
             </div>
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">24 Photos personnalisées</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux moments</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">24 Messages personnalisés</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
-                </div>
-              </li>
-              <li className="flex items-start">
-                <span className="text-green-500 mr-3 text-xl">✓</span>
-                <div>
-                  <div className="font-semibold">Outil de dessin</div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Créativité illimitée</p>
-                </div>
-              </li>
-              <li className="flex items-start bg-green-50 dark:bg-green-950 -mx-4 px-4 py-3 rounded-lg">
-                <span className="text-yellow-500 mr-3 text-2xl">★</span>
-                <div>
-                  <div className="font-bold text-green-700 dark:text-green-300 text-lg">24 Musiques personnalisées 🎵</div>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">Partagez vos chansons préférées</p>
-                </div>
-              </li>
-            </ul>
+            <div className="mb-8">
+              <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
+                24 intentions composées de :
+              </div>
+              <ul className="space-y-3 ml-4">
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-3 text-xl">📷</span>
+                  <div>
+                    <div className="font-medium">Photos personnalisées</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux moments</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-3 text-xl">💌</span>
+                  <div>
+                    <div className="font-medium">Messages personnalisés</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
+                  </div>
+                </li>
+                <li className="flex items-start">
+                  <span className="text-green-500 mr-3 text-xl">🎨</span>
+                  <div>
+                    <div className="font-medium">Dessins créatifs</div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Créativité illimitée</p>
+                  </div>
+                </li>
+                <li className="flex items-start bg-green-50 dark:bg-green-950 -mx-4 px-4 py-3 rounded-lg">
+                  <span className="text-yellow-500 mr-3 text-2xl">🎵</span>
+                  <div>
+                    <div className="font-bold text-green-700 dark:text-green-300">Musiques personnalisées</div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300">Partagez vos chansons préférées</p>
+                  </div>
+                </li>
+              </ul>
+            </div>
             <form action="/api/stripe/checkout" method="post">
               <input type="hidden" name="productId" value="plan_premium" />
               <button className="w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all">
