@@ -3,6 +3,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --christmas-red: #dc2626;
+  --christmas-green: #16a34a;
+  --christmas-gold: #fbbf24;
 }
 
 @theme inline {
@@ -24,3 +27,132 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Animations de Noël */
+@keyframes snow {
+  0% {
+    background-position: 0px 0px, 0px 0px, 0px 0px;
+  }
+  100% {
+    background-position: 500px 1000px, 400px 400px, 300px 300px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.animate-snow {
+  animation: snow 20s linear infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    transparent 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Effets de particules de neige */
+.snowflakes {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.snowflake {
+  position: absolute;
+  top: -10px;
+  color: white;
+  font-size: 1em;
+  animation: fall linear infinite;
+  opacity: 0.8;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
+}
+
+/* Styles personnalisés pour les éléments festifs */
+.christmas-gradient {
+  background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-green) 100%);
+}
+
+.christmas-text-gradient {
+  background: linear-gradient(135deg, var(--christmas-red) 0%, var(--christmas-green) 50%, var(--christmas-red) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Hover effects festifs */
+.christmas-hover {
+  transition: all 0.3s ease;
+}
+
+.christmas-hover:hover {
+  transform: scale(1.05);
+  box-shadow: 0 20px 25px -5px rgba(220, 38, 38, 0.3), 0 10px 10px -5px rgba(22, 163, 74, 0.2);
+}
+
+/* Scrollbar festif */
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #fee2e2, #dcfce7);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--christmas-red), var(--christmas-green));
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #b91c1c, #15803d);
+}
+
