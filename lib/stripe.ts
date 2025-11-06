@@ -1,8 +1,22 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2024-11-20.acacia",
-});
+let stripeClient: Stripe | null = null;
+
+function getStripeClient(): Stripe {
+  if (stripeClient) {
+    return stripeClient;
+  }
+
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY is not set");
+  }
+
+  stripeClient = new Stripe(secretKey, {
+    apiVersion: "2025-10-29.clover",
+  });
+  return stripeClient;
+}
 
 export async function createCheckoutSession(params: {
   mode: "payment" | "subscription";
@@ -12,6 +26,8 @@ export async function createCheckoutSession(params: {
   // Placeholder minimal session creation: expects existing price IDs mapped elsewhere
   const successUrl = `${process.env.NEXT_PUBLIC_APP_URL}/(dashboard)/dashboard`;
   const cancelUrl = `${process.env.NEXT_PUBLIC_APP_URL}/pricing`;
+
+  const stripe = getStripeClient();
 
   const session = await stripe.checkout.sessions.create({
     mode: params.mode,
@@ -27,5 +43,3 @@ export async function createCheckoutSession(params: {
   });
   return session;
 }
-
-

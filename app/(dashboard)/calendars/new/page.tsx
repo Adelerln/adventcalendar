@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import EmptyEnvelope from "@/components/EmptyEnvelope";
 import EnvelopeEditor from "@/components/EnvelopeEditor";
@@ -15,7 +14,6 @@ type DayContent = {
 };
 
 export default function NewCalendarPage() {
-  const searchParams = useSearchParams();
   const [step, setStep] = useState<"plan" | "creation">("plan");
   const [selectedPlan, setSelectedPlan] = useState<Plan>(null);
   const [calendarData, setCalendarData] = useState<Record<number, DayContent>>({});
@@ -23,12 +21,13 @@ export default function NewCalendarPage() {
 
   // Détecter si un plan est passé dans l'URL
   useEffect(() => {
-    const planFromUrl = searchParams.get("plan") as Plan;
+    if (typeof window === "undefined") return;
+    const planFromUrl = new URLSearchParams(window.location.search).get("plan") as Plan;
     if (planFromUrl === "plan_essentiel" || planFromUrl === "plan_premium") {
       setSelectedPlan(planFromUrl);
       setStep("creation");
     }
-  }, [searchParams]);
+  }, []);
 
   const handlePlanSelection = (plan: Plan) => {
     setSelectedPlan(plan);
@@ -245,4 +244,3 @@ export default function NewCalendarPage() {
     </>
   );
 }
-
