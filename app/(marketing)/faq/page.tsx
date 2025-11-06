@@ -7,7 +7,7 @@ export default function FaqPage() {
       <Header />
       <div className="mx-auto max-w-4xl px-6 py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-6 text-red-600 dark:text-red-500">
             Foire aux questions
           </h1>
           <p className="text-xl text-gray-700 dark:text-gray-300">
@@ -52,7 +52,7 @@ export default function FaqPage() {
           </details>
         </div>
 
-        <div className="mt-16 bg-gradient-to-r from-red-600 to-green-600 rounded-3xl p-8 text-center text-white">
+        <div className="mt-16 bg-red-600 rounded-3xl p-8 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Vous n'avez pas trouvé votre réponse ?</h2>
           <p className="text-lg mb-6">Notre équipe est là pour vous aider !</p>
           <a href="mailto:support@adventcalendar.com" className="inline-block px-8 py-3 bg-white text-red-600 rounded-full font-bold hover:shadow-xl transition-all">

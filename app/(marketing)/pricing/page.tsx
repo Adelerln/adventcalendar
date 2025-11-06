@@ -7,7 +7,7 @@ export default function PricingPage() {
       <Header />
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-5xl font-bold mb-6 text-red-600 dark:text-red-500">
             Choisissez votre forfait
           </h1>
           <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
@@ -20,7 +20,7 @@ export default function PricingPage() {
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-2">Plan Essentiel</h2>
               <div className="text-6xl font-bold text-red-600 mb-4">10€</div>
-              <p className="text-gray-600 dark:text-gray-400">Achat unique</p>
+              <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>
             <div className="mb-8">
               <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
@@ -50,12 +50,9 @@ export default function PricingPage() {
                 </li>
               </ul>
             </div>
-            <form action="/api/stripe/checkout" method="post">
-              <input type="hidden" name="productId" value="plan_essentiel" />
-              <button className="w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all">
-                Choisir ce plan
-              </button>
-            </form>
+            <Link href="/calendars/new?plan=plan_essentiel" className="block w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all text-center">
+              Choisir ce plan
+            </Link>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border-4 border-green-500 relative">
@@ -65,7 +62,7 @@ export default function PricingPage() {
             <div className="text-center mb-8 mt-4">
               <h2 className="text-3xl font-bold mb-2">Plan Premium</h2>
               <div className="text-6xl font-bold text-green-600 mb-4">15€</div>
-              <p className="text-gray-600 dark:text-gray-400">Achat unique</p>
+              <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>
             <div className="mb-8">
               <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
@@ -102,12 +99,9 @@ export default function PricingPage() {
                 </li>
               </ul>
             </div>
-            <form action="/api/stripe/checkout" method="post">
-              <input type="hidden" name="productId" value="plan_premium" />
-              <button className="w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all">
-                Choisir le Premium 🎵
-              </button>
-            </form>
+            <Link href="/calendars/new?plan=plan_premium" className="block w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all text-center">
+              Choisir le Premium
+            </Link>
           </div>
         </div>
 

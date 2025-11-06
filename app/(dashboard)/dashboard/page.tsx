@@ -39,7 +39,7 @@ export default function DashboardPage() {
         <div className="mx-auto max-w-7xl">
           {/* En-tête */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent">
+            <h1 className="text-5xl font-bold mb-4 text-red-600 dark:text-red-500">
               Calendrier de l'Avent Exemple
             </h1>
             <p className="text-xl text-gray-700 dark:text-gray-300 mb-2">
@@ -58,7 +58,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Call to action */}
-          <div className="bg-gradient-to-r from-red-600 to-green-600 rounded-3xl p-8 text-center text-white shadow-2xl">
+          <div className="bg-red-600 rounded-3xl p-8 text-center text-white shadow-2xl">
             <h2 className="text-3xl font-bold mb-4">Prêt à créer le vôtre ? 🎄</h2>
             <p className="text-lg mb-6 opacity-90">
               Personnalisez chaque jour avec vos propres photos, messages, dessins et musiques

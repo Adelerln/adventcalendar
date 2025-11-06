@@ -11,14 +11,14 @@ export default function MarketingHomePage() {
           <div className="inline-block mb-4 px-4 py-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm font-semibold">
             ✨ Noël 2025 approche ! ✨
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-red-600 via-green-600 to-red-600 bg-clip-text text-transparent mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-red-600 dark:text-red-500 mb-6">
             Calendrier de l'Avent<br />Personnalisé
           </h1>
           <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             Créez un calendrier magique unique pour vos proches. 24 jours de surprises personnalisées avec photos, messages, dessins et musique.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <Link href="/pricing" className="rounded-full bg-gradient-to-r from-red-600 to-red-700 text-white px-8 py-4 text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
+            <Link href="/pricing" className="rounded-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
               Voir les forfaits 🎁
             </Link>
             <Link href="/dashboard" className="rounded-full border-2 border-green-600 text-green-600 dark:text-green-400 px-8 py-4 text-lg font-semibold hover:bg-green-50 dark:hover:bg-green-950 transition-all">
@@ -46,7 +46,7 @@ export default function MarketingHomePage() {
               <div className="text-5xl mb-4">2️⃣</div>
               <h3 className="text-2xl font-bold mb-3">Personnalisez</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Ajoutez photos, messages, dessins
+                Ajoutez photos, messages, dessins et musiques
               </p>
             </div>
             <div className="text-center p-6 rounded-2xl bg-red-50 dark:bg-red-950">
@@ -60,7 +60,7 @@ export default function MarketingHomePage() {
         </div>
       </section>
 
-      <section className="py-20 bg-gradient-to-r from-red-600 to-green-600 text-white">
+      <section className="py-20 bg-red-600 text-white">
         <div className="mx-auto max-w-4xl px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">Prêt à créer la magie de Noël ? 🎄</h2>
           <p className="text-xl mb-8 opacity-90">
