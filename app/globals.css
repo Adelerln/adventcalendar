@@ -38,6 +38,12 @@ body {
   }
 }
 
+@keyframes fall {
+  to {
+    transform: translateY(100vh);
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -69,6 +75,10 @@ body {
 
 .animate-snow {
   animation: snow 20s linear infinite;
+}
+
+.animate-fall {
+  animation: fall linear infinite;
 }
 
 .animate-fadeIn {
