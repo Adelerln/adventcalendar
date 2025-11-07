@@ -19,12 +19,17 @@ export default function MarketingHomePage() {
           <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
             Créez un calendrier magique unique pour vos proches. 24 jours de surprises personnalisées avec photos, messages, dessins et musique.
           </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-            <Link href="/pricing" className="rounded-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
-              Voir les forfaits 🎁
-            </Link>
-            <Link href="/dashboard" className="rounded-full border-2 border-green-600 text-green-600 dark:text-green-400 px-8 py-4 text-lg font-semibold hover:bg-green-50 dark:hover:bg-green-950 transition-all">
-              Découvrir un exemple
+          <div className="flex flex-col items-center gap-4 mb-12">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full">
+              <Link href="/pricing" className="rounded-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
+                Voir les forfaits 🎁
+              </Link>
+              <Link href="/dashboard" className="rounded-full border-2 border-green-600 text-green-600 dark:text-green-400 px-8 py-4 text-lg font-semibold hover:bg-green-50 dark:hover:bg-green-950 transition-all">
+                Découvrir un exemple
+              </Link>
+            </div>
+            <Link href="/dashboard" className="rounded-full border-2 border-red-600 text-red-600 dark:text-red-400 px-8 py-4 text-lg font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all">
+              Accéder à mon calendrier
             </Link>
           </div>
         </div>

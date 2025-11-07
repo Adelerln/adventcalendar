@@ -10,7 +10,7 @@ export default function Header() {
         >
           🎄 Advent Calendar
         </Link>
-        <nav className="flex items-center gap-6">
+        <nav className="flex items-center gap-6 ml-auto">
           <Link 
             href="/pricing" 
             className="text-gray-700 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 font-medium transition-colors"
@@ -34,6 +34,12 @@ export default function Header() {
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all"
           >
             Créer mon calendrier
+          </Link>
+          <Link 
+            href="/dashboard" 
+            className="border-2 border-red-600 text-red-600 dark:text-red-400 px-6 py-2 rounded-full font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+          >
+            Accéder à mon calendrier
           </Link>
         </nav>
       </div>
