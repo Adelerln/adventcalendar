@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 import SnowfallAnimation from "@/components/SnowfallAnimation";
+import TokenDialog from "@/components/TokenDialog";
 
 export default function MarketingHomePage() {
   return (
@@ -28,9 +29,7 @@ export default function MarketingHomePage() {
                 Découvrir un exemple
               </Link>
             </div>
-            <Link href="/dashboard" className="rounded-full border-2 border-red-600 text-red-600 dark:text-red-400 px-8 py-4 text-lg font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all">
-              Accéder à mon calendrier
-            </Link>
+            <TokenDialog triggerClassName="rounded-full border-2 border-red-600 text-red-600 dark:text-red-400 px-8 py-4 text-lg font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all" />
           </div>
         </div>
       </section>
@@ -73,7 +72,7 @@ export default function MarketingHomePage() {
           <p className="text-xl mb-8 opacity-90">
             Offrez un cadeau unique et inoubliable
           </p>
-          <Link href="/pricing" className="inline-block rounded-full bg-white text-red-600 px-10 py-4 text-xl font-bold hover:shadow-2xl transition-all">
+          <Link href="/gift/choose-plan" className="inline-block rounded-full bg-white text-red-600 px-10 py-4 text-xl font-bold hover:shadow-2xl transition-all">
             Commencer maintenant
           </Link>
         </div>

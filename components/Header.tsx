@@ -1,4 +1,5 @@
 import Link from "next/link";
+import TokenDialog from "@/components/TokenDialog";
 
 export default function Header() {
   return (
@@ -30,17 +31,12 @@ export default function Header() {
             Exemple
           </Link>
           <Link 
-            href="/calendars/new" 
+            href="/gift/choose-plan" 
             className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-full font-semibold hover:shadow-lg transition-all"
           >
             Créer mon calendrier
           </Link>
-          <Link 
-            href="/dashboard" 
-            className="border-2 border-red-600 text-red-600 dark:text-red-400 px-6 py-2 rounded-full font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all"
-          >
-            Accéder à mon calendrier
-          </Link>
+          <TokenDialog triggerClassName="border-2 border-red-600 text-red-600 dark:text-red-400 px-6 py-2 rounded-full font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all" />
         </nav>
       </div>
     </header>

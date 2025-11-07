@@ -50,7 +50,7 @@ export default function PricingPage() {
                 </li>
               </ul>
             </div>
-            <Link href="/calendars/new?plan=plan_essentiel" className="block w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all text-center">
+            <Link href="/auth?plan=plan_essentiel" className="block w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all text-center">
               Choisir ce plan
             </Link>
           </div>
@@ -99,7 +99,7 @@ export default function PricingPage() {
                 </li>
               </ul>
             </div>
-            <Link href="/calendars/new?plan=plan_premium" className="block w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all text-center">
+            <Link href="/auth?plan=plan_premium" className="block w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all text-center">
               Choisir le Premium
             </Link>
           </div>
