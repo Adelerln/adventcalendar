@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
+import { Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import SiteFooter from "@/components/SiteFooter";
+import SiteBackground from "@/components/SiteBackground";
+
+const displayFont = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500"],
+  variable: "--font-display",
+});
 
 export const metadata: Metadata = {
   title: "Calendrier de l’Avent personnalisable",
@@ -12,8 +21,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="antialiased">{children}</body>
+    <html lang="fr" className={displayFont.className}>
+      <body className="antialiased font-medium">
+        <div className="flex min-h-screen flex-col">
+          <SiteBackground>{children}</SiteBackground>
+          <SiteFooter />
+        </div>
+      </body>
     </html>
   );
 }

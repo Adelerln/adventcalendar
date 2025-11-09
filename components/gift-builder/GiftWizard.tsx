@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import StepRecipient from "./StepRecipient";
@@ -41,7 +41,7 @@ export default function GiftWizard() {
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const goNext = async (fields?: string[]) => {
+  const goNext = async (fields?: FieldPath<GiftDraft> | FieldPath<GiftDraft>[]) => {
     const valid = await methods.trigger(fields);
     if (valid) {
       setStep((s) => Math.min(s + 1, 2));

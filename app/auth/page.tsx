@@ -3,7 +3,7 @@ import Header from "@/components/Header";
 
 const PLAN_COPY = {
   plan_essentiel: {
-    name: "Plan Essentiel",
+    name: "PLAN ESSENTIEL",
     price: "10€",
     color: "text-red-600",
     features: [
@@ -13,7 +13,7 @@ const PLAN_COPY = {
     ]
   },
   plan_premium: {
-    name: "Plan Premium",
+    name: "PLAN PREMIUM",
     price: "15€",
     color: "text-green-400",
     features: [

@@ -18,7 +18,7 @@ export default function PricingPage() {
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border-2 border-red-300">
             <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-2">Plan Essentiel</h2>
+              <h2 className="text-3xl font-bold mb-2">PLAN ESSENTIEL</h2>
               <div className="text-6xl font-bold text-red-600 mb-4">10€</div>
               <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>
@@ -60,7 +60,7 @@ export default function PricingPage() {
               ⭐ POPULAIRE
             </div>
             <div className="text-center mb-8 mt-4">
-              <h2 className="text-3xl font-bold mb-2">Plan Premium</h2>
+              <h2 className="text-3xl font-bold mb-2">PLAN PREMIUM</h2>
               <div className="text-6xl font-bold text-green-600 mb-4">15€</div>
               <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>

@@ -3,16 +3,38 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --christmas-red: #dc2626;
-  --christmas-green: #16a34a;
+  --accent-warm: #ead3c0;
+  --accent-cool: #d3d4d4;
+  --christmas-red: var(--accent-warm);
+  --christmas-green: var(--accent-cool);
   --christmas-gold: #fbbf24;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Futura", "Futura PT", "Trebuchet MS", sans-serif;
+  --font-sans: "Cormorant Garamond", serif;
   --font-mono: "Fira Code", "SFMono-Regular", "Menlo", monospace;
+  --color-red-50: var(--accent-warm);
+  --color-red-100: var(--accent-warm);
+  --color-red-200: var(--accent-warm);
+  --color-red-300: var(--accent-warm);
+  --color-red-400: var(--accent-warm);
+  --color-red-500: var(--accent-warm);
+  --color-red-600: var(--accent-warm);
+  --color-red-700: var(--accent-warm);
+  --color-red-800: var(--accent-warm);
+  --color-red-900: var(--accent-warm);
+  --color-green-50: var(--accent-cool);
+  --color-green-100: var(--accent-cool);
+  --color-green-200: var(--accent-cool);
+  --color-green-300: var(--accent-cool);
+  --color-green-400: var(--accent-cool);
+  --color-green-500: var(--accent-cool);
+  --color-green-600: var(--accent-cool);
+  --color-green-700: var(--accent-cool);
+  --color-green-800: var(--accent-cool);
+  --color-green-900: var(--accent-cool);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +48,40 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+.site-background {
+  background-image: url("/advent_calendar_blur.png");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-background main {
+  background: transparent !important;
+}
+
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 999px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* Animations de Noël */
@@ -149,24 +205,32 @@ body {
 }
 
 /* Scrollbar festif */
-::-webkit-scrollbar {
-  width: 12px;
-}
-
-::-webkit-scrollbar-track {
-  background: linear-gradient(to bottom, #fee2e2, #dcfce7);
-}
-
-::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, var(--christmas-red), var(--christmas-green));
-  border-radius: 6px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #b91c1c, #15803d);
-}
-
 /* Forme de l'enveloppe */
 .clip-envelope {
   clip-path: polygon(0 0, 100% 0, 50% 100%);
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 25s linear infinite;
+}
+
+.animate-marquee-fast {
+  animation: marquee 12.5s linear infinite;
+}
+
+.animate-marquee-faster {
+  animation: marquee 5.6s linear infinite;
+}
+
+.animate-marquee-slow {
+  animation: marquee 11.2s linear infinite;
 }

@@ -10,7 +10,7 @@ type DrawingCanvasProps = {
 export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [color, setColor] = useState("#dc2626"); // red-600
+  const [color, setColor] = useState("#ead3c0");
   const [brushSize, setBrushSize] = useState(3);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
 
@@ -86,8 +86,8 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
   };
 
   const colors = [
-    { name: "Rouge", value: "#dc2626" },
-    { name: "Vert", value: "#16a34a" },
+    { name: "Rouge", value: "#ead3c0" },
+    { name: "Vert", value: "#d3d4d4" },
     { name: "Bleu", value: "#2563eb" },
     { name: "Rose", value: "#db2777" },
     { name: "Violet", value: "#9333ea" },

@@ -75,15 +75,15 @@ export default function NewCalendarPage() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid lg:grid-cols-2 gap-8 items-start">
               {/* Plan Essentiel */}
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border-2 border-red-300 hover:shadow-2xl transition-all">
-                <div className="text-center mb-6">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border-2 border-red-300 hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
+                <div className="text-center mb-6 mt-6 min-h-[150px] flex flex-col justify-center">
                   <h2 className="text-3xl font-bold mb-2">Plan Essentiel</h2>
                   <div className="text-6xl font-bold text-red-600 mb-2">10€</div>
                   <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
                 </div>
-                <div className="mb-6">
+                <div className="mb-6 flex-1">
                   <div className="font-semibold text-lg mb-3 text-gray-800 dark:text-gray-200">
                     24 intentions composées de :
                   </div>
@@ -104,23 +104,20 @@ export default function NewCalendarPage() {
                 </div>
                 <button
                   onClick={() => handlePlanSelection("plan_essentiel")}
-                  className="w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all"
+                  className="mt-auto w-full rounded-full bg-[#d3d4d4] text-[#1f1f1f] px-8 py-4 text-lg font-bold hover:bg-[#c2c3c3] transition-all"
                 >
                   Choisir ce plan
                 </button>
               </div>
 
               {/* Plan Premium */}
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border-4 border-green-500 hover:shadow-2xl transition-all relative">
-                <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold">
-                  ⭐ POPULAIRE
-                </div>
-                <div className="text-center mb-6 mt-4">
+              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border-4 border-green-500 hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
+                <div className="text-center mb-6 mt-6 min-h-[150px] flex flex-col justify-center">
                   <h2 className="text-3xl font-bold mb-2">Plan Premium</h2>
                   <div className="text-6xl font-bold text-green-600 mb-2">15€</div>
                   <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
                 </div>
-                <div className="mb-6">
+                <div className="mb-6 flex-1">
                   <div className="font-semibold text-lg mb-3 text-gray-800 dark:text-gray-200">
                     24 intentions composées de :
                   </div>
@@ -145,7 +142,7 @@ export default function NewCalendarPage() {
                 </div>
                 <button
                   onClick={() => handlePlanSelection("plan_premium")}
-                  className="w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all"
+                  className="mt-auto w-full rounded-full bg-[#d3d4d4] text-[#1f1f1f] px-8 py-4 text-lg font-bold hover:bg-[#c2c3c3] transition-all"
                 >
                   Choisir le Premium
                 </button>

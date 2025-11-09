@@ -1,80 +1,71 @@
-import Link from "next/link";
+"use client";
+
 import Header from "@/components/Header";
-import SnowfallAnimation from "@/components/SnowfallAnimation";
-import TokenDialog from "@/components/TokenDialog";
+
+const steps = [
+  {
+    title: "1 — Choisis le type de calendrier que tu préfères offrir.",
+    description: "Sélectionne l’univers et la présentation qui lui ressemblent.",
+  },
+  {
+    title: "2 — Remplis les 24 cadeaux quotidiens.",
+    description: "Glisse textes, photos ou audios pour chaque intention.",
+  },
+  {
+    title: "3 — La personne receveuse verra son cadeau tous les matins.",
+    description: "Un nouveau souvenir apparaît chaque aube de décembre.",
+  },
+] as const;
 
 export default function MarketingHomePage() {
+
   return (
-    <main className="min-h-screen pt-16">
+    <main className="min-h-screen bg-black text-white flex flex-col">
       <Header />
-      <SnowfallAnimation />
-      <section className="relative overflow-hidden bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950">
-        <div className="absolute inset-0 bg-[url('/snowflakes.svg')] opacity-10 animate-snow"></div>
-        <div className="relative mx-auto max-w-6xl px-6 py-20 text-center">
-          <div className="inline-block mb-4 px-4 py-2 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100 rounded-full text-sm font-semibold">
-            ✨ Noël 2025 approche ! ✨
-          </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-red-600 dark:text-red-500 mb-6">
-            Calendrier de l'Avent<br />Personnalisé
-          </h1>
-          <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-3xl mx-auto">
-            Créez un calendrier magique unique pour vos proches. 24 jours de surprises personnalisées avec photos, messages, dessins et musique.
-          </p>
-          <div className="flex flex-col items-center gap-4 mb-12">
-            <div className="flex flex-col sm:flex-row justify-center gap-4 w-full">
-              <Link href="/pricing" className="rounded-full bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg font-semibold hover:shadow-xl transition-all transform hover:scale-105">
-                Voir les forfaits 🎁
-              </Link>
-              <Link href="/dashboard" className="rounded-full border-2 border-green-600 text-green-600 dark:text-green-400 px-8 py-4 text-lg font-semibold hover:bg-green-50 dark:hover:bg-green-950 transition-all">
-                Découvrir un exemple
-              </Link>
-            </div>
-            <TokenDialog triggerClassName="rounded-full border-2 border-red-600 text-red-600 dark:text-red-400 px-8 py-4 text-lg font-semibold hover:bg-red-50 dark:hover:bg-red-950 transition-all" />
-          </div>
-        </div>
-      </section>
 
-      <section className="py-20 bg-white dark:bg-gray-900">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-4">Comment ça marche ?</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-16 text-lg">
-            Créez votre calendrier personnalisé en 3 étapes simples
-          </p>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center p-6 rounded-2xl bg-red-50 dark:bg-red-950">
-              <div className="text-5xl mb-4">1️⃣</div>
-              <h3 className="text-2xl font-bold mb-3">Choisissez votre plan</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Sélectionnez le forfait qui vous convient
-              </p>
-            </div>
-            <div className="text-center p-6 rounded-2xl bg-green-50 dark:bg-green-950">
-              <div className="text-5xl mb-4">2️⃣</div>
-              <h3 className="text-2xl font-bold mb-3">Personnalisez</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Ajoutez photos, messages, dessins et musiques
-              </p>
-            </div>
-            <div className="text-center p-6 rounded-2xl bg-red-50 dark:bg-red-950">
-              <div className="text-5xl mb-4">3️⃣</div>
-              <h3 className="text-2xl font-bold mb-3">Partagez</h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Envoyez le lien à votre proche
-              </p>
+      {/* Hero */}
+      <section className="relative min-h-screen flex items-stretch overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover"
+          style={{
+            backgroundImage: "url(/advent_calendar.png)",
+            backgroundPosition: "calc(100% + 140px) center",
+            backgroundSize: "110% auto",
+          }}
+        />
+        <div className="relative z-10 flex flex-col w-full gap-10 px-6 lg:px-16 pt-32 pb-16">
+          <div className="w-full lg:w-2/5 max-w-2xl space-y-8 text-white drop-shadow-[0_18px_45px_rgba(0,0,0,0.65)]">
+            <p className="uppercase tracking-[.5em] text-2xl text-white/70">Noël 2025</p>
+            <div className="space-y-4 text-4xl sm:text-6xl lg:text-7xl leading-tight uppercase [text-shadow:0_25px_55px_rgba(0,0,0,0.65)]">
+              <div className="flex flex-wrap gap-x-8 pl-12 sm:pl-24">
+                <span className="tracking-[0.5em] whitespace-nowrap">FAIS</span>
+              </div>
+              <span className="block ml-20 sm:ml-40 tracking-[0.5em] text-4xl sm:text-5xl lg:text-[2.0rem]">
+                ton propre
+              </span>
+              <span className="block ml-10 sm:ml-24 tracking-[0.5em]">CALENDRIER</span>
+              <span className="block ml-16 sm:ml-36 tracking-[0.5em]">DE L'AVENT</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="py-20 bg-red-600 text-white">
-        <div className="mx-auto max-w-4xl px-6 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Prêt à créer la magie de Noël ? 🎄</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Offrez un cadeau unique et inoubliable
-          </p>
-          <Link href="/gift/choose-plan" className="inline-block rounded-full bg-white text-red-600 px-10 py-4 text-xl font-bold hover:shadow-2xl transition-all">
-            Commencer maintenant
-          </Link>
+      {/* Étapes dynamiques */}
+      <section className="bg-[#8F8B88] text-white py-20">
+        <div className="max-w-5xl mx-auto px-6 space-y-12">
+          <div className="text-center space-y-4">
+            <p className="uppercase tracking-[0.4em] text-2xl text-white/60">Processus</p>
+            <h2 className="text-4xl sm:text-5xl">Trois étapes simples</h2>
+          </div>
+
+          <div className="space-y-8 text-center">
+            {steps.map(step => (
+              <div key={step.title} className="transform transition-transform duration-200 ease-in-out hover:scale-105">
+                <p className="text-2xl sm:text-3xl leading-tight">{step.title}</p>
+                <p className="text-base text-white/85">{step.description}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </main>
