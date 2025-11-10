@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --accent-warm: #cd8a4a;
+  --accent-warm: #0f5132;
   --accent-cool: #d3d4d4;
   --christmas-red: var(--accent-warm);
   --christmas-green: var(--accent-cool);

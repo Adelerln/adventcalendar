@@ -18,34 +18,34 @@ export default function PricingPage() {
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
           <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border-2 border-red-300 flex flex-col gap-8">
             <div className="text-center">
-              <h2 className="text-3xl font-bold mb-2">PLAN ESSENTIEL</h2>
-              <div className="text-6xl font-bold text-red-600 mb-4">10€</div>
-              <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
+              <h2 className="text-4xl font-bold mb-3">PLAN ESSENTIEL</h2>
+              <div className="text-7xl font-bold text-red-600 mb-4">10€</div>
+              <p className="text-2xl text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
+              <div className="font-semibold text-xl mb-5 text-gray-800 dark:text-gray-200">
                 24 intentions composées de :
               </div>
               <ul className="space-y-3">
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-red-500">📷</span>
                   <div>
-                    <div className="font-medium">Photos personnalisées</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux souvenirs</p>
+                    <div className="font-medium text-xl">Photos personnalisées</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Vos plus beaux souvenirs</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-red-500">💌</span>
                   <div>
-                    <div className="font-medium">Messages personnalisés</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
+                    <div className="font-medium text-xl">Messages personnalisés</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Messages du cœur</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-red-500">🎨</span>
                   <div>
-                    <div className="font-medium">Dessins créatifs</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Créativité sans limites</p>
+                    <div className="font-medium text-xl">Dessins créatifs</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Créativité sans limites</p>
                   </div>
                 </li>
               </ul>
@@ -60,41 +60,41 @@ export default function PricingPage() {
               ⭐ POPULAIRE
             </div>
             <div className="text-center mt-4">
-              <h2 className="text-3xl font-bold mb-2">PLAN PREMIUM</h2>
-              <div className="text-6xl font-bold text-green-600 mb-4">15€</div>
-              <p className="text-gray-600 dark:text-gray-400">Paiement après création</p>
+              <h2 className="text-4xl font-bold mb-3">PLAN PREMIUM</h2>
+              <div className="text-7xl font-bold text-green-600 mb-4">15€</div>
+              <p className="text-2xl text-gray-600 dark:text-gray-400">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">
+              <div className="font-semibold text-xl mb-5 text-gray-800 dark:text-gray-200">
                 24 intentions composées de :
               </div>
               <ul className="space-y-3">
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-green-500">📷</span>
                   <div>
-                    <div className="font-medium">Photos personnalisées</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Vos plus beaux moments</p>
+                    <div className="font-medium text-xl">Photos personnalisées</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Vos plus beaux moments</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-green-500">💌</span>
                   <div>
-                    <div className="font-medium">Messages personnalisés</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Messages du cœur</p>
+                    <div className="font-medium text-xl">Messages personnalisés</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Messages du cœur</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="text-2xl leading-none text-green-500">🎨</span>
                   <div>
-                    <div className="font-medium">Dessins créatifs</div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Créativité illimitée</p>
+                    <div className="font-medium text-xl">Dessins créatifs</div>
+                    <p className="text-lg text-gray-600 dark:text-gray-400">Créativité illimitée</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-4 rounded-2xl border border-green-100 dark:border-green-900 bg-green-50/80 dark:bg-green-950/40 px-4 py-3">
                   <span className="text-2xl leading-none text-yellow-500">🎵</span>
                   <div>
-                    <div className="font-bold text-black dark:text-white">Musiques personnalisées</div>
-                    <p className="text-sm text-gray-900 dark:text-gray-100">Partagez vos chansons préférées</p>
+                    <div className="font-bold text-lg text-black dark:text-white">Musiques personnalisées</div>
+                    <p className="text-base text-gray-900 dark:text-gray-100">Partagez vos chansons préférées</p>
                   </div>
                 </li>
               </ul>

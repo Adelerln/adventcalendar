@@ -100,8 +100,11 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
           <div className="space-y-6">
             <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 space-y-4">
               <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Receveur</h3>
-              <p className="text-gray-600 dark:text-gray-300">
-                {recipientName} — {relationship}
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                Nom & prénom : <span className="font-bold">{recipientName}</span>
+              </p>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+                Relation : <span className="font-bold">{relationship}</span>
               </p>
               {deliveryDate && (
                 <p className="text-sm text-gray-500 dark:text-gray-400">Ouverture prévue le {deliveryDate}</p>
@@ -121,33 +124,27 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
             </div>
 
             <div className="bg-red-600 text-white rounded-3xl shadow-2xl p-8 space-y-6">
-            <h3 className="text-2xl font-bold">Procéder au paiement</h3>
-            <p className="text-white/80">
-              Le paiement s’effectue sur Stripe. Utilisez le même e-mail que celui fourni à l'étape précédente pour faciliter la correspondance.
-            </p>
-            <a
-              href="https://stripe.com/payments/checkout"
-              target="_blank"
-              rel="noreferrer"
-              className="block w-full text-center rounded-full bg-white text-red-600 font-semibold py-3 hover:shadow-xl transition-all"
-            >
-              Ouvrir Stripe dans un nouvel onglet
-            </a>
-            <div className="bg-white/10 rounded-2xl p-4">
-              <p className="text-sm font-semibold">Une fois le paiement validé</p>
-              <p className="text-sm text-white/80">
-                Revenez ici puis cliquez ci-dessous pour accéder immédiatement à l’éditeur.
+              <h3 className="text-3xl font-extrabold">Procéder au paiement</h3>
+              <p className="text-lg text-white/90 font-semibold">
+                Le paiement s’effectue sur Stripe. Utilisez le même e-mail que celui fourni à l'étape précédente pour faciliter la correspondance.
+              </p>
+              <a
+                href="https://stripe.com/payments/checkout"
+                target="_blank"
+                rel="noreferrer"
+                className="block w-full text-center rounded-full bg-white text-red-600 font-bold py-4 text-lg hover:shadow-xl transition-all"
+              >
+                Ouvrir Stripe dans un nouvel onglet
+              </a>
+              <div className="bg-white/10 rounded-2xl p-4">
+              <p className="text-base font-semibold">Une fois le paiement validé</p>
+              <p className="text-sm text-white/85">
+                Revenez ici pour accéder immédiatement à l’éditeur.
               </p>
             </div>
-            <Link
-              href={editorUrl}
-              className="block w-full text-center rounded-full border-2 border-white text-white font-semibold py-3 hover:bg-white/10 transition-all"
-            >
-              J'ai payé, personnaliser mon calendrier
-            </Link>
-            <p className="text-xs text-white/80 text-center">
-              Besoin d’aide ? Écrivez-nous à <span className="font-semibold">support@avent.com</span>
-            </p>
+              <p className="text-xs text-white/80 text-center">
+                Besoin d’aide ? Écrivez-nous à <span className="font-semibold">support@avent.com</span>
+              </p>
             </div>
           </div>
         </div>

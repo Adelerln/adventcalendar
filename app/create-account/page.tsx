@@ -1,3 +1,7 @@
+    "use client";
+
+import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 
 const PLAN_COPY = {
@@ -23,25 +27,73 @@ const PLAN_COPY = {
   }
 } as const;
 
-type CreateAccountPageProps = {
-  searchParams?: {
-    plan?: keyof typeof PLAN_COPY;
-    next?: string;
-  };
-};
-
-export default function CreateAccountPage({ searchParams }: CreateAccountPageProps) {
-  const planKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
+export default function CreateAccountPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const planParam = searchParams.get("plan");
+  const nextParam = searchParams.get("next");
+  const planKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_COPY[planKey];
-  const nextUrl = searchParams?.next;
-  const personalizationUrl = nextUrl ?? `/calendars/new?plan=${planKey}`;
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(event.currentTarget);
+
+    const fullName = (formData.get("buyer_full_name") || "").toString().trim();
+    const phone = (formData.get("buyer_phone") || "").toString().trim();
+    const email = (formData.get("email") || "").toString().trim();
+    const password = (formData.get("password") || "").toString();
+
+    if (!fullName || !phone || !email || !password) {
+      setError("Merci de remplir tous les champs.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    const payload = {
+      plan: planKey,
+      fullName,
+      phone,
+      email,
+      password,
+    };
+
+    try {
+      const response = await fetch("/api/buyers", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error ?? "Impossible de créer le compte");
+      }
+
+      const result = await response.json();
+      const targetUrl =
+        nextParam ?? `/calendars/new?plan=${result.plan}&buyer=${result.id}`;
+      router.push(targetUrl);
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 pt-24">
       <Header />
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="text-center mb-12">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 text-sm font-semibold">
+          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/90 dark:bg-white/10 text-red-700 dark:text-white text-base font-semibold shadow-sm">
             2️⃣ Créez votre compte
           </span>
           <h1 className="mt-6 text-4xl md:text-5xl font-bold text-red-700 dark:text-red-300">
@@ -53,11 +105,7 @@ export default function CreateAccountPage({ searchParams }: CreateAccountPagePro
         </div>
 
         <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 items-start">
-          <form
-            action={personalizationUrl}
-            method="GET"
-            className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-red-100 dark:border-gray-800 p-8 space-y-6"
-          >
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-red-100 dark:border-gray-800 p-8 space-y-6">
             <input type="hidden" name="plan" value={planKey} />
             {/* Section compte acheteur */}
             <div>
@@ -90,6 +138,7 @@ export default function CreateAccountPage({ searchParams }: CreateAccountPagePro
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="vous@example.com"
                 className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-400"
@@ -102,17 +151,20 @@ export default function CreateAccountPage({ searchParams }: CreateAccountPagePro
               </label>
               <input
                 id="password"
+                name="password"
                 type="password"
                 placeholder="••••••••"
                 className="w-full rounded-2xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-red-400"
                 required
               />
             </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
             <button
               type="submit"
-              className="w-full rounded-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+              disabled={isSubmitting}
+              className="w-full rounded-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Créer mon compte
+              {isSubmitting ? "Création en cours..." : "Créer mon compte"}
             </button>
             <p className="text-center text-xs uppercase tracking-wide text-gray-400">
               Étape suivante : personnalisation du calendrier
