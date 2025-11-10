@@ -17,6 +17,12 @@ const PLAN_INFO = {
 type CheckoutPageProps = {
   searchParams?: {
     plan?: keyof typeof PLAN_INFO;
+    recipient_name?: string;
+    recipient_email?: string;
+    relationship?: string;
+    delivery_date?: string;
+    notes?: string;
+    filled?: string;
   };
 };
 
@@ -24,6 +30,12 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const planKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_INFO[planKey];
   const editorUrl = `/calendars/new?plan=${planKey}&paid=1`;
+  const recipientName = searchParams?.recipient_name || "Votre proche";
+  const relationship = searchParams?.relationship || "Proche";
+  const deliveryDate = searchParams?.delivery_date ? new Date(searchParams.delivery_date).toLocaleDateString("fr-FR") : null;
+  const recipientEmail = searchParams?.recipient_email;
+  const notes = searchParams?.notes;
+  const filled = searchParams?.filled;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50 dark:from-gray-900 dark:via-gray-950 dark:to-green-900 pt-24">
@@ -55,27 +67,23 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">1️⃣</span>
-                <div>
-                  <p className="font-semibold">Connexion confirmée</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Vous arrivez sur cette page après authentification.</p>
+              {[
+                "Forfait choisi",
+                "Compte créé",
+                "Calendrier personnalisé",
+                "Infos receveur validées",
+                "Paiement Stripe"
+              ].map((label, index) => (
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-2xl">{index + 1}️⃣</span>
+                  <div>
+                    <p className="font-semibold">{label}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {index < 4 ? "Terminé ✅" : "Étape actuelle"}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">2️⃣</span>
-                <div>
-                  <p className="font-semibold">Paiement Stripe</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Finalisez votre achat sécurisé sur Stripe.</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">3️⃣</span>
-                <div>
-                  <p className="font-semibold">Éditeur du calendrier</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Accédez automatiquement à l'espace de personnalisation.</p>
-                </div>
-              </div>
+              ))}
             </div>
 
             <div className="rounded-2xl border border-dashed border-gray-200 dark:border-gray-700 p-6">
@@ -89,7 +97,30 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
             </div>
           </div>
 
-          <div className="bg-red-600 text-white rounded-3xl shadow-2xl p-8 space-y-6">
+          <div className="space-y-6">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8 space-y-4">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Receveur</h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                {recipientName} — {relationship}
+              </p>
+              {deliveryDate && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Ouverture prévue le {deliveryDate}</p>
+              )}
+              {recipientEmail && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Email : {recipientEmail}</p>
+              )}
+              {notes && (
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">Notes</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">{notes}</p>
+                </div>
+              )}
+              {filled && (
+                <p className="text-sm text-gray-500 dark:text-gray-400">{filled}/24 cases remplies.</p>
+              )}
+            </div>
+
+            <div className="bg-red-600 text-white rounded-3xl shadow-2xl p-8 space-y-6">
             <h3 className="text-2xl font-bold">Procéder au paiement</h3>
             <p className="text-white/80">
               Le paiement s’effectue sur Stripe. Utilisez le même e-mail que celui fourni à l'étape précédente pour faciliter la correspondance.
@@ -117,6 +148,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
             <p className="text-xs text-white/80 text-center">
               Besoin d’aide ? Écrivez-nous à <span className="font-semibold">support@avent.com</span>
             </p>
+            </div>
           </div>
         </div>
       </section>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 
 const PLAN_COPY = {
@@ -24,18 +23,18 @@ const PLAN_COPY = {
   }
 } as const;
 
-type AuthPageProps = {
+type CreateAccountPageProps = {
   searchParams?: {
     plan?: keyof typeof PLAN_COPY;
     next?: string;
   };
 };
 
-export default function AuthPage({ searchParams }: AuthPageProps) {
+export default function CreateAccountPage({ searchParams }: CreateAccountPageProps) {
   const planKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_COPY[planKey];
   const nextUrl = searchParams?.next;
-  const checkoutUrl = nextUrl ?? `/checkout?plan=${planKey}`;
+  const personalizationUrl = nextUrl ?? `/calendars/new?plan=${planKey}`;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 pt-24">
@@ -43,19 +42,19 @@ export default function AuthPage({ searchParams }: AuthPageProps) {
       <section className="mx-auto max-w-6xl px-6 py-16">
         <div className="text-center mb-12">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-100 text-sm font-semibold">
-            🔐 Espace sécurisé
+            2️⃣ Créez votre compte
           </span>
           <h1 className="mt-6 text-4xl md:text-5xl font-bold text-red-700 dark:text-red-300">
             Créez votre compte pour accéder à votre calendrier
           </h1>
           <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Créez votre calendrier personnalisé.
+            Après avoir choisi votre forfait, confirmez votre profil utilisateur pour passer à la personnalisation.
           </p>
         </div>
 
         <div className="mx-auto grid max-w-5xl gap-10 md:grid-cols-2 items-start">
           <form
-            action={checkoutUrl}
+            action={personalizationUrl}
             method="GET"
             className="bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-red-100 dark:border-gray-800 p-8 space-y-6"
           >
@@ -109,24 +108,14 @@ export default function AuthPage({ searchParams }: AuthPageProps) {
                 required
               />
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <label className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                <input type="checkbox" className="rounded border-gray-300 text-red-600 focus:ring-red-500" />
-                Se souvenir de moi
-              </label>
-              <Link href="#" className="font-semibold text-red-600 hover:text-red-700 dark:text-red-300">
-                Mot de passe oublié ?
-              </Link>
-            </div>
-
             <button
               type="submit"
               className="w-full rounded-full bg-red-600 hover:bg-red-700 text-white py-3 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             >
-              Continuer vers Stripe
+              Créer mon compte
             </button>
             <p className="text-center text-xs uppercase tracking-wide text-gray-400">
-              Vous serez redirigé(e) vers une page de paiement Stripe sécurisée
+              Étape suivante : personnalisation du calendrier
             </p>
           </form>
 
@@ -138,7 +127,7 @@ export default function AuthPage({ searchParams }: AuthPageProps) {
             <h2 className="text-3xl font-bold">{plan.name}</h2>
             <div className="text-6xl font-black">{plan.price}</div>
             <p className="text-white/80">
-              Vous êtes à une étape du paiement Stripe avant la personnalisation de votre calendrier.
+              Votre compte vous permet de sauvegarder vos créations et de revenir à tout moment sur votre calendrier.
             </p>
             <ul className="space-y-3 text-white/90">
               {plan.features.map((feature) => (
@@ -149,8 +138,10 @@ export default function AuthPage({ searchParams }: AuthPageProps) {
               ))}
             </ul>
             <div className="rounded-2xl bg-white/15 px-6 py-4">
-              <p className="text-sm uppercase tracking-wide text-white/75">Étape suivante</p>
-              <p className="text-lg font-semibold">Stripe → Paiement confirmé → Éditeur du calendrier</p>
+              <p className="text-sm uppercase tracking-wide text-white/75">Parcours</p>
+              <p className="text-lg font-semibold">
+                1. Choisir le forfait → 2. Créer un compte → 3. Personnaliser → 4. Infos receveur → 5. Paiement Stripe
+              </p>
             </div>
           </div>
         </div>

@@ -22,13 +22,13 @@ export default function Header() {
           Advent Calendar
         </Link>
         <nav className="flex items-center gap-10 ml-auto text-2xl">
-          <Link href="/pricing" className="transition-colors text-black hover:text-[#ead3c0]">
+          <Link href="/pricing" className="transition-colors text-black hover:text-[#cd8a4a]">
             Tarifs
           </Link>
-          <Link href="/faq" className="transition-colors text-black hover:text-[#ead3c0]">
+          <Link href="/faq" className="transition-colors text-black hover:text-[#cd8a4a]">
             FAQ
           </Link>
-          <Link href="/dashboard" className="transition-colors text-black hover:text-[#ead3c0]">
+          <Link href="/dashboard" className="transition-colors text-black hover:text-[#cd8a4a]">
             Exemple
           </Link>
         </nav>

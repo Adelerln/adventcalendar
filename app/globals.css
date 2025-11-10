@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --accent-warm: #ead3c0;
+  --accent-warm: #cd8a4a;
   --accent-cool: #d3d4d4;
   --christmas-red: var(--accent-warm);
   --christmas-green: var(--accent-cool);
@@ -13,8 +13,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Cormorant Garamond", serif;
-  --font-mono: "Fira Code", "SFMono-Regular", "Menlo", monospace;
+  --font-sans: "Bodoni Moda", "Bodoni 72", "ITC Bodoni", "Bodoni", "Didot", "Georgia", serif;
+  --font-mono: "Bodoni Moda", "Bodoni 72", "ITC Bodoni", "Bodoni", "Didot", "Georgia", serif;
   --color-red-50: var(--accent-warm);
   --color-red-100: var(--accent-warm);
   --color-red-200: var(--accent-warm);

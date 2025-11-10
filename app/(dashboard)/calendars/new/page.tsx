@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import EmptyEnvelope from "@/components/EmptyEnvelope";
 import EnvelopeEditor from "@/components/EnvelopeEditor";
@@ -18,6 +19,7 @@ export default function NewCalendarPage() {
   const [selectedPlan, setSelectedPlan] = useState<Plan>(null);
   const [calendarData, setCalendarData] = useState<Record<number, DayContent>>({});
   const [editingDay, setEditingDay] = useState<number | null>(null);
+  const router = useRouter();
 
   // Détecter si un plan est passé dans l'URL
   useEffect(() => {
@@ -41,7 +43,12 @@ export default function NewCalendarPage() {
     }));
   };
 
-  const handleFinish = () => {
+  const handleContinue = () => {
+    if (!selectedPlan) {
+      setStep("plan");
+      return;
+    }
+
     const filledDays = Object.keys(calendarData).length;
     if (filledDays < 24) {
       const confirm = window.confirm(
@@ -50,9 +57,12 @@ export default function NewCalendarPage() {
       if (!confirm) return;
     }
 
-    // Rediriger vers le paiement avec les données du calendrier
-    alert(`Calendrier prêt ! Plan: ${selectedPlan}\nJours remplis: ${filledDays}/24\n\nRedirection vers le paiement...`);
-    // TODO: Sauvegarder les données et rediriger vers Stripe
+    const params = new URLSearchParams({
+      plan: selectedPlan,
+      filled: filledDays.toString()
+    });
+
+    router.push(`/recipient?${params.toString()}`);
   };
 
   const allowMusic = selectedPlan === "plan_premium";
@@ -210,17 +220,17 @@ export default function NewCalendarPage() {
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     {filledCount === 24 
                       ? "✨ Votre calendrier est complet !" 
-                      : `Il reste ${24 - filledCount} jour(s) à remplir`}
+                      : `Encore ${24 - filledCount} jour(s) avant de passer à l'étape suivante`}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-500">
-                    Vous pourrez payer une fois votre calendrier terminé
+                    Étape suivante : renseigner les informations du receveur
                   </p>
                 </div>
                 <button
-                  onClick={handleFinish}
+                  onClick={handleContinue}
                   className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl transition-all disabled:opacity-50"
                 >
-                  Terminer et payer
+                  Continuer vers les infos du receveur
                 </button>
               </div>
             </div>

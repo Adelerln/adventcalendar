@@ -9,7 +9,7 @@ const mockCalendarData = [
   { day: 2, type: "message" as const, content: "Je pense à toi chaque jour... Tu illumines ma vie comme les guirlandes illuminent le sapin ! 🎄✨" },
   { day: 3, type: "photo" as const, content: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400", title: "Ce moment magique" },
   { day: 4, type: "message" as const, content: "4 jours de décembre... 4 raisons de sourire. Tu es ma plus belle raison ! 💖" },
-  { day: 5, type: "drawing" as const, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23fff' width='200' height='200'/%3E%3Ctext x='100' y='100' text-anchor='middle' fill='%23e63946' font-size='60' font-family='Arial'%3E❤️%3C/text%3E%3C/svg%3E" },
+  { day: 5, type: "drawing" as const, content: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23fff' width='200' height='200'/%3E%3Ctext x='100' y='100' text-anchor='middle' fill='%23e63946' font-size='60' font-family='Bodoni Moda'%3E❤️%3C/text%3E%3C/svg%3E" },
   { day: 6, type: "photo" as const, content: "https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=400", title: "Souvenirs de neige ❄️" },
   { day: 7, type: "message" as const, content: "Une semaine déjà ! Chaque jour avec toi est un cadeau 🎁" },
   { day: 8, type: "photo" as const, content: "https://images.unsplash.com/photo-1544273677-95fb17c8ca3b?w=400", title: "Les lumières de la ville" },
@@ -75,4 +75,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
