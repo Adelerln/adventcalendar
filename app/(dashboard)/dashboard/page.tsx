@@ -35,37 +35,37 @@ export default function DashboardPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 py-12 pt-24">
-        <div className="mx-auto max-w-7xl">
+      <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 pt-20 pb-12 text-black">
+        <div className="mx-auto max-w-7xl py-16">
           {/* En-tête */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl font-bold mb-4 text-red-600 dark:text-red-500">
+            <h1 className="text-5xl font-bold mb-4 text-black">
               Calendrier de l'Avent Exemple
             </h1>
-            <p className="text-xl text-gray-700 dark:text-gray-300 mb-2">
+            <p className="text-xl text-black mb-2">
               Cliquez sur les enveloppes pour découvrir les surprises ! 🎁
             </p>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
+            <p className="text-sm text-black">
               Voici à quoi ressemblera votre calendrier personnalisé
             </p>
           </div>
 
           {/* Grille d'enveloppes - 24 jours */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-12">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-12 justify-items-center">
             {mockCalendarData.map((data) => (
               <Envelope key={data.day} day={data.day} content={data} />
             ))}
           </div>
 
           {/* Call to action */}
-          <div className="bg-red-600 rounded-3xl p-8 text-center text-white shadow-2xl">
-            <h2 className="text-3xl font-bold mb-4">Prêt à créer le vôtre ? 🎄</h2>
-            <p className="text-lg mb-6 opacity-90">
+          <div className="text-center text-black space-y-4 mt-16">
+            <h2 className="text-3xl font-bold">Prêt à créer le vôtre ? 🎄</h2>
+            <p className="text-lg">
               Personnalisez chaque jour avec vos propres photos, messages, dessins et musiques
             </p>
             <a 
               href="/pricing" 
-              className="inline-block px-8 py-4 bg-white text-red-600 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all"
+              className="inline-block px-8 py-4 border-2 border-white text-black rounded-full font-bold text-lg transition-all hover:bg-white"
             >
               Choisir mon forfait
             </a>

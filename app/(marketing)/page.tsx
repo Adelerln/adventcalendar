@@ -44,7 +44,12 @@ export default function MarketingHomePage() {
                 ton propre
               </span>
               <span className="block ml-10 sm:ml-24 tracking-[0.5em]">CALENDRIER</span>
-              <span className="block ml-16 sm:ml-36 tracking-[0.5em]">DE L'AVENT</span>
+              <div className="ml-16 sm:ml-36 space-y-2">
+                <span className="block tracking-[0.5em] text-4xl sm:text-5xl lg:text-[2.0rem]">
+                  DE
+                </span>
+                <span className="block tracking-[0.5em]">L'AVENT</span>
+              </div>
             </div>
           </div>
         </div>

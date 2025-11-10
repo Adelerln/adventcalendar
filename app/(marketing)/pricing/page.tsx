@@ -1,107 +1,94 @@
 import Link from "next/link";
 import Header from "@/components/Header";
 
+const featureItems = [
+  "Photos personnalisées",
+  "Messages personnalisés",
+  "Dessins créatifs",
+  "Musique",
+  "Vidéos en IA",
+  "Petits jeux vidéos",
+  "Prix à gagner $",
+];
+
 export default function PricingPage() {
+  const essentialIncluded = new Set(featureItems.slice(0, 4));
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 py-16 pt-24">
+    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 pt-20 pb-16 text-black">
       <Header />
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-6xl py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6 text-red-600 dark:text-red-500">
-            Choisissez votre forfait
-          </h1>
-          <p className="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold mb-6">Choisissez votre forfait</h1>
+          <p className="text-xl text-gray-700 max-w-3xl mx-auto">
             Créez un calendrier de l'avent personnalisé
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 border-2 border-red-300 flex flex-col gap-8">
-            <div className="text-center">
-              <h2 className="text-4xl font-bold mb-3">PLAN ESSENTIEL</h2>
-              <div className="text-7xl font-bold text-red-600 mb-4">10€</div>
-              <p className="text-2xl text-gray-600 dark:text-gray-400">Paiement après création</p>
+          <div className="rounded-3xl border-2 border-gray-300 p-8 transition-colors bg-transparent hover:bg-white/90 flex flex-col">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold mb-2">PLAN ESSENTIEL</h2>
+              <div className="text-6xl font-bold text-gray-400 mb-4">10€</div>
+              <p className="text-gray-700">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-xl mb-5 text-gray-800 dark:text-gray-200">
-                24 intentions composées de :
-              </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-red-500">📷</span>
-                  <div>
-                    <div className="font-medium text-xl">Photos personnalisées</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Vos plus beaux souvenirs</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-red-500">💌</span>
-                  <div>
-                    <div className="font-medium text-xl">Messages personnalisés</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Messages du cœur</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-red-500">🎨</span>
-                  <div>
-                    <div className="font-medium text-xl">Dessins créatifs</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Créativité sans limites</p>
-                  </div>
-                </li>
+              <div className="font-semibold text-lg mb-4">24 intentions composées de :</div>
+              <ul className="space-y-3 ml-2">
+                {featureItems.map((feature) => {
+                  const included = essentialIncluded.has(feature);
+                  const iconClass = included ? "text-[#06B800]" : "text-[#ED0200]";
+                  return (
+                    <li key={feature} className="flex items-center gap-3 text-lg">
+                      <span className={`text-xl font-semibold ${iconClass}`}>
+                        {included ? "✔" : "✘"}
+                      </span>
+                      <span className="font-medium">{feature}</span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
-            <Link href="/create-account?plan=plan_essentiel" className="mt-auto block w-full rounded-full bg-red-600 text-white px-8 py-4 text-lg font-bold hover:shadow-xl transition-all text-center">
-              Choisir ce plan
-            </Link>
+            <div className="mt-10">
+              <Link
+                href="/create-account?plan=plan_essentiel"
+                className="block w-full rounded-full border-2 border-gray-500 bg-[rgba(209,213,220,0.2)] text-black px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white"
+              >
+                Choisir ce plan
+              </Link>
+            </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border-4 border-green-500 relative flex flex-col gap-8">
-            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-2 rounded-full text-sm font-bold">
-              ⭐ POPULAIRE
-            </div>
-            <div className="text-center mt-4">
-              <h2 className="text-4xl font-bold mb-3">PLAN PREMIUM</h2>
-              <div className="text-7xl font-bold text-green-600 mb-4">15€</div>
-              <p className="text-2xl text-gray-600 dark:text-gray-400">Paiement après création</p>
+          <div className="rounded-3xl border-4 border-[#ead3c0] p-8 transition-colors bg-transparent hover:bg-white/90 flex flex-col">
+            <div className="text-center mb-6">
+              <h2 className="text-3xl font-bold mb-2">PLAN PREMIUM</h2>
+              <div className="text-6xl font-bold text-[#ead3c0] mb-4">20€</div>
+              <p className="text-gray-700">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-xl mb-5 text-gray-800 dark:text-gray-200">
-                24 intentions composées de :
-              </div>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-green-500">📷</span>
-                  <div>
-                    <div className="font-medium text-xl">Photos personnalisées</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Vos plus beaux moments</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-green-500">💌</span>
-                  <div>
-                    <div className="font-medium text-xl">Messages personnalisés</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Messages du cœur</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-4">
-                  <span className="text-2xl leading-none text-green-500">🎨</span>
-                  <div>
-                    <div className="font-medium text-xl">Dessins créatifs</div>
-                    <p className="text-lg text-gray-600 dark:text-gray-400">Créativité illimitée</p>
-                  </div>
-                </li>
-                <li className="flex items-start gap-4 rounded-2xl border border-green-100 dark:border-green-900 bg-green-50/80 dark:bg-green-950/40 px-4 py-3">
-                  <span className="text-2xl leading-none text-yellow-500">🎵</span>
-                  <div>
-                    <div className="font-bold text-lg text-black dark:text-white">Musiques personnalisées</div>
-                    <p className="text-base text-gray-900 dark:text-gray-100">Partagez vos chansons préférées</p>
-                  </div>
-                </li>
+              <div className="font-semibold text-lg mb-4">24 intentions composées de :</div>
+              <ul className="space-y-3 ml-2">
+                {featureItems.map((feature) => (
+                  <li key={feature} className="flex items-center gap-3 text-lg">
+                    <span className="text-xl font-semibold text-[#06B800]">✔</span>
+                    <span className="font-medium">{feature}</span>
+                  </li>
+                ))}
               </ul>
             </div>
-            <Link href="/create-account?plan=plan_premium" className="mt-auto block w-full rounded-full bg-green-600 text-white px-8 py-4 text-lg font-bold hover:shadow-2xl transition-all text-center">
-              Choisir le Premium
-            </Link>
+            <div className="mt-10 relative">
+              <div className="absolute -top-4 right-6">
+                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#ead3c0] text-black text-sm font-bold shadow">
+                  ⭐ POPULAIRE
+                </span>
+              </div>
+              <Link
+                href="/create-account?plan=plan_premium"
+                className="block w-full rounded-full border-2 border-[#ead3c0] bg-[rgba(233,211,191,0.2)] text-black px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white"
+              >
+                Choisir le Premium
+              </Link>
+            </div>
           </div>
         </div>
 

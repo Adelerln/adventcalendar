@@ -14,7 +14,7 @@ export default function SiteFooter() {
           ))}
         </div>
       </div>
-      <div className="max-w-6xl mx-auto px-6 mt-6 flex items-center gap-2 text-sm sm:text-base">
+      <div className="max-w-6xl mx-auto px-6 mt-6 flex items-center justify-center gap-2 text-center text-sm sm:text-base">
         <span role="img" aria-label="email">
           ✉️
         </span>
