@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
+import { resolveServerPlanKey } from "@/lib/server-plan";
 
 const PLAN_DETAILS = {
   plan_essentiel: { name: "Plan Essentiel", price: "10€" },
@@ -16,7 +17,7 @@ type RecipientPageProps = {
 };
 
 export default function RecipientPage({ searchParams }: RecipientPageProps) {
-  const planKey: PlanKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
+  const planKey: PlanKey = resolveServerPlanKey(searchParams?.plan);
   const plan = PLAN_DETAILS[planKey];
   const theme = PLAN_APPEARANCE[planKey];
   const filled = Number(searchParams?.filled ?? "0");

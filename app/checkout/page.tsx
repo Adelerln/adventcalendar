@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
+import { resolveServerPlanKey } from "@/lib/server-plan";
 
 const PLAN_INFO = {
   plan_essentiel: {
@@ -27,7 +28,7 @@ type CheckoutPageProps = {
 };
 
 export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
-  const planKey: PlanKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
+  const planKey: PlanKey = resolveServerPlanKey(searchParams?.plan);
   const plan = PLAN_INFO[planKey];
   const theme = PLAN_APPEARANCE[planKey];
   const recipientName = searchParams?.recipient_name || "Votre proche";
