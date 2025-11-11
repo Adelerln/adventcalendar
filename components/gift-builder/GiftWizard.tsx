@@ -79,9 +79,12 @@ export default function GiftWizard() {
       if (!finalizeRes.ok) throw new Error("Impossible de finaliser le cadeau");
       const finalizeData = await finalizeRes.json();
       const shareUrl = finalizeData.shareUrl as string;
-      router.push(`/gift/${checkoutData.giftId}/share?shareUrl=${encodeURIComponent(shareUrl)}&token=${finalizeData.token}`);
-    } catch (err: any) {
-      setError(err.message ?? "Une erreur est survenue");
+      router.push(
+        `/gift/${checkoutData.giftId}/share?shareUrl=${encodeURIComponent(shareUrl)}&token=${finalizeData.token}`
+      );
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Une erreur est survenue";
+      setError(message);
       setStatus(null);
     } finally {
       setLoading(false);

@@ -12,7 +12,7 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState("#0f5132");
   const [brushSize, setBrushSize] = useState(3);
-  const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,7 +21,7 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    setCtx(context);
+    ctxRef.current = context;
 
     // Set canvas size
     canvas.width = 600;
@@ -46,6 +46,7 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
   }, [initialDrawing]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const ctx = ctxRef.current;
     if (!ctx) return;
     setIsDrawing(true);
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -56,6 +57,7 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const ctx = ctxRef.current;
     if (!isDrawing || !ctx) return;
     
     const rect = canvasRef.current?.getBoundingClientRect();
@@ -68,12 +70,14 @@ export default function DrawingCanvas({ onSave, initialDrawing }: DrawingCanvasP
   };
 
   const stopDrawing = () => {
+    const ctx = ctxRef.current;
     if (!ctx) return;
     setIsDrawing(false);
     ctx.closePath();
   };
 
   const clearCanvas = () => {
+    const ctx = ctxRef.current;
     if (!ctx || !canvasRef.current) return;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvasRef.current.width, canvasRef.current.height);

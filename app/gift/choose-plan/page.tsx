@@ -26,7 +26,7 @@ export default function ChoosePlanPage() {
         <div className="text-center space-y-3">
           <p className="text-sm uppercase tracking-[0.4em] text-red-500 font-semibold">Étape 1/5</p>
           <h1 className="text-4xl font-bold text-gray-900">Choisissez votre forfait</h1>
-          <p className="text-gray-600">Commencez par sélectionner l'offre qui correspond à votre calendrier personnalisé.</p>
+          <p className="text-gray-600">Commencez par sélectionner l&rsquo;offre qui correspond à votre calendrier personnalisé.</p>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">

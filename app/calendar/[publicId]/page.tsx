@@ -1,15 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
 import CalendarGrid from "@/components/CalendarGrid";
 import DayModal from "@/components/DayModal";
 import Header from "@/components/Header";
 
 type Props = { params: { publicId: string } };
+type DemoDay = {
+  day: number;
+  photo: string | null;
+  message: string | null;
+  drawing: string | null;
+  music: string | null;
+  musicTitle: string | null;
+};
+
+type DisplayDay = DemoDay & {
+  isUnlocked: boolean;
+  isToday: boolean;
+};
 
 // Données de démonstration
-const mockDayData = [
+const mockDayData: DemoDay[] = [
   {
     day: 1,
     photo: "https://images.unsplash.com/photo-1512389142860-9c449e58a543?w=400",
@@ -31,6 +44,7 @@ const mockDayData = [
 
 export default function PublicCalendarPage({ params }: Props) {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const decorativeSnowflakes = useMemo(() => createSnowflakes(20), []);
   
   const todayParis = new Date();
   const yyyyMMdd = formatInTimeZone(todayParis, "Europe/Paris", "yyyy-MM-dd");
@@ -45,17 +59,19 @@ export default function PublicCalendarPage({ params }: Props) {
   const isAfterEnd = new Date(yyyyMMdd) > endDate;
 
   // Générer les 24 jours
-  const days = Array.from({ length: 24 }).map((_, i) => {
+  const days: DisplayDay[] = Array.from({ length: 24 }).map((_, i) => {
     const day = i + 1;
     const isUnlocked = day < currentDay;
     const isToday = day === currentDay;
+    const data = mockDayData.find((d) => d.day === day);
     
     return {
       day,
-      photo: mockDayData.find(d => d.day === day)?.photo,
-      message: mockDayData.find(d => d.day === day)?.message,
-      drawing: mockDayData.find(d => d.day === day)?.drawing,
-      music: mockDayData.find(d => d.day === day)?.music,
+      photo: data?.photo ?? null,
+      message: data?.message ?? null,
+      drawing: data?.drawing ?? null,
+      music: data?.music ?? null,
+      musicTitle: data?.musicTitle ?? null,
       isUnlocked,
       isToday
     };
@@ -68,7 +84,7 @@ export default function PublicCalendarPage({ params }: Props) {
     }
   };
 
-  const selectedDayContent = selectedDay ? (days.find(d => d.day === selectedDay) as any) : null;
+  const selectedDayContent = selectedDay ? days.find((d) => d.day === selectedDay) ?? null : null;
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-red-600 via-green-600 to-red-600 relative overflow-hidden pt-20">
@@ -80,15 +96,15 @@ export default function PublicCalendarPage({ params }: Props) {
 
       {/* Flocons de neige animés */}
       <div className="snowflakes absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {decorativeSnowflakes.map((flake) => (
           <div
-            key={i}
+            key={flake.id}
             className="snowflake absolute text-white opacity-70"
             style={{
-              left: `${Math.random() * 100}%`,
-              animationDuration: `${Math.random() * 3 + 2}s`,
-              animationDelay: `${Math.random() * 2}s`,
-              fontSize: `${Math.random() * 10 + 10}px`
+              left: `${flake.left}%`,
+              animationDuration: `${flake.duration}s`,
+              animationDelay: `${flake.delay}s`,
+              fontSize: `${flake.fontSize}px`
             }}
           >
             ❄
@@ -106,7 +122,7 @@ export default function PublicCalendarPage({ params }: Props) {
               <span>ID: {params.publicId}</span>
             </div>
             <h1 className="text-5xl md:text-7xl font-black text-white mb-4 drop-shadow-2xl">
-              🎄 Calendrier de l'Avent 🎁
+              🎄 Calendrier de l&rsquo;Avent 🎁
             </h1>
             <p className="text-xl md:text-2xl text-white/90 font-semibold drop-shadow-lg">
               Un cadeau personnalisé créé rien que pour toi
@@ -121,7 +137,7 @@ export default function PublicCalendarPage({ params }: Props) {
               <div className="text-8xl mb-6">🎅</div>
               <h2 className="text-4xl font-bold mb-4">La magie commence bientôt !</h2>
               <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-                Reviens le <span className="font-bold text-red-600">1er décembre 2025</span> pour ouvrir la première case de ton calendrier de l'Avent personnalisé.
+                Reviens le <span className="font-bold text-red-600">1er décembre 2025</span> pour ouvrir la première case de ton calendrier de l&rsquo;Avent personnalisé.
               </p>
               <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-green-500 text-white rounded-full font-bold">
                 <span>⏰</span>
@@ -175,7 +191,7 @@ export default function PublicCalendarPage({ params }: Props) {
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-yellow-400 to-yellow-500 flex items-center justify-center">
                       🎁
                     </div>
-                    <span>Aujourd'hui</span>
+                    <span>Aujourd&rsquo;hui</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center text-white">
@@ -212,9 +228,35 @@ export default function PublicCalendarPage({ params }: Props) {
         {/* Footer */}
         <footer className="relative z-10 py-8 text-center text-white/80 text-sm">
           <p>Fait avec ❤️ pour toi</p>
-          <p className="mt-2">Calendrier de l'Avent personnalisé</p>
+          <p className="mt-2">Calendrier de l&rsquo;Avent personnalisé</p>
         </footer>
       </div>
     </main>
   );
+}
+
+type DecorativeSnowflake = {
+  id: number;
+  left: number;
+  duration: number;
+  delay: number;
+  fontSize: number;
+};
+
+function createSnowflakes(count: number): DecorativeSnowflake[] {
+  return Array.from({ length: count }, (_, index) => {
+    const base = index + 1;
+    return {
+      id: index,
+      left: pseudoRandom(base) * 100,
+      duration: pseudoRandom(base * 1.5) * 3 + 2,
+      delay: pseudoRandom(base * 2) * 2,
+      fontSize: pseudoRandom(base * 2.5) * 10 + 10
+    };
+  });
+}
+
+function pseudoRandom(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
 }

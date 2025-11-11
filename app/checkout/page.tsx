@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Header from "@/components/Header";
 
 const PLAN_INFO = {
@@ -29,7 +28,6 @@ type CheckoutPageProps = {
 export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
   const planKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_INFO[planKey];
-  const editorUrl = `/calendars/new?plan=${planKey}&paid=1`;
   const recipientName = searchParams?.recipient_name || "Votre proche";
   const relationship = searchParams?.relationship || "Proche";
   const deliveryDate = searchParams?.delivery_date ? new Date(searchParams.delivery_date).toLocaleDateString("fr-FR") : null;
@@ -60,7 +58,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between mt-4">
                 <div>
                   <h2 className="text-3xl font-bold">{plan.name}</h2>
-                  <p className="text-white/80">Calendrier de l'Avent personnalisé</p>
+                  <p className="text-white/80">Calendrier de l&rsquo;Avent personnalisé</p>
                 </div>
                 <div className="text-4xl font-black mt-4 md:mt-0">{plan.price}</div>
               </div>
@@ -126,7 +124,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
             <div className="bg-red-600 text-white rounded-3xl shadow-2xl p-8 space-y-6">
               <h3 className="text-3xl font-extrabold">Procéder au paiement</h3>
               <p className="text-lg text-white/90 font-semibold">
-                Le paiement s’effectue sur Stripe. Utilisez le même e-mail que celui fourni à l'étape précédente pour faciliter la correspondance.
+                Le paiement s’effectue sur Stripe. Utilisez le même e-mail que celui fourni à l&rsquo;étape précédente pour faciliter la correspondance.
               </p>
               <a
                 href="https://stripe.com/payments/checkout"

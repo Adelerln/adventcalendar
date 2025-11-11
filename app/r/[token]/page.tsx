@@ -10,7 +10,7 @@ export default function RecipientPlaceholder({ params }: Props) {
         <h1 className="text-3xl font-bold text-gray-900">Encore un peu de patience 🎁</h1>
         <p className="text-gray-600">
           Ce placeholder confirme la réception du token <span className="font-mono text-gray-900">{params.token}</span>.
-          L'expérience finale (authentification + calendrier) sera branchée ici.
+          L&rsquo;expérience finale (authentification + calendrier) sera branchée ici.
         </p>
       </div>
     </main>

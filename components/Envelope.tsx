@@ -106,7 +106,7 @@ export default function Envelope({ day, content }: Props) {
                   {content.title || "Musique du jour"}
                 </p>
                 <audio controls className="w-full max-w-[200px]" src={content.content}>
-                  Votre navigateur ne supporte pas l'audio.
+                  Votre navigateur ne supporte pas l&rsquo;audio.
                 </audio>
               </div>
             )}

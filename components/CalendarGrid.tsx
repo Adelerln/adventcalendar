@@ -40,8 +40,9 @@ export default function CalendarGrid({ days, onDayClick }: CalendarGridProps) {
       const data = await response.json();
       setRecipientDays(data.days || []);
       setError(null);
-    } catch (err: any) {
-      setError(err.message ?? "Erreur");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Erreur";
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -139,7 +140,7 @@ export default function CalendarGrid({ days, onDayClick }: CalendarGridProps) {
                 </div>
 
                 <span className="text-sm font-semibold text-gray-600">
-                  {isUnlocked ? "Ouvert" : isToday ? "Aujourd'hui" : "Bientôt"}
+                  {isUnlocked ? "Ouvert" : isToday ? "Aujourd&rsquo;hui" : "Bientôt"}
                 </span>
               </div>
 

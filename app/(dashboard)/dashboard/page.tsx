@@ -40,7 +40,7 @@ export default function DashboardPage() {
           {/* En-tête */}
           <div className="text-center mb-12">
             <h1 className="text-5xl font-bold mb-4 text-black">
-              Calendrier de l'Avent Exemple
+              Exemple de calendrier de l&rsquo;Avent
             </h1>
             <p className="text-xl text-black mb-2">
               Cliquez sur les enveloppes pour découvrir les surprises ! 🎁

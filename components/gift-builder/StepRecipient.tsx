@@ -38,7 +38,7 @@ export default function StepRecipient({ onNext }: Props) {
           {errors.title && <span className="text-sm text-red-500">{errors.title.message}</span>}
         </label>
         <label className="text-sm font-semibold text-gray-700">
-          Message d'intro
+          Message d&rsquo;intro
           <input
             {...register("message")}
             className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-red-400"

@@ -21,19 +21,19 @@ export default function PricingPage() {
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold mb-6">Choisissez votre forfait</h1>
           <p className="text-xl text-gray-700 max-w-3xl mx-auto">
-            Créez un calendrier de l'avent personnalisé
+            Créez un calendrier de l&rsquo;avent personnalisé
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <div className="rounded-3xl border-2 border-gray-300 p-8 transition-colors bg-transparent hover:bg-white/90 flex flex-col">
+          <div className="rounded-3xl border-2 border-gray-300 p-8 transition-colors bg-white/75 hover:bg-white flex flex-col">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-bold mb-2">PLAN ESSENTIEL</h2>
               <div className="text-6xl font-bold text-gray-400 mb-4">10€</div>
               <p className="text-gray-700">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-lg mb-4">24 intentions composées de :</div>
+              <div className="font-semibold text-lg mb-4">24 intentions avec plusieurs surprises possibles dont :</div>
               <ul className="space-y-3 ml-2">
                 {featureItems.map((feature) => {
                   const included = essentialIncluded.has(feature);
@@ -59,14 +59,14 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border-4 border-[#ead3c0] p-8 transition-colors bg-transparent hover:bg-white/90 flex flex-col">
+          <div className="rounded-3xl border-2 border-[#ead3c0] p-8 transition-colors bg-white/75 hover:bg-white flex flex-col">
             <div className="text-center mb-6">
               <h2 className="text-3xl font-bold mb-2">PLAN PREMIUM</h2>
               <div className="text-6xl font-bold text-[#ead3c0] mb-4">20€</div>
               <p className="text-gray-700">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-lg mb-4">24 intentions composées de :</div>
+              <div className="font-semibold text-lg mb-4">24 intentions avec plusieurs surprises possibles dont :</div>
               <ul className="space-y-3 ml-2">
                 {featureItems.map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-lg">

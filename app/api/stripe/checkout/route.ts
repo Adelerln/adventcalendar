@@ -5,19 +5,34 @@ import { PRODUCTS } from "@/lib/pricing";
 export async function POST(req: NextRequest) {
   const contentType = req.headers.get("content-type") || "";
   const isForm = contentType.includes("application/x-www-form-urlencoded");
-  const body = isForm ? Object.fromEntries(await req.formData()) : await req.json();
-  const productId = String((body as any).productId || "");
-  const calendarId = (body as any).calendarId ? String((body as any).calendarId) : undefined;
+  const body: Record<string, unknown> = isForm ? Object.fromEntries(await req.formData()) : await req.json();
+  const { productId, calendarId } = parseCheckoutPayload(body);
 
-  if (!productId || !(productId in PRODUCTS)) {
+  if (!isValidProduct(productId)) {
     return NextResponse.json({ error: "Invalid product" }, { status: 400 });
   }
 
-  const priceId = PRODUCTS[productId as keyof typeof PRODUCTS].stripePriceId;
-  const mode = PRODUCTS[productId as keyof typeof PRODUCTS].type === "subscription" ? "subscription" : "payment";
-
-  const session = await createCheckoutSession({ mode, productId: priceId, calendarId });
+  const product = PRODUCTS[productId];
+  const mode = product.type === "subscription" ? "subscription" : "payment";
+  const session = await createCheckoutSession({
+    mode,
+    productId: product.stripePriceId,
+    calendarId
+  });
   return NextResponse.json({ url: session.url });
 }
 
+function parseCheckoutPayload(body: Record<string, unknown>) {
+  const rawProductId = body.productId;
+  const rawCalendarId = body.calendarId;
+
+  const productId = typeof rawProductId === "string" ? rawProductId : "";
+  const calendarId = typeof rawCalendarId === "string" && rawCalendarId.length > 0 ? rawCalendarId : undefined;
+
+  return { productId, calendarId };
+}
+
+function isValidProduct(productId: string): productId is keyof typeof PRODUCTS {
+  return productId.length > 0 && productId in PRODUCTS;
+}
 

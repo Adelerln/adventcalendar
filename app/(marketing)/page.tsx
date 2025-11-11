@@ -48,7 +48,7 @@ export default function MarketingHomePage() {
                 <span className="block tracking-[0.5em] text-4xl sm:text-5xl lg:text-[2.0rem]">
                   DE
                 </span>
-                <span className="block tracking-[0.5em]">L'AVENT</span>
+                <span className="block tracking-[0.5em]">L&rsquo;AVENT</span>
               </div>
             </div>
           </div>

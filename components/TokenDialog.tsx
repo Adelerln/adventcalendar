@@ -31,7 +31,7 @@ export default function TokenDialog({ triggerClassName }: Props) {
         const url = new URL(trimmed);
         path = url.pathname + url.search;
       }
-    } catch (err) {
+    } catch {
       setError("URL invalide");
       return;
     }

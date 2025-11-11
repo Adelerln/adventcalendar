@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 type Snowflake = {
   id: number;
@@ -11,21 +11,10 @@ type Snowflake = {
   opacity: number;
 };
 
-export default function SnowfallAnimation() {
-  const [snowflakes, setSnowflakes] = useState<Snowflake[]>([]);
+const SNOWFLAKE_COUNT = 50;
 
-  useEffect(() => {
-    // Générer 50 flocons de neige avec des propriétés aléatoires
-    const flakes: Snowflake[] = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      left: Math.random() * 100, // Position horizontale (0-100%)
-      animationDuration: Math.random() * 3 + 5, // Durée de chute (5-8s)
-      animationDelay: Math.random() * 5, // Délai avant le début (0-5s)
-      fontSize: Math.random() * 10 + 10, // Taille (10-20px)
-      opacity: Math.random() * 0.5 + 0.3, // Opacité (0.3-0.8)
-    }));
-    setSnowflakes(flakes);
-  }, []);
+export default function SnowfallAnimation() {
+  const snowflakes = useMemo(() => createSnowflakes(SNOWFLAKE_COUNT), []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-10 overflow-hidden">
@@ -47,4 +36,23 @@ export default function SnowfallAnimation() {
       ))}
     </div>
   );
+}
+
+function createSnowflakes(count: number): Snowflake[] {
+  return Array.from({ length: count }, (_, index) => {
+    const base = index + 1;
+    return {
+      id: index,
+      left: pseudoRandom(base) * 100,
+      animationDuration: pseudoRandom(base * 1.3) * 3 + 5,
+      animationDelay: pseudoRandom(base * 1.7) * 5,
+      fontSize: pseudoRandom(base * 2) * 10 + 10,
+      opacity: pseudoRandom(base * 2.3) * 0.5 + 0.3
+    };
+  });
+}
+
+function pseudoRandom(seed: number) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
 }

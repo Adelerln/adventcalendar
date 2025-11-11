@@ -13,13 +13,19 @@ type BuyerRecord = {
 
 const buyers = new Map<string, BuyerRecord>();
 
+class UniqueEmailError extends Error {
+  code = "23505";
+  constructor() {
+    super("Email déjà utilisé");
+    this.name = "UniqueEmailError";
+  }
+}
+
 export function saveBuyer(data: Omit<BuyerRecord, "id" | "created_at" | "updated_at">) {
   const email = data.email.toLowerCase();
   const existing = Array.from(buyers.values()).find((buyer) => buyer.email === email);
   if (existing) {
-    const error = new Error("Email déjà utilisé");
-    (error as any).code = "23505";
-    throw error;
+    throw new UniqueEmailError();
   }
 
   const id = crypto.randomUUID();

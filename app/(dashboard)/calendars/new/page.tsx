@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import EmptyEnvelope from "@/components/EmptyEnvelope";
 import EnvelopeEditor from "@/components/EnvelopeEditor";
@@ -15,21 +15,27 @@ type DayContent = {
 };
 
 export default function NewCalendarPage() {
-  const [step, setStep] = useState<"plan" | "creation">("plan");
-  const [selectedPlan, setSelectedPlan] = useState<Plan>(null);
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Chargement…</div>}>
+      <NewCalendarPageContent />
+    </Suspense>
+  );
+}
+
+function NewCalendarPageContent() {
+  const searchParams = useSearchParams();
+  const planFromUrl = searchParams.get("plan") as Plan | null;
+  const preselectedPlan = useMemo<Plan>(() => {
+    if (planFromUrl === "plan_essentiel" || planFromUrl === "plan_premium") {
+      return planFromUrl;
+    }
+    return null;
+  }, [planFromUrl]);
+  const [step, setStep] = useState<"plan" | "creation">(preselectedPlan ? "creation" : "plan");
+  const [selectedPlan, setSelectedPlan] = useState<Plan>(preselectedPlan);
   const [calendarData, setCalendarData] = useState<Record<number, DayContent>>({});
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const router = useRouter();
-
-  // Détecter si un plan est passé dans l'URL
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const planFromUrl = new URLSearchParams(window.location.search).get("plan") as Plan;
-    if (planFromUrl === "plan_essentiel" || planFromUrl === "plan_premium") {
-      setSelectedPlan(planFromUrl);
-      setStep("creation");
-    }
-  }, []);
 
   const handlePlanSelection = (plan: Plan) => {
     setSelectedPlan(plan);
@@ -95,7 +101,7 @@ export default function NewCalendarPage() {
                 </div>
                 <div className="mb-6 flex-1">
                   <div className="font-semibold text-lg mb-3 text-gray-800 dark:text-gray-200">
-                    24 intentions composées de :
+                    24 intentions avec plusieurs surprises possibles dont :
                   </div>
                   <ul className="space-y-2 ml-4">
                     <li className="flex items-center gap-2">
@@ -129,7 +135,7 @@ export default function NewCalendarPage() {
                 </div>
                 <div className="mb-6 flex-1">
                   <div className="font-semibold text-lg mb-3 text-gray-800 dark:text-gray-200">
-                    24 intentions composées de :
+                    24 intentions avec plusieurs surprises possibles dont :
                   </div>
                   <ul className="space-y-2 ml-4">
                     <li className="flex items-center gap-2">

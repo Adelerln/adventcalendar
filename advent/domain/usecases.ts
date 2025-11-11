@@ -7,14 +7,15 @@ export function compute24Days(startDateISO: string, calendarId: string, contents
   const start = zonedStartOfDay(startDateISO);
   const days: Omit<CalendarDay, "id">[] = [];
   for (let i = 0; i < 24; i++) {
-    days.push({
+    const day: Omit<CalendarDay, "id"> = {
       calendarId,
       dayNumber: i + 1,
       contentType: "text",
       contentText: contents?.[i] ?? null,
       lockedUntil: addDaysISO(start, i),
       openedAt: null
-    } as any);
+    };
+    days.push(day);
   }
   return days;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { daySchema } from "@/lib/schemas";
 import type { CalendarDay } from "@/lib/types";
@@ -14,7 +14,7 @@ type Props = {
 export default function DayEditor({ day, onSave, onCancel }: Props) {
   const {
     register,
-    watch,
+    control,
     handleSubmit,
     formState: { errors }
   } = useForm<CalendarDay>({
@@ -22,7 +22,10 @@ export default function DayEditor({ day, onSave, onCancel }: Props) {
     defaultValues: day
   });
 
-  const contentType = watch("contentType");
+  const contentType = useWatch({
+    control,
+    name: "contentType"
+  });
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">

@@ -3,6 +3,10 @@ import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { saveBuyer } from "@/lib/buyers-store";
 
+type PostgresError = {
+  code?: string;
+};
+
 export async function POST(req: Request) {
   const { plan, fullName, phone, email, password } = await req.json();
 
@@ -32,11 +36,21 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(fallbackBuyer, { status: 201 });
-  } catch (error: any) {
-    if (error?.code === "23505") {
+  } catch (error: unknown) {
+    if (isPgUniqueViolation(error)) {
       return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
     }
     console.error("Error creating buyer", error);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
+}
+
+function isPgUniqueViolation(error: unknown): error is PostgresError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    typeof (error as Record<string, unknown>).code === "string" &&
+    (error as PostgresError).code === "23505"
+  );
 }

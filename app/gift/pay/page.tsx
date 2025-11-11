@@ -41,12 +41,12 @@ export default function GiftPayPage({ searchParams }: Props) {
         <div className="mx-auto max-w-3xl space-y-6 rounded-3xl bg-white p-8 text-center shadow-2xl">
           <p className="text-sm uppercase tracking-[0.4em] text-red-500 font-semibold">Étape verrouillée</p>
           <h1 className="text-3xl font-bold text-gray-900">Merci de vous authentifier avant le paiement</h1>
-          <p className="text-gray-600">Cliquez sur le bouton ci-dessous pour revenir à l'étape de connexion.</p>
+          <p className="text-gray-600">Cliquez sur le bouton ci-dessous pour revenir à l&rsquo;étape de connexion.</p>
           <Link
             href="/gift/login"
             className="inline-flex items-center justify-center rounded-full bg-red-600 px-8 py-3 text-white font-semibold shadow-lg hover:bg-red-700"
           >
-            Revenir à l'étape 2
+            Revenir à l&rsquo;étape 2
           </Link>
         </div>
       </main>
@@ -63,7 +63,7 @@ export default function GiftPayPage({ searchParams }: Props) {
             onClick={() => (window.location.href = `/gift/recipient?auth=ok&plan=${selectedPlan ?? "plan_essentiel"}`)}
             className="inline-flex items-center justify-center rounded-full bg-red-600 px-8 py-3 text-white font-semibold shadow-lg hover:bg-red-700"
           >
-            Revenir à l'étape 3
+            Revenir à l&rsquo;étape 3
           </button>
         </div>
       </main>

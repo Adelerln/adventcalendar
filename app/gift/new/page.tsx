@@ -33,7 +33,7 @@ export default function GiftNewPage({ searchParams }: Props) {
       <div className="mx-auto max-w-4xl space-y-6">
         <div className="text-center space-y-3">
           <p className="text-sm uppercase tracking-[0.3em] text-red-500 font-semibold">Parcours acheteur</p>
-          <h1 className="text-4xl font-bold text-gray-900">Créer un calendrier de l'Avent personnalisé</h1>
+          <h1 className="text-4xl font-bold text-gray-900">Créer un calendrier de l&rsquo;Avent personnalisé</h1>
           <p className="text-gray-600">Complète les 3 étapes pour générer ton lien de partage.</p>
         </div>
         <GiftWizard />

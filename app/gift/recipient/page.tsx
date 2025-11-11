@@ -24,7 +24,7 @@ export default function RecipientInfoPage({ searchParams }: Props) {
             onClick={() => router.push(`/gift/login?plan=${plan}`)}
             className="inline-flex items-center justify-center rounded-full bg-red-600 px-8 py-3 text-white font-semibold shadow-lg hover:bg-red-700"
           >
-            Revenir à l'étape 2
+            Revenir à l&rsquo;étape 2
           </button>
         </div>
       </main>
@@ -79,7 +79,7 @@ export default function RecipientInfoPage({ searchParams }: Props) {
             />
           </label>
           <label className="text-sm font-semibold text-gray-700">
-            Message d'introduction
+            Message d&rsquo;introduction
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}

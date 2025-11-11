@@ -82,7 +82,7 @@ export default function RecipientPage({ searchParams }: RecipientPageProps) {
                 />
               </label>
               <label className="text-sm font-semibold text-gray-700 dark:text-gray-200">
-                Date d'ouverture prévue
+                Date d&rsquo;ouverture prévue
                 <input
                   name="delivery_date"
                   type="date"
