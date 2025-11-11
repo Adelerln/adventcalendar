@@ -23,7 +23,7 @@ type StepNavigationProps = {
 export default function StepNavigation({ plan, currentStep, prev, next, className }: StepNavigationProps) {
   const theme = PLAN_APPEARANCE[plan];
   const baseButton = clsx(
-    "inline-flex min-h-[44px] items-center justify-center rounded-full px-5 py-2 text-xs sm:text-sm font-semibold transition-colors",
+    "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 py-2 text-sm font-semibold transition-colors",
     theme.border,
     plan === "plan_premium" ? "bg-[#fff7ee] text-[#5c3b1d]" : "bg-[#f5f7fb] text-[#1f232b]",
     "hover:opacity-90"
@@ -51,26 +51,16 @@ function renderAction(action: StepAction | undefined, baseClass: string, isPrev:
   }
 
   const mainText = isPrev ? "Étape précédente" : "Étape suivante";
-  const detail = action.label;
-  const label = detail ? `${mainText} · ${detail}` : mainText;
-  const content = (
-    <div className="flex flex-col items-center text-center leading-tight sm:items-start sm:text-left">
-      <span className="font-semibold text-sm">{mainText}</span>
-      {detail && (
-        <span className="text-[0.6rem] uppercase tracking-[0.3em] text-current/70">
-          {detail}
-        </span>
-      )}
-    </div>
-  );
+  const content = <span>{mainText}</span>;
+  const ariaLabel = action.label ? `${mainText} · ${action.label}` : mainText;
 
   if (action.href && !action.disabled) {
     return (
       <Link
         href={action.href}
         className={clsx(baseClass, "flex-1 sm:flex-none")}
-        aria-label={label}
-        title={detail ?? mainText}
+        aria-label={ariaLabel}
+        title={ariaLabel}
       >
         {content}
       </Link>
@@ -87,8 +77,8 @@ function renderAction(action: StepAction | undefined, baseClass: string, isPrev:
         "flex-1 sm:flex-none",
         action.disabled && "opacity-50 cursor-not-allowed"
       )}
-      aria-label={label}
-      title={detail ?? mainText}
+      aria-label={ariaLabel}
+      title={ariaLabel}
     >
       {content}
     </button>

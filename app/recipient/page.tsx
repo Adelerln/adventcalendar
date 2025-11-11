@@ -32,8 +32,8 @@ export default function RecipientPage({ searchParams }: RecipientPageProps) {
       <StepNavigation
         plan={planKey}
         currentStep={4}
-        prev={{ label: "Calendrier personnalisé", href: `/calendars/new?plan=${planKey}` }}
-        next={{ label: "Paiement Stripe", href: `/checkout?plan=${planKey}${filled ? `&filled=${filled}` : ""}` }}
+        prev={{ onClick: () => router.push(`/calendars/new?plan=${planKey}`) }}
+        next={{ onClick: () => router.push(`/checkout?plan=${planKey}${filled ? `&filled=${filled}` : ""}`) }}
         className="mt-6"
       />
       <section className="mx-auto max-w-5xl px-6 py-12 space-y-10">

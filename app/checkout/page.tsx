@@ -43,7 +43,7 @@ export default function CheckoutPage({ searchParams }: CheckoutPageProps) {
       <StepNavigation
         plan={planKey}
         currentStep={5}
-        prev={{ label: "Infos receveur", href: `/recipient?plan=${planKey}${filled ? `&filled=${filled}` : ""}` }}
+        prev={{ onClick: () => router.push(`/recipient?plan=${planKey}${filled ? `&filled=${filled}` : ""}`) }}
         className="mt-6"
       />
       <section className="mx-auto max-w-5xl px-6 py-12 space-y-12">

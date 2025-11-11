@@ -167,8 +167,8 @@ function CreateAccountContent() {
       <StepNavigation
         plan={planKey}
         currentStep={2}
-        prev={{ label: "Forfait choisi", href: `/calendars/new?plan=${planKey}&stage=plan` }}
-        next={{ label: "Calendrier personnalisé", href: `/calendars/new?plan=${planKey}` }}
+        prev={{ onClick: () => router.push(`/calendars/new?plan=${planKey}&stage=plan`) }}
+        next={{ onClick: () => router.push(`/calendars/new?plan=${planKey}`) }}
         className="mt-6"
       />
       <section className="mx-auto max-w-6xl px-6 py-12 space-y-10">

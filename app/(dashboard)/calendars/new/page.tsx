@@ -58,10 +58,15 @@ function NewCalendarPageContent() {
       return;
     }
     if (planFromQuery) {
-      setSelectedPlan(planFromQuery);
       setStep("creation");
     }
   }, [stageParam, planFromQuery]);
+
+  useEffect(() => {
+    if (planFromQuery && planFromQuery !== selectedPlan) {
+      setSelectedPlan(planFromQuery);
+    }
+  }, [planFromQuery, selectedPlan]);
 
   useEffect(() => {
     let ignore = false;
@@ -81,16 +86,19 @@ function NewCalendarPageContent() {
   }, []);
 
   useEffect(() => {
-    if (session?.plan) {
+    if (!selectedPlan && session?.plan) {
       setSelectedPlan(session.plan);
-      setStep("creation");
     }
-  }, [session]);
+  }, [selectedPlan, session]);
 
   const handlePlanSelection = (plan: Plan) => {
     if (!plan) return;
     setSelectedPlan(plan);
     setStep("creation");
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("plan", plan);
+    params.set("stage", "creation");
+    router.replace(`/calendars/new?${params.toString()}`, { scroll: false });
   };
 
   const handleSaveDay = (day: number, content: DayContent) => {
@@ -101,8 +109,12 @@ function NewCalendarPageContent() {
   };
 
   const handleContinue = () => {
-    if (!selectedPlan) {
+    const planForNext = selectedPlan ?? planFromQuery ?? session?.plan;
+    if (!planForNext) {
       setStep("plan");
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("stage", "plan");
+      router.replace(`/calendars/new?${params.toString()}`, { scroll: false });
       return;
     }
 
@@ -115,18 +127,18 @@ function NewCalendarPageContent() {
     }
 
     const params = new URLSearchParams({
-      plan: selectedPlan,
+      plan: planForNext,
       filled: filledDays.toString()
     });
 
     router.push(`/recipient?${params.toString()}`);
   };
 
-  const activePlan = (selectedPlan ?? DEFAULT_PLAN) as PlanKey;
+  const activePlan = (selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN) as PlanKey;
   const planTheme = PLAN_APPEARANCE[activePlan];
   const planPriceLabel = activePlan === "plan_premium" ? "Plan Premium (20€)" : "Plan Essentiel (10€)";
   const allowMusic = activePlan === "plan_premium";
-  const showPlanSelection = step === "plan" && !session;
+  const showPlanSelection = step === "plan";
   const currentParcoursStep = showPlanSelection ? 1 : 3;
   const filledCount = Object.keys(calendarData).length;
   const progress = (filledCount / 24) * 100;
@@ -144,22 +156,28 @@ function NewCalendarPageContent() {
           currentStep={currentParcoursStep}
           prev={
             showPlanSelection
-              ? { label: "Tarifs", href: "/pricing" }
+              ? {
+                  onClick: () => router.push("/pricing")
+                }
               : session
-              ? { label: "Forfait choisi", href: `/calendars/new?plan=${activePlan}&stage=plan` }
-              : { label: "Compte créé", href: `/create-account?plan=${activePlan}` }
+              ? {
+                  onClick: () => router.push(`/calendars/new?plan=${activePlan}&stage=plan`)
+                }
+              : {
+                  onClick: () => router.push(`/create-account?plan=${activePlan}`)
+                }
           }
           next={
             showPlanSelection
               ? {
-                  label: "Créer mon compte",
                   onClick: () => {
-                    if (!selectedPlan) return;
-                    router.push(`/create-account?plan=${selectedPlan}`);
+                    const planToUse = selectedPlan ?? planFromQuery;
+                    if (!planToUse) return;
+                    router.push(`/create-account?plan=${planToUse}`);
                   },
-                  disabled: !selectedPlan
+                  disabled: !(selectedPlan ?? planFromQuery)
                 }
-              : { label: "Infos receveur", onClick: handleContinue }
+              : { onClick: handleContinue }
           }
           className="mt-6"
         />
@@ -167,7 +185,7 @@ function NewCalendarPageContent() {
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900">{heroTitle}</h1>
           <p className="text-lg text-gray-600">{heroSubtitle}</p>
         </div>
-        <ParcoursBanner plan={activePlan} currentStep={currentParcoursStep} className="max-w-5xl mx-auto" />
+        <ParcoursBanner plan={activePlan} currentStep={currentParcoursStep} className="max-w-7xl mx-auto" />
         {/* Step 1: Plan selection */}
         {showPlanSelection && (
           <div className="mx-auto max-w-5xl">
