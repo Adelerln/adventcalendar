@@ -5,8 +5,9 @@ import { formatInTimeZone } from "date-fns-tz";
 import CalendarGrid from "@/components/CalendarGrid";
 import DayModal from "@/components/DayModal";
 import Header from "@/components/Header";
+import type { PlanKey } from "@/lib/plan-theme";
 
-type Props = { params: { publicId: string } };
+type Props = { params: { publicId: string }; searchParams?: { plan?: PlanKey } };
 type DemoDay = {
   day: number;
   photo: string | null;
@@ -42,7 +43,8 @@ const mockDayData: DemoDay[] = [
   // Ajoutez plus de données si nécessaire
 ];
 
-export default function PublicCalendarPage({ params }: Props) {
+export default function PublicCalendarPage({ params, searchParams }: Props) {
+  const planKey: PlanKey = searchParams?.plan === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const decorativeSnowflakes = useMemo(() => createSnowflakes(20), []);
   
@@ -182,7 +184,7 @@ export default function PublicCalendarPage({ params }: Props) {
               </div>
 
               {/* Grille du calendrier */}
-              <CalendarGrid days={days} onDayClick={handleDayClick} />
+              <CalendarGrid days={days} onDayClick={handleDayClick} plan={planKey} />
 
               {/* Légende */}
               <div className="px-8 py-6 bg-gradient-to-r from-red-50 to-green-50 dark:from-red-950 dark:to-green-950 border-t border-gray-200 dark:border-gray-700">

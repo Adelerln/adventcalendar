@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 
 type DayContent = {
   type: "photo" | "message" | "drawing" | "music";
@@ -12,18 +13,25 @@ type Props = {
   day: number;
   initialContent: DayContent | null;
   allowMusic: boolean;
+  plan: PlanKey;
   onSave: (content: DayContent) => void;
   onClose: () => void;
 };
 
-export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave, onClose }: Props) {
+export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, onSave, onClose }: Props) {
   const [selectedType, setSelectedType] = useState<DayContent["type"] | null>(initialContent?.type || null);
   const [content, setContent] = useState(initialContent?.content || "");
   const [title, setTitle] = useState(initialContent?.title || "");
+  const planTheme = PLAN_APPEARANCE[plan];
+  const headerSurface = plan === "plan_premium" ? "bg-[#fbeedc] text-[#5c3b1d]" : "bg-[#f4f6fb] text-[#1f232b]";
+  const closeSurface = plan === "plan_premium" ? "bg-[#f3d6b7] text-[#5c3b1d]" : "bg-[#e5e9ef] text-[#4d5663]";
+  const selectionHover = plan === "plan_premium" ? "hover:border-[#f5e0c6] hover:bg-[#fff7ee]" : "hover:border-[#d7dde5] hover:bg-[#f5f7fb]";
+  const ctaClasses = `${planTheme.ctaBg} ${planTheme.ctaHover} ${planTheme.ctaText}`;
+  const selectionButtonClass = `h-full text-left p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl transition-all group flex flex-col justify-between ${selectionHover} dark:hover:bg-gray-900/40`;
 
   const handleSave = () => {
     if (!selectedType || !content) return;
-    
+
     onSave({
       type: selectedType,
       content,
@@ -46,66 +54,59 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="bg-red-600 text-white p-6 rounded-t-2xl">
+        <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5`}>
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Jour {day}</h2>
             <button
               onClick={onClose}
-              className="w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+              className={`${closeSurface} w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-colors`}
             >
               ✕
             </button>
           </div>
-          <p className="text-white/90 mt-2">Choisissez le type de contenu</p>
+          <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
         </div>
 
-        {/* Content */}
         <div className="p-6">
-          {/* Type selection */}
           {!selectedType && (
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                onClick={() => setSelectedType("photo")}
-                className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all group"
-              >
-                <div className="text-5xl mb-3">📷</div>
-                <div className="font-bold text-lg">Photo</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Ajouter une image</div>
-              </button>
-
-              <button
-                onClick={() => setSelectedType("message")}
-                className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-950 transition-all group"
-              >
-                <div className="text-5xl mb-3">💌</div>
-                <div className="font-bold text-lg">Message</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Écrire un mot</div>
-              </button>
-
-              <button
-                onClick={() => setSelectedType("drawing")}
-                className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950 transition-all group"
-              >
-                <div className="text-5xl mb-3">🎨</div>
-                <div className="font-bold text-lg">Dessin</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Créer un dessin</div>
-              </button>
-
+            <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
+              <SelectionButton
+                type="photo"
+                label="Photo"
+                description="Ajouter une image"
+                icon="📷"
+                onSelect={setSelectedType}
+                className={selectionButtonClass}
+              />
+              <SelectionButton
+                type="message"
+                label="Message"
+                description="Écrire un mot"
+                icon="💌"
+                onSelect={setSelectedType}
+                className={selectionButtonClass}
+              />
+              <SelectionButton
+                type="drawing"
+                label="Dessin"
+                description="Créer un dessin"
+                icon="🎨"
+                onSelect={setSelectedType}
+                className={selectionButtonClass}
+              />
               {allowMusic && (
-                <button
-                  onClick={() => setSelectedType("music")}
-                  className="p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-yellow-500 hover:bg-yellow-50 dark:hover:bg-yellow-950 transition-all group"
-                >
-                  <div className="text-5xl mb-3">🎵</div>
-                  <div className="font-bold text-lg">Musique</div>
-                  <div className="text-sm text-gray-600 dark:text-gray-400">Ajouter un son</div>
-                </button>
+                <SelectionButton
+                  type="music"
+                  label="Musique"
+                  description="Ajouter un son"
+                  icon="🎵"
+                  onSelect={setSelectedType}
+                  className={selectionButtonClass}
+                />
               )}
             </div>
           )}
 
-          {/* Photo upload */}
           {selectedType === "photo" && (
             <div className="space-y-4">
               <button
@@ -114,7 +115,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
               >
                 ← Retour
               </button>
-              
+
               <div>
                 <label className="block text-sm font-medium mb-2">Télécharger une photo</label>
                 <input
@@ -144,7 +145,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
             </div>
           )}
 
-          {/* Message */}
           {selectedType === "message" && (
             <div className="space-y-4">
               <button
@@ -167,7 +167,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
             </div>
           )}
 
-          {/* Drawing */}
           {selectedType === "drawing" && (
             <div className="space-y-4">
               <button
@@ -195,7 +194,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
             </div>
           )}
 
-          {/* Music */}
           {selectedType === "music" && (
             <div className="space-y-4">
               <button
@@ -234,13 +232,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
             </div>
           )}
 
-          {/* Save button */}
           {selectedType && (
             <div className="mt-6 flex gap-3">
               <button
                 onClick={handleSave}
                 disabled={!content}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg font-bold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`flex-1 py-3 rounded-lg font-bold hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed ${ctaClasses}`}
               >
                 Enregistrer
               </button>
@@ -255,5 +252,24 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, onSave
         </div>
       </div>
     </div>
+  );
+}
+
+type SelectionButtonProps = {
+  type: DayContent["type"];
+  label: string;
+  description: string;
+  icon: string;
+  onSelect: (type: DayContent["type"]) => void;
+  className: string;
+};
+
+function SelectionButton({ type, label, description, icon, onSelect, className }: SelectionButtonProps) {
+  return (
+    <button onClick={() => onSelect(type)} className={className}>
+      <div className="text-5xl mb-3">{icon}</div>
+      <div className="font-bold text-lg">{label}</div>
+      <div className="text-sm text-gray-600 dark:text-gray-400">{description}</div>
+    </button>
   );
 }

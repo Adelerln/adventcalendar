@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { db } from "@/lib/db";
 import { saveBuyer } from "@/lib/buyers-store";
+import { attachBuyerSession } from "@/lib/server-session";
 
 type PostgresError = {
   code?: string;
@@ -21,10 +22,15 @@ export async function POST(req: Request) {
       const { rows } = await db.query(
         `INSERT INTO buyers (plan, full_name, phone, email, password_hash)
          VALUES ($1,$2,$3,$4,$5)
-         RETURNING id, plan`,
+         RETURNING id, plan, full_name`,
         [plan, fullName, phone, email.toLowerCase(), passwordHash]
       );
-      return NextResponse.json(rows[0], { status: 201 });
+      const buyer = rows[0];
+      return respondWithSession({
+        id: buyer.id,
+        plan: buyer.plan,
+        fullName: buyer.full_name
+      });
     }
 
     const fallbackBuyer = saveBuyer({
@@ -35,7 +41,11 @@ export async function POST(req: Request) {
       password_hash: passwordHash,
     });
 
-    return NextResponse.json(fallbackBuyer, { status: 201 });
+    return respondWithSession({
+      id: fallbackBuyer.id,
+      plan: fallbackBuyer.plan,
+      fullName
+    });
   } catch (error: unknown) {
     if (isPgUniqueViolation(error)) {
       return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
@@ -53,4 +63,14 @@ function isPgUniqueViolation(error: unknown): error is PostgresError {
     typeof (error as Record<string, unknown>).code === "string" &&
     (error as PostgresError).code === "23505"
   );
+}
+
+function respondWithSession(data: { id: string; plan: string; fullName: string }) {
+  const session = {
+    id: data.id,
+    plan: data.plan,
+    name: data.fullName
+  };
+  const response = NextResponse.json({ buyer: session }, { status: 201 });
+  return attachBuyerSession(response, session);
 }

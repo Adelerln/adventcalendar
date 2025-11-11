@@ -1,8 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
+import ParcoursBanner from "@/components/ParcoursBanner";
+import StepNavigation from "@/components/StepNavigation";
+import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 
 const PLAN_COPY = {
   plan_essentiel: {
@@ -40,12 +43,39 @@ function CreateAccountContent() {
   const searchParams = useSearchParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [session, setSession] = useState<{ id: string; plan: PlanKey } | null>(null);
+  const [checkingSession, setCheckingSession] = useState(true);
   const planParam = searchParams.get("plan");
   const nextParam = searchParams.get("next");
-  const planKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
+  const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_COPY[planKey];
-  const isPremium = planKey === "plan_premium";
-  const accentBorder = isPremium ? "border-[#ead3c0]" : "border-gray-300";
+  const theme = PLAN_APPEARANCE[planKey];
+
+  useEffect(() => {
+    let ignore = false;
+    fetch("/api/session")
+      .then((res) => res.json())
+      .then((data) => {
+        if (ignore) return;
+        const user = data.user as { id: string; plan: PlanKey } | null;
+        setSession(user ?? null);
+      })
+      .catch(() => {
+        setSession(null);
+      })
+      .finally(() => {
+        if (!ignore) setCheckingSession(false);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (session) {
+      router.replace(`/calendars/new?plan=${session.plan}&stage=creation`);
+    }
+  }, [router, session]);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();
@@ -88,8 +118,10 @@ function CreateAccountContent() {
       }
 
       const result = await response.json();
+      const buyerPlan = result?.buyer?.plan ?? planKey;
+      const buyerId = result?.buyer?.id ?? "";
       const targetUrl =
-        nextParam ?? `/calendars/new?plan=${result.plan}&buyer=${result.id}`;
+        nextParam ?? `/calendars/new?plan=${buyerPlan}&buyer=${buyerId}`;
       router.push(targetUrl);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Une erreur est survenue";
@@ -99,29 +131,59 @@ function CreateAccountContent() {
     }
   };
 
+  const inputSurface =
+    planKey === "plan_premium"
+      ? "border-[#f5e6d4] bg-[#fff9f4]"
+      : "border-[#e5e9ef] bg-[#f8fafd]";
+  const inputRing = planKey === "plan_premium" ? "focus:ring-[#f6dfc2]" : "focus:ring-[#d7dde5]";
+
+  if (session) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
+        <Header />
+        <section className="mx-auto max-w-4xl px-6 py-32 text-center space-y-6">
+          <p className="text-sm uppercase tracking-[0.4em] text-gray-500">Connexion détectée</p>
+          <h1 className="text-4xl font-bold">Redirection vers votre calendrier…</h1>
+          <p className="text-gray-600">
+            Vous êtes déjà connecté(e). Nous vous emmenons directement vers l&rsquo;étape de personnalisation.
+          </p>
+        </section>
+      </main>
+    );
+  }
+
+  if (checkingSession) {
+    return (
+      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
+        <Header />
+        <section className="mx-auto max-w-4xl px-6 py-32 text-center text-gray-500">Chargement…</section>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 pt-24 text-black">
+    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
       <Header />
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="text-center mb-10">
+      <StepNavigation
+        plan={planKey}
+        currentStep={2}
+        prev={{ label: "Forfait choisi", href: `/calendars/new?plan=${planKey}&stage=plan` }}
+        next={{ label: "Calendrier personnalisé", href: `/calendars/new?plan=${planKey}` }}
+        className="mt-6"
+      />
+      <section className="mx-auto max-w-6xl px-6 py-12 space-y-10">
+        <div className="text-center space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold text-black">
             Créez votre compte pour accéder à votre calendrier
           </h1>
         </div>
+        <ParcoursBanner plan={planKey} currentStep={2} className="max-w-5xl mx-auto" />
 
         <div className="max-w-5xl mx-auto space-y-8">
-          <div className={`rounded-2xl border-2 ${accentBorder} bg-white px-6 py-4 text-left`}>
-            <p className="text-sm uppercase tracking-wide font-semibold mb-1 text-black">Parcours</p>
-            <p className="text-sm leading-relaxed">
-              1. Choisir le forfait → 2. Créer un compte → 3. Personnaliser →
-              4. Infos receveur → 5. Paiement Stripe
-            </p>
-          </div>
-
           <div className="grid gap-10 md:grid-cols-2 items-stretch">
             <form
               onSubmit={handleSubmit}
-              className={`bg-white rounded-3xl shadow-2xl border-2 ${accentBorder} p-8 space-y-6`}
+              className={`bg-white rounded-3xl shadow-2xl border-2 ${theme.border} p-8 space-y-6`}
             >
               <input type="hidden" name="plan" value={planKey} />
               {/* Section compte acheteur */}
@@ -134,7 +196,7 @@ function CreateAccountContent() {
                       name="buyer_full_name"
                       required
                       placeholder="Prénom Nom"
-                      className="mt-1 w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-red-400"
+                      className={`mt-1 w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
                     />
                   </label>
                   <label className="text-sm font-semibold text-black">
@@ -143,7 +205,7 @@ function CreateAccountContent() {
                       name="buyer_phone"
                       required
                       placeholder="+33 6 12 34 56 78"
-                      className="mt-1 w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-red-400"
+                      className={`mt-1 w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
                     />
                   </label>
                 </div>
@@ -158,7 +220,7 @@ function CreateAccountContent() {
                   name="email"
                   type="email"
                   placeholder="vous@example.com"
-                  className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-red-400"
+                  className={`w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
                   required
                 />
               </div>
@@ -171,7 +233,7 @@ function CreateAccountContent() {
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className="w-full rounded-2xl border border-gray-300 bg-white px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-red-400"
+                  className={`w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
                   required
                 />
               </div>
@@ -179,7 +241,7 @@ function CreateAccountContent() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="block w-full rounded-full border-2 border-gray-500 bg-[rgba(209,213,220,0.2)] text-black px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white disabled:opacity-60 disabled:cursor-not-allowed"
+                className={`block w-full rounded-full border-2 ${theme.border} ${theme.ctaBg} ${theme.ctaHover} ${theme.ctaText} px-8 py-4 text-lg font-bold text-center transition-all disabled:opacity-60 disabled:cursor-not-allowed`}
               >
                 {isSubmitting ? "Création en cours..." : "Créer mon compte"}
               </button>
@@ -189,15 +251,11 @@ function CreateAccountContent() {
             </form>
 
             <div
-              className={`rounded-3xl shadow-2xl border-2 ${accentBorder} bg-white p-8 space-y-6 flex flex-col h-full`}
+              className={`rounded-3xl shadow-2xl border-2 ${theme.border} bg-white p-8 space-y-6 flex flex-col h-full`}
             >
               <div>
                 <h2 className="text-3xl font-bold">{plan.name}</h2>
-                <div
-                  className={`text-6xl font-black mt-2 ${
-                    isPremium ? "text-[#cda982]" : "text-gray-400"
-                  }`}
-                >
+                <div className={`text-6xl font-black mt-2 ${theme.priceColor}`}>
                   {plan.price}
                 </div>
               </div>

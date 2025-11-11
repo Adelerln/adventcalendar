@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import clsx from "clsx";
+import { PLAN_APPEARANCE, DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 type PropsDay = {
   day: number;
@@ -20,12 +22,60 @@ type RecipientDay = {
 type CalendarGridProps = {
   days?: PropsDay[];
   onDayClick?: (day: number) => void;
+  plan?: PlanKey;
 };
 
-export default function CalendarGrid({ days, onDayClick }: CalendarGridProps) {
+const DAY_STYLES: Record<PlanKey, {
+  unlockedBg: string;
+  todayBg: string;
+  lockedBg: string;
+  flapUnlocked: string;
+  flapToday: string;
+  flapLocked: string;
+  statusUnlocked: string;
+  statusToday: string;
+  statusLocked: string;
+  chipUnlocked: string;
+  chipToday: string;
+  chipLocked: string;
+}> = {
+  plan_essentiel: {
+    unlockedBg: "bg-gradient-to-br from-[#f4f6fb] to-[#dde2ec]",
+    todayBg: "bg-gradient-to-br from-white to-[#f3f6fa]",
+    lockedBg: "bg-gradient-to-br from-[#eceff5] to-[#e1e4eb]",
+    flapUnlocked: "bg-gradient-to-br from-white/80 to-white/60 border-[#dfe3eb]",
+    flapToday: "bg-gradient-to-br from-white to-white/70 border-[#dfe5ef]",
+    flapLocked: "bg-gradient-to-br from-white/70 to-white/50 border-[#dfe3eb]",
+    statusUnlocked: "text-[#4d5663]",
+    statusToday: "text-[#6f7782]",
+    statusLocked: "text-[#8d94a1]",
+    chipUnlocked: "bg-white/85 text-[#4d5663]",
+    chipToday: "bg-white/85 text-[#6f7782]",
+    chipLocked: "bg-white/70 text-[#8d94a1]"
+  },
+  plan_premium: {
+    unlockedBg: "bg-gradient-to-br from-[#fff4e6] to-[#f6e0c6]",
+    todayBg: "bg-gradient-to-br from-white to-[#fdf3e5]",
+    lockedBg: "bg-gradient-to-br from-[#f7e6d3] to-[#edd4ba]",
+    flapUnlocked: "bg-gradient-to-br from-white to-[#fff3e5] border-[#f2deca]",
+    flapToday: "bg-gradient-to-br from-white to-[#fff7ef] border-[#f5e5d4]",
+    flapLocked: "bg-gradient-to-br from-white to-[#f9ecdc] border-[#f0dac3]",
+    statusUnlocked: "text-[#8a613c]",
+    statusToday: "text-[#a37247]",
+    statusLocked: "text-[#c89b65]",
+    chipUnlocked: "bg-white/85 text-[#8a613c]",
+    chipToday: "bg-white/90 text-[#a37247]",
+    chipLocked: "bg-white/75 text-[#c89b65]"
+  }
+};
+
+export default function CalendarGrid({ days, onDayClick, plan }: CalendarGridProps) {
   const [recipientDays, setRecipientDays] = useState<RecipientDay[]>([]);
   const [loading, setLoading] = useState(!days);
   const [error, setError] = useState<string | null>(null);
+  const planKey: PlanKey = plan ?? DEFAULT_PLAN;
+  const theme = PLAN_APPEARANCE[planKey].tile;
+  const dayTheme = DAY_STYLES[planKey];
 
   useEffect(() => {
     if (!days) {
@@ -98,6 +148,12 @@ export default function CalendarGrid({ days, onDayClick }: CalendarGridProps) {
       {computedDays.map((dayData) => {
         const { day, isUnlocked, isToday } = dayData;
         const canOpen = isUnlocked || isToday;
+        const baseBg = isUnlocked ? dayTheme.unlockedBg : isToday ? dayTheme.todayBg : dayTheme.lockedBg;
+        const flapBg = isUnlocked ? dayTheme.flapUnlocked : isToday ? dayTheme.flapToday : dayTheme.flapLocked;
+        const statusClass = isUnlocked ? dayTheme.statusUnlocked : isToday ? dayTheme.statusToday : dayTheme.statusLocked;
+        const chipClass = isUnlocked ? dayTheme.chipUnlocked : isToday ? dayTheme.chipToday : dayTheme.chipLocked;
+        const numberBg = isUnlocked ? theme.numberFilledBg : theme.numberEmptyBg;
+        const numberText = isUnlocked ? theme.numberFilledText : theme.numberEmptyText;
 
         return (
           <button
@@ -108,52 +164,36 @@ export default function CalendarGrid({ days, onDayClick }: CalendarGridProps) {
             className="group aspect-square relative"
           >
             <div
-              className={`relative w-full h-full rounded-2xl border-2 shadow-lg transition-all ${
-                isUnlocked
-                  ? "bg-gradient-to-br from-green-100 to-green-200 border-green-400 group-hover:shadow-2xl"
-                  : isToday
-                  ? "bg-gradient-to-br from-yellow-100 to-yellow-200 border-yellow-400 group-hover:shadow-2xl"
-                  : "bg-gradient-to-br from-gray-100 to-gray-200 border-gray-300 opacity-70 cursor-not-allowed"
-              }`}
+              className={clsx(
+                "relative w-full h-full rounded-2xl border-2 shadow-lg transition-all",
+                baseBg,
+                theme.border,
+                !canOpen && "opacity-70"
+              )}
             >
               <div
-                className={`absolute inset-x-0 top-0 h-1/2 clip-envelope border-b-2 ${
-                  isUnlocked
-                    ? "bg-gradient-to-br from-green-200 to-green-300 border-green-400"
-                    : isToday
-                    ? "bg-gradient-to-br from-yellow-200 to-yellow-300 border-yellow-400"
-                    : "bg-gradient-to-br from-gray-200 to-gray-300 border-gray-400"
-                }`}
+                className={clsx("absolute inset-x-0 top-0 h-1/2 clip-envelope border-b-2", flapBg)}
               ></div>
 
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
                 <div
-                  className={`w-16 h-16 rounded-full flex items-center justify-center border-2 font-black text-3xl shadow ${
-                    isUnlocked
-                      ? "bg-green-500 border-green-700 text-white"
-                      : isToday
-                      ? "bg-white border-yellow-500 text-yellow-600"
-                      : "bg-white border-gray-400 text-gray-500"
-                  }`}
+                  className={clsx(
+                    "w-16 h-16 rounded-full flex items-center justify-center border-2 font-black text-3xl shadow",
+                    numberBg,
+                    numberText,
+                    theme.border
+                  )}
                 >
                   {day}
                 </div>
 
-                <span className="text-sm font-semibold text-gray-600">
+                <span className={clsx("text-sm font-semibold", statusClass)}>
                   {isUnlocked ? "Ouvert" : isToday ? "Aujourd&rsquo;hui" : "Bientôt"}
                 </span>
               </div>
 
               <div className="absolute bottom-3 inset-x-0 text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <span
-                  className={`text-xs font-semibold px-3 py-1 rounded-full ${
-                    isUnlocked
-                      ? "bg-white/80 text-green-700"
-                      : isToday
-                      ? "bg-white/80 text-yellow-600"
-                      : "bg-white/60 text-gray-500"
-                  }`}
-                >
+                <span className={clsx("text-xs font-semibold px-3 py-1 rounded-full", chipClass)}>
                   {isUnlocked ? "Voir le souvenir" : isToday ? "Cliquer pour ouvrir" : "Patience"}
                 </span>
               </div>
