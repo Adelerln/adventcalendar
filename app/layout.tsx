@@ -1,13 +1,20 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "@/components/SiteFooter";
 import SiteBackground from "@/components/SiteBackground";
 
-const displayFont = Cormorant_Garamond({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["500"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700"],
   variable: "--font-display",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={displayFont.className}>
-      <body className="antialiased font-medium">
+    <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
+      <body className="antialiased font-sans">
         <div className="flex min-h-screen flex-col">
           <SiteBackground>{children}</SiteBackground>
           <SiteFooter />

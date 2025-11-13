@@ -13,8 +13,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Bodoni Moda", "Bodoni 72", "ITC Bodoni", "Bodoni", "Didot", "Georgia", serif;
-  --font-mono: "Bodoni Moda", "Bodoni 72", "ITC Bodoni", "Bodoni", "Didot", "Georgia", serif;
+  --font-sans: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display), ui-serif, Georgia, serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
   --color-red-50: var(--accent-warm);
   --color-red-100: var(--accent-warm);
   --color-red-200: var(--accent-warm);
@@ -47,9 +48,9 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
-  font-weight: 500;
-  letter-spacing: 0.03em;
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
 }
