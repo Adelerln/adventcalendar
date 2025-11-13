@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { db } from "@/lib/db";
 import { saveBuyer } from "@/lib/buyers-store";
 import { attachBuyerSession } from "@/lib/server-session";
+import { supabaseServer } from "@/lib/supabase";
 
 type PostgresError = {
   code?: string;
@@ -18,21 +18,35 @@ export async function POST(req: Request) {
   try {
     const passwordHash = await hash(password, 12);
 
-    if (db) {
-      const { rows } = await db.query(
-        `INSERT INTO buyers (plan, full_name, phone, email, password_hash)
-         VALUES ($1,$2,$3,$4,$5)
-         RETURNING id, plan, full_name`,
-        [plan, fullName, phone, email.toLowerCase(), passwordHash]
-      );
-      const buyer = rows[0];
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (supabaseUrl && supabaseServiceRole) {
+      const supabase = supabaseServer();
+      const { data, error: supabaseError } = await supabase
+        .from("buyers")
+        .insert({
+          plan,
+          full_name: fullName,
+          phone,
+          email: email.toLowerCase(),
+          password_hash: passwordHash,
+        })
+        .select("id, plan, full_name")
+        .single();
+
+      if (supabaseError) {
+        throw supabaseError;
+      }
+
       return respondWithSession({
-        id: buyer.id,
-        plan: buyer.plan,
-        fullName: buyer.full_name
+        id: data.id,
+        plan: data.plan,
+        fullName: data.full_name,
       });
     }
 
+    console.warn("Supabase env vars missing; falling back to in-memory buyers store.");
     const fallbackBuyer = saveBuyer({
       plan,
       full_name: fullName,
