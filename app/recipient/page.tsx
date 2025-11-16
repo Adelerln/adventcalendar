@@ -6,7 +6,7 @@ import { resolveServerPlanKey } from "@/lib/server-plan";
 
 const PLAN_DETAILS = {
   plan_essentiel: { name: "Plan Essentiel", price: "10€" },
-  plan_premium: { name: "Plan Premium", price: "20€" }
+  plan_premium: { name: "Plan Premium", price: "15€" }
 } as const;
 
 type RecipientPageProps = {

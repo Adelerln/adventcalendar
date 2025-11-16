@@ -11,7 +11,7 @@ const PLAN_INFO = {
   },
   plan_premium: {
     name: "Plan Premium",
-    price: "20€"
+    price: "15€"
   }
 } as const;
 

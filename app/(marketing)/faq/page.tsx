@@ -2,59 +2,102 @@ import Header from "@/components/Header";
 
 export default function FaqPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 pt-20">
+    <main className="min-h-screen relative bg-transparent px-6 pt-20 pb-16">
+      {/* Fond rouge pailleté festif */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
+        }}
+      >
+        {/* Texture pointillée */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)`,
+            backgroundSize: '20px 20px',
+          }}
+        />
+        
+        {/* Paillettes scintillantes */}
+        <div className="absolute inset-0">
+          {[...Array(150)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: Math.random() * 3 + 1,
+                height: Math.random() * 3 + 1,
+                background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
+                opacity: Math.random() * 0.7 + 0.3,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${Math.random() * 3 + 2}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
       <Header />
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="relative z-10 mx-auto max-w-4xl py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6 text-black dark:text-black">
+          <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl">
             Foire aux questions
           </h1>
-          <p className="text-xl text-black dark:text-gray-300">
+          <p className="text-xl text-white/90 drop-shadow-lg">
             Tout ce que vous devez savoir
           </p>
         </div>
 
         <div className="space-y-6">
-          <details className="bg-transparent border border-white/70 dark:border-white/40 hover:bg-white dark:hover:bg-white/10 open:bg-white dark:open:bg-white/10 transition-colors rounded-2xl p-6 shadow">
-            <summary className="font-semibold cursor-pointer text-lg">Qu&rsquo;est-ce qu&rsquo;un calendrier de l&rsquo;Avent personnalisé ?</summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
-              C&rsquo;est un calendrier numérique avec 24 cases (du 1er au 24 décembre) que vous personnalisez avec vos propres photos, messages, dessins, musiques et autres (version Premium).
+          <details className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 open:bg-white/15 transition-colors rounded-2xl p-6 shadow-lg">
+            <summary className="font-semibold cursor-pointer text-lg text-white drop-shadow-md">Qu&rsquo;est-ce qu&rsquo;un calendrier de l&rsquo;Avent personnalisé ?</summary>
+            <p className="mt-3 text-white/90">
+              C&rsquo;est un calendrier numérique avec 24 cases (du 1er au 24 décembre) que vous personnalisez avec vos propres photos, messages, dessins et musiques (version Premium).
             </p>
           </details>
 
-          <details className="bg-transparent border border-white/70 dark:border-white/40 hover:bg-white dark:hover:bg-white/10 open:bg-white dark:open:bg-white/10 transition-colors rounded-2xl p-6 shadow">
-            <summary className="font-semibold cursor-pointer text-lg">Quelle est la différence entre les plans ?</summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
-              Le Plan Essentiel (10€) inclut photos, messages, dessins et musiques. Le Plan Premium (20€) ajoute des vidéos d&rsquo;IA, des petits jeux vidéos et un vrai prix à gagner (pour Noël).
+          <details className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 open:bg-white/15 transition-colors rounded-2xl p-6 shadow-lg">
+            <summary className="font-semibold cursor-pointer text-lg text-white drop-shadow-md">Quelle est la différence entre les plans ?</summary>
+            <p className="mt-3 text-white/90">
+              Le Plan Essentiel (10€) inclut photos, messages et dessins. Le Plan Premium (15€) ajoute les musiques, des vidéos d&rsquo;IA et un vrai prix à gagner (pour Noël).
             </p>
           </details>
 
-          <details className="bg-transparent border border-white/70 dark:border-white/40 hover:bg-white dark:hover:bg-white/10 open:bg-white dark:open:bg-white/10 transition-colors rounded-2xl p-6 shadow">
-            <summary className="font-semibold cursor-pointer text-lg">Le paiement est-il sécurisé ?</summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
+          <details className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 open:bg-white/15 transition-colors rounded-2xl p-6 shadow-lg">
+            <summary className="font-semibold cursor-pointer text-lg text-white drop-shadow-md">Le paiement est-il sécurisé ?</summary>
+            <p className="mt-3 text-white/90">
               Absolument. Tous les paiements sont traités via Stripe, la plateforme la plus sécurisée.
             </p>
           </details>
 
-          <details className="bg-transparent border border-white/70 dark:border-white/40 hover:bg-white dark:hover:bg-white/10 open:bg-white dark:open:bg-white/10 transition-colors rounded-2xl p-6 shadow">
-            <summary className="font-semibold cursor-pointer text-lg">Quand mon proche pourra-t-il ouvrir les cases ?</summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
+          <details className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 open:bg-white/15 transition-colors rounded-2xl p-6 shadow-lg">
+            <summary className="font-semibold cursor-pointer text-lg text-white drop-shadow-md">Quand mon proche pourra-t-il ouvrir les cases ?</summary>
+            <p className="mt-3 text-white/90">
               Une nouvelle case se débloque automatiquement chaque jour de décembre, du 1er au 24.
             </p>
           </details>
 
-          <details className="bg-transparent border border-white/70 dark:border-white/40 hover:bg-white dark:hover:bg-white/10 open:bg-white dark:open:bg-white/10 transition-colors rounded-2xl p-6 shadow">
-            <summary className="font-semibold cursor-pointer text-lg">Puis-je modifier le calendrier après création ?</summary>
-            <p className="mt-3 text-gray-600 dark:text-gray-400">
+          <details className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15 open:bg-white/15 transition-colors rounded-2xl p-6 shadow-lg">
+            <summary className="font-semibold cursor-pointer text-lg text-white drop-shadow-md">Puis-je modifier le calendrier après création ?</summary>
+            <p className="mt-3 text-white/90">
               Oui, vous pouvez modifier le contenu jusqu&rsquo;au moment où une case se débloque.
             </p>
           </details>
         </div>
 
-        <div className="mt-16 text-center text-white px-4 space-y-4 drop-shadow-[0_20px_45px_rgba(0,0,0,0.55)]">
-          <h2 className="text-3xl font-bold text-black">Vous n&rsquo;avez pas trouvé votre réponse ?</h2>
-          <p className="text-lg text-black">Notre équipe est là pour vous aider !</p>
-          <a href="mailto:aymeric.desbazeille@hec.edu" className="inline-block px-8 py-3 border-2 border-white text-black rounded-full font-bold transition-all hover:bg-white hover:text-black">
+        <div className="mt-16 text-center px-4 space-y-4">
+          <h2 className="text-3xl font-bold text-white drop-shadow-2xl">Vous n&rsquo;avez pas trouvé votre réponse ?</h2>
+          <p className="text-lg text-white/90 drop-shadow-lg">Notre équipe est là pour vous aider !</p>
+          <a 
+            href="mailto:aymeric.desbazeille@hec.edu" 
+            className="inline-block px-8 py-3 border-2 border-[#4a0808] rounded-full font-bold transition-all hover:scale-105 text-[#4a0808]"
+            style={{
+              background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+            }}
+          >
             Contactez-nous
           </a>
         </div>

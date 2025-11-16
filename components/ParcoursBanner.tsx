@@ -18,7 +18,8 @@ type Props = {
 };
 
 export default function ParcoursBanner({ plan = DEFAULT_PLAN, currentStep, className }: Props) {
-  const theme = PLAN_APPEARANCE[plan];
+  const key = plan ?? DEFAULT_PLAN;
+  const theme = PLAN_APPEARANCE[key];
   const highlightBg = plan === "plan_premium" ? "bg-[#fbeedc]" : "bg-[#f0f2f6]";
   const highlightText = plan === "plan_premium" ? "text-[#8a613c]" : "text-[#4d5663]";
 

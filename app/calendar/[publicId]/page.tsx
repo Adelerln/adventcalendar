@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { formatInTimeZone } from "date-fns-tz";
-import CalendarGrid from "@/components/CalendarGrid";
-import DayModal from "@/components/DayModal";
+import ChristmasTreeCarousel from "@/components/ChristmasTreeCarousel";
+import RedSilkEnvelope from "@/components/RedSilkEnvelope";
 import Header from "@/components/Header";
 import type { PlanKey } from "@/lib/plan-theme";
 
@@ -183,8 +183,8 @@ export default function PublicCalendarPage({ params, searchParams }: Props) {
                 </div>
               </div>
 
-              {/* Grille du calendrier */}
-              <CalendarGrid days={days} onDayClick={handleDayClick} plan={planKey} />
+              {/* Grille du calendrier - Arbre de Noël rotatif */}
+              <ChristmasTreeCarousel days={days} onDayClick={handleDayClick} />
 
               {/* Légende */}
               <div className="px-8 py-6 bg-gradient-to-r from-red-50 to-green-50 dark:from-red-950 dark:to-green-950 border-t border-gray-200 dark:border-gray-700">
@@ -220,9 +220,10 @@ export default function PublicCalendarPage({ params, searchParams }: Props) {
           </div>
         )}
 
-        {/* Modal pour afficher le contenu du jour */}
-        <DayModal
+        {/* Modal avec enveloppe rouge pour afficher le contenu du jour */}
+        <RedSilkEnvelope
           isOpen={selectedDay !== null}
+          onOpen={() => {}}
           onClose={() => setSelectedDay(null)}
           content={selectedDayContent}
         />

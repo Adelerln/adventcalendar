@@ -7,43 +7,79 @@ const featureItems = [
   "Dessins créatifs",
   "Musique",
   "Vidéos en IA",
-  "Petits jeux vidéos",
   "Prix à gagner $",
 ];
 
 export default function PricingPage() {
-  const essentialIncluded = new Set(featureItems.slice(0, 4));
+  const essentialIncluded = new Set(featureItems.slice(0, 3));
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-green-50 dark:from-red-950 dark:via-gray-900 dark:to-green-950 px-6 pt-20 pb-16 text-black">
+    <main className="min-h-screen relative bg-transparent px-6 pt-20 pb-16">
+      {/* Fond rouge pailleté festif */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
+        }}
+      >
+        {/* Texture pointillée */}
+        <div 
+          className="absolute inset-0 opacity-20"
+          style={{
+            backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)`,
+            backgroundSize: '20px 20px',
+          }}
+        />
+        
+        {/* Paillettes scintillantes */}
+        <div className="absolute inset-0">
+          {[...Array(150)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full animate-pulse"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: Math.random() * 3 + 1,
+                height: Math.random() * 3 + 1,
+                background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
+                opacity: Math.random() * 0.7 + 0.3,
+                animationDelay: `${Math.random() * 2}s`,
+                animationDuration: `${Math.random() * 3 + 2}s`,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
       <Header />
-      <div className="mx-auto max-w-6xl py-16">
+      <div className="relative z-10 mx-auto max-w-6xl py-16">
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold mb-6">Choisissez votre forfait</h1>
-          <p className="text-xl text-gray-700 max-w-3xl mx-auto">
+          <h1 className="text-5xl font-bold mb-6 text-white drop-shadow-2xl">Choisissez votre forfait</h1>
+          <p className="text-xl text-white/90 max-w-3xl mx-auto drop-shadow-lg">
             Créez un calendrier de l&rsquo;avent personnalisé
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <div className="rounded-3xl border-2 border-gray-300 p-8 transition-colors bg-white/75 hover:bg-white flex flex-col">
+          <div className="rounded-3xl border-2 border-white/20 p-8 transition-colors bg-white/10 backdrop-blur-md hover:bg-white/15 flex flex-col">
             <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold mb-2">PLAN ESSENTIEL</h2>
-              <div className="text-6xl font-bold text-gray-400 mb-4">10€</div>
-              <p className="text-gray-700">Paiement après création</p>
+              <h2 className="text-3xl font-bold mb-2 text-white">PLAN ESSENTIEL</h2>
+              <div className="text-6xl font-bold text-white/80 mb-4">10€</div>
+              <p className="text-white/80">Paiement après création</p>
             </div>
             <div className="flex-1">
-              <div className="font-semibold text-lg mb-4">24 intentions avec plusieurs surprises possibles dont :</div>
+              <div className="font-semibold text-lg mb-4 text-white">24 intentions avec plusieurs surprises possibles dont :</div>
               <ul className="space-y-3 ml-2">
                 {featureItems.map((feature) => {
                   const included = essentialIncluded.has(feature);
-                  const iconClass = included ? "text-[#06B800]" : "text-[#ED0200]";
+                  const iconClass = included ? "text-[#4ade80]" : "text-[#f87171]";
                   return (
                     <li key={feature} className="flex items-center gap-3 text-lg">
                       <span className={`text-xl font-semibold ${iconClass}`}>
                         {included ? "✔" : "✘"}
                       </span>
-                      <span className="font-medium">{feature}</span>
+                      <span className="font-medium text-white">{feature}</span>
                     </li>
                   );
                 })}
@@ -52,39 +88,52 @@ export default function PricingPage() {
             <div className="mt-10">
               <Link
                 href="/create-account?plan=plan_essentiel"
-                className="block w-full rounded-full border-2 border-gray-500 bg-[rgba(209,213,220,0.2)] text-black px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white"
+                className="block w-full rounded-full border-2 border-white/30 bg-white/10 text-white px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white/20 backdrop-blur-sm"
               >
                 Choisir ce plan
               </Link>
             </div>
           </div>
 
-          <div className="rounded-3xl border-2 border-[#ead3c0] p-8 transition-colors bg-white/75 hover:bg-white flex flex-col">
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-bold mb-2">PLAN PREMIUM</h2>
-              <div className="text-6xl font-bold text-[#ead3c0] mb-4">20€</div>
-              <p className="text-gray-700">Paiement après création</p>
+          <div className="rounded-3xl border-2 border-[#d4af37] p-8 transition-colors bg-white/10 backdrop-blur-md hover:bg-white/15 flex flex-col relative overflow-hidden">
+            {/* Effet brillant doré */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/10 to-transparent pointer-events-none" />
+            
+            <div className="text-center mb-6 relative z-10">
+              <h2 className="text-3xl font-bold mb-2 text-white">PLAN PREMIUM</h2>
+              <div className="text-6xl font-bold mb-4" style={{ 
+                background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}>15€</div>
+              <p className="text-white/80">Paiement après création</p>
             </div>
-            <div className="flex-1">
-              <div className="font-semibold text-lg mb-4">24 intentions avec plusieurs surprises possibles dont :</div>
+            <div className="flex-1 relative z-10">
+              <div className="font-semibold text-lg mb-4 text-white">24 intentions avec plusieurs surprises possibles dont :</div>
               <ul className="space-y-3 ml-2">
                 {featureItems.map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-lg">
-                    <span className="text-xl font-semibold text-[#06B800]">✔</span>
-                    <span className="font-medium">{feature}</span>
+                    <span className="text-xl font-semibold text-[#4ade80]">✔</span>
+                    <span className="font-medium text-white">{feature}</span>
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="mt-10 relative">
+            <div className="mt-10 relative z-10">
               <div className="absolute -top-4 right-6">
-                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#ead3c0] text-black text-sm font-bold shadow">
+                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-sm font-bold shadow-lg"
+                      style={{
+                        background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                      }}>
                   ⭐ POPULAIRE
                 </span>
               </div>
               <Link
                 href="/create-account?plan=plan_premium"
-                className="block w-full rounded-full border-2 border-[#ead3c0] bg-[rgba(233,211,191,0.2)] text-black px-8 py-4 text-lg font-bold text-center transition-all hover:bg-white"
+                className="block w-full rounded-full border-2 border-[#4a0808] px-8 py-4 text-lg font-bold text-center transition-all hover:scale-105 text-[#4a0808]"
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                }}
               >
                 Choisir le Premium
               </Link>
@@ -93,7 +142,7 @@ export default function PricingPage() {
         </div>
 
         <div className="mt-16 text-center">
-          <Link href="/faq" className="text-green-800 hover:text-green-900 dark:text-green-200 dark:hover:text-green-100 font-semibold">
+          <Link href="/faq" className="text-white/90 hover:text-white font-semibold drop-shadow-md text-lg">
             Questions fréquentes →
           </Link>
         </div>

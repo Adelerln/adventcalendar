@@ -1,25 +1,22 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
 import SiteFooter from "@/components/SiteFooter";
 import SiteBackground from "@/components/SiteBackground";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
+  weight: ["400", "500", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-display",
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Calendrier de l’Avent personnalisable",
-  description: "Créez un calendrier de l’Avent magique et partagez-le avec vos proches.",
+  title: "Calendrier de l'Avent personnalisable",
+  description: "Créez un calendrier de l'Avent magique et partagez-le avec vos proches.",
+  icons: {
+    icon: '/icon.png',
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="fr" className={dmSans.variable}>
       <body className="antialiased font-sans">
         <div className="flex min-h-screen flex-col">
           <SiteBackground>{children}</SiteBackground>

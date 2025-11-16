@@ -3,8 +3,8 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --accent-warm: #0f5132;
-  --accent-cool: #d3d4d4;
+  --accent-warm: #dc2626;
+  --accent-cool: #16a34a;
   --christmas-red: var(--accent-warm);
   --christmas-green: var(--accent-cool);
   --christmas-gold: #fbbf24;

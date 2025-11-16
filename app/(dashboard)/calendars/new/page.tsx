@@ -136,7 +136,7 @@ function NewCalendarPageContent() {
 
   const activePlan = (selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN) as PlanKey;
   const planTheme = PLAN_APPEARANCE[activePlan];
-  const planPriceLabel = activePlan === "plan_premium" ? "Plan Premium (20€)" : "Plan Essentiel (10€)";
+  const planPriceLabel = activePlan === "plan_premium" ? "Plan Premium (15€)" : "Plan Essentiel (10€)";
   const allowMusic = activePlan === "plan_premium";
   const showPlanSelection = step === "plan";
   const currentParcoursStep = showPlanSelection ? 1 : 3;
@@ -228,7 +228,7 @@ function NewCalendarPageContent() {
               <div className="bg-white rounded-3xl shadow-2xl p-8 border-2 border-[#ead3c0] hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
                 <div className="text-center mb-6 mt-6 min-h-[150px] flex flex-col justify-center">
                   <h2 className="text-3xl font-bold mb-2">Plan Premium</h2>
-                  <div className="text-6xl font-bold text-[#cda982] mb-2">20€</div>
+                  <div className="text-6xl font-bold text-[#cda982] mb-2">15€</div>
                   <p className="text-gray-600">Paiement après création</p>
                 </div>
                 <div className="mb-6 flex-1">

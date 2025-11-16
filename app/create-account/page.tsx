@@ -14,7 +14,7 @@ const PLAN_COPY = {
   },
   plan_premium: {
     name: "Plan Premium",
-    price: "20€"
+    price: "15€"
   }
 } as const;
 
@@ -24,11 +24,10 @@ const FEATURE_ITEMS = [
   "Dessins créatifs",
   "Musique",
   "Vidéos en IA",
-  "Petits jeux vidéos",
   "Prix à gagner $"
 ] as const;
 
-const ESSENTIAL_INCLUDED = new Set(FEATURE_ITEMS.slice(0, 4));
+const ESSENTIAL_INCLUDED = new Set(FEATURE_ITEMS.slice(0, 3));
 
 export default function CreateAccountPage() {
   return (

@@ -39,45 +39,45 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-md text-black">
-      <div className="w-full px-6 py-4 flex items-center justify-between drop-shadow-[0_10px_25px_rgba(0,0,0,0.2)]">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
+      <div className="w-full px-6 py-4 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-3 text-2xl tracking-[0.3em] uppercase hover:scale-105 transition-transform"
+          className="flex items-center gap-3 text-2xl tracking-[0.3em] uppercase hover:scale-105 transition-transform text-white drop-shadow-lg"
         >
-          <span className="relative inline-flex w-10 h-10 overflow-hidden rounded-full border border-black/30">
+          <span className="relative inline-flex w-10 h-10 overflow-hidden rounded-full border-2 border-[#d4af37]">
             <Image
-              src="/advent_calendar.png"
-              alt="Mini sapin"
+              src="/envelope-logo.png"
+              alt="Enveloppe dorée"
               fill
-              sizes="30px"
-              style={{ objectFit: "cover", objectPosition: "65% 25%" }}
+              sizes="40px"
+              style={{ objectFit: "cover" }}
               priority
             />
           </span>
           Advent Calendar
         </Link>
         <nav className="flex items-center gap-6 ml-auto text-base font-semibold">
-          <Link href="/pricing" className="transition-colors text-black hover:text-gray-600">
+          <Link href="/pricing" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             Tarifs
           </Link>
-          <Link href="/faq" className="transition-colors text-black hover:text-gray-600">
+          <Link href="/faq" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             FAQ
           </Link>
-          <Link href="/dashboard" className="transition-colors text-black hover:text-gray-600">
+          <Link href="/dashboard" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             Exemple
           </Link>
         </nav>
         <div className="ml-6 flex items-center gap-3">
           {user ? (
             <>
-              <span className="text-sm font-semibold text-gray-700">
+              <span className="text-sm font-semibold text-white drop-shadow-md">
                 {user.name}
               </span>
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-xs uppercase tracking-wide border border-[#e5e9ef] px-4 py-2 rounded-full text-[#4d5663] hover:bg-[#e5e9ef] hover:text-[#1f232b] transition-colors"
+                className="text-xs uppercase tracking-wide border-2 border-white/30 px-4 py-2 rounded-full text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
               >
                 Se déconnecter
               </button>
@@ -86,13 +86,18 @@ export default function Header() {
             <>
               <Link
                 href="/login"
-                className="text-xs uppercase tracking-wide border border-[#e5e9ef] px-4 py-2 rounded-full text-[#4d5663] hover:bg-[#e5e9ef] hover:text-[#1f232b] transition-colors"
+                className="text-xs uppercase tracking-wide border-2 border-white/30 px-4 py-2 rounded-full text-white hover:bg-white/20 transition-colors backdrop-blur-sm"
               >
                 Se connecter
               </Link>
               <Link
                 href="/create-account"
-                className="text-xs uppercase tracking-wide border border-[#e5e9ef] px-4 py-2 rounded-full text-[#4d5663] hover:bg-[#e5e9ef] hover:text-[#1f232b] transition-colors"
+                className="text-xs uppercase tracking-wide px-4 py-2 rounded-full text-white hover:scale-105 transition-transform"
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                  border: '2px solid #4a0808',
+                  color: '#4a0808',
+                }}
               >
                 Créer un compte
               </Link>
