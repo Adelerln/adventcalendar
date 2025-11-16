@@ -1,49 +1,67 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
-import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
-import { resolveServerPlanKey } from "@/lib/server-plan";
+import { type PlanKey } from "@/lib/plan-theme";
 
 const PLAN_DETAILS = {
   plan_essentiel: { name: "Plan Essentiel", price: "10€" },
   plan_premium: { name: "Plan Premium", price: "15€" }
 } as const;
 
-type RecipientPageProps = {
-  searchParams?: {
-    plan?: keyof typeof PLAN_DETAILS;
-    filled?: string;
-  };
-};
-
-export default function RecipientPage({ searchParams }: RecipientPageProps) {
-  const planKey: PlanKey = resolveServerPlanKey(searchParams?.plan);
+export default function RecipientPage() {
+  const searchParams = useSearchParams();
+  const planParam = searchParams?.get("plan");
+  const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_DETAILS[planKey];
-  const theme = PLAN_APPEARANCE[planKey];
-  const filled = Number(searchParams?.filled ?? "0");
-  const inputSurface =
-    planKey === "plan_premium"
-      ? "border-[#f5e6d4] bg-[#fff9f4]"
-      : "border-[#e5e9ef] bg-[#f7f9fc]";
-  const inputRing = planKey === "plan_premium" ? "focus:ring-[#f6dfc2]" : "focus:ring-[#d7dde5]";
+  const filled = Number(searchParams?.get("filled") ?? "0");
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24">
+    <main className="relative min-h-screen overflow-hidden">
       <Header />
+      {/* Fond rouge dégradé */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)'
+        }}
+      />
+      {/* Paillettes scintillantes */}
+      <div className="absolute inset-0 z-0">
+        {[...Array(150)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+              opacity: Math.random() * 0.6 + 0.2,
+              animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          />
+        ))}
+      </div>
       <StepNavigation
         plan={planKey}
         currentStep={4}
         prev={{ href: `/calendars/new?plan=${planKey}` }}
         next={{ href: `/checkout?plan=${planKey}${filled ? `&filled=${filled}` : ""}` }}
-        className="mt-6"
+        className="mt-6 relative z-10"
       />
-      <section className="mx-auto max-w-5xl px-6 py-12 space-y-10">
+      <section className="relative z-10 mx-auto max-w-5xl px-6 py-12 space-y-10">
         <div className="text-center space-y-4">
-          <h1 className="mt-6 text-4xl md:text-5xl font-bold text-gray-900 dark:text-white">
+          <h1 className="mt-6 text-4xl md:text-5xl font-bold text-white">
             Dites-nous à qui ira ce calendrier
           </h1>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Ces informations nous permettent de personnaliser vos messages et de préparer l’envoi au bon moment.
+          <p className="mt-4 text-lg text-white/80 max-w-3xl mx-auto">
+            Ces informations nous permettent de personnaliser vos messages et de préparer l'envoi au bon moment.
           </p>
         </div>
         <ParcoursBanner plan={planKey} currentStep={4} />
@@ -52,60 +70,60 @@ export default function RecipientPage({ searchParams }: RecipientPageProps) {
           <form
             action="/checkout"
             method="GET"
-            className={`bg-white rounded-3xl shadow-2xl border ${theme.border} p-10 flex flex-col`}
+            className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl border-2 border-white/20 p-10 flex flex-col"
           >
             <input type="hidden" name="plan" value={planKey} />
             <div className="space-y-6 flex-1">
               <div className="grid md:grid-cols-2 gap-6">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-sm font-semibold text-white">
                   Prénom et nom du receveur
                   <input
                     name="recipient_name"
                     required
                     placeholder="Prénom Nom"
-                    className={`mt-2 w-full rounded-2xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-sm font-semibold text-white">
                   E-mail du receveur
                   <input
                     name="recipient_email"
                     type="email"
                     required
                     placeholder="ami@example.com"
-                    className={`mt-2 w-full rounded-2xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
-                <label className="text-sm font-semibold text-gray-700">
+                <label className="text-sm font-semibold text-white">
                   Relation
                   <input
                     name="relationship"
                     required
                     placeholder="Partenaire, ami(e), famille..."
-                    className={`mt-2 w-full rounded-2xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
-                <label className="text-sm font-semibold text-gray-700">
-                  Date d’ouverture prévue
+                <label className="text-sm font-semibold text-white">
+                  Date d'ouverture prévue
                   <input
                     name="delivery_date"
                     type="date"
                     required
-                    className={`mt-2 w-full rounded-2xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
               </div>
 
-              <label className="text-sm font-semibold text-gray-700 block">
+              <label className="text-sm font-semibold text-white block">
                 Instructions particulières
                 <textarea
                   name="notes"
                   rows={4}
                   placeholder="Message spécial, contraintes de dates, prononciation du prénom..."
-                  className={`mt-2 w-full rounded-2xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                  className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                 />
               </label>
             </div>
@@ -113,36 +131,52 @@ export default function RecipientPage({ searchParams }: RecipientPageProps) {
             <div className="mt-8 space-y-3">
               <button
                 type="submit"
-                className={`w-full rounded-full px-8 py-4 text-lg font-semibold shadow-lg transition-all ${theme.ctaBg} ${theme.ctaHover} ${theme.ctaText}`}
+                className="w-full rounded-full px-8 py-4 text-lg font-bold shadow-lg transition-all border-2 border-[#4a0808]"
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                  color: '#4a0808'
+                }}
               >
                 Continuer vers le paiement Stripe
               </button>
-              <p className="text-center text-xs uppercase tracking-wide text-gray-400">
+              <p className="text-center text-xs uppercase tracking-wide text-white/70">
                 Étape suivante : paiement sécurisé
               </p>
             </div>
           </form>
 
-          <aside className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 space-y-6 flex flex-col">
-            <div className={`rounded-2xl border ${theme.border} bg-white px-6 py-5`}>
-              <p className="text-xs uppercase tracking-[0.3em] text-gray-500">Forfait</p>
-              <h2 className={`text-3xl font-bold mt-2 ${theme.accentText}`}>{plan.name}</h2>
-              <p className={`text-4xl font-black mt-2 ${theme.priceColor}`}>{plan.price}</p>
+          <aside className="bg-white/10 backdrop-blur-md rounded-3xl shadow-xl border-2 border-white/20 p-8 space-y-6 flex flex-col">
+            <div className="rounded-2xl border-2 border-[#d4af37] bg-white/10 backdrop-blur px-6 py-5">
+              <p className="text-xs uppercase tracking-[0.3em] text-[#d4af37]">Forfait</p>
+              <h2 className="text-3xl font-bold mt-2 text-white">{plan.name}</h2>
+              <p className="text-4xl font-black mt-2 text-[#d4af37]">{plan.price}</p>
             </div>
-            <div className={`rounded-2xl border border-dashed ${theme.border} p-6 space-y-2`}>
-              <p className="text-sm font-semibold text-gray-600">Progression</p>
-              <p className="text-2xl font-bold text-gray-900">{filled}/24 jours remplis</p>
-              <p className="text-sm text-gray-500">
+            <div className="rounded-2xl border-2 border-dashed border-[#d4af37] bg-white/5 backdrop-blur p-6 space-y-2">
+              <p className="text-sm font-semibold text-white/90">Progression</p>
+              <p className="text-2xl font-bold text-white">{filled}/24 jours remplis</p>
+              <p className="text-sm text-white/70">
                 Vous pourrez encore modifier votre calendrier après le paiement.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-100 p-6 mt-auto">
-              <p className="text-sm text-gray-500">Besoin d’aide ?</p>
-              <p className="text-lg font-semibold text-gray-800">support@avent.com</p>
+            <div className="bg-white/5 backdrop-blur rounded-2xl border-2 border-white/10 p-6 mt-auto">
+              <p className="text-sm text-white/70">Besoin d'aide ?</p>
+              <p className="text-lg font-semibold text-[#d4af37]">support@avent.com</p>
             </div>
           </aside>
         </div>
       </section>
+      <style jsx>{`
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.2;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(2) rotate(180deg);
+          }
+        }
+      `}</style>
     </main>
   );
 }

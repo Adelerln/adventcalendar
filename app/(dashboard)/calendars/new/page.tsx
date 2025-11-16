@@ -150,7 +150,45 @@ function NewCalendarPageContent() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 px-6 py-12 space-y-10">
+      <main className="min-h-screen relative bg-transparent pt-24 px-6 py-12">
+        {/* Fond rouge pailleté festif */}
+        <div 
+          className="fixed inset-0 z-0"
+          style={{
+            background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
+          }}
+        >
+          {/* Texture pointillée */}
+          <div 
+            className="absolute inset-0 opacity-20"
+            style={{
+              backgroundImage: `radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1px)`,
+              backgroundSize: '20px 20px',
+            }}
+          />
+          
+          {/* Paillettes scintillantes */}
+          <div className="absolute inset-0">
+            {[...Array(150)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute rounded-full animate-pulse"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  width: Math.random() * 3 + 1,
+                  height: Math.random() * 3 + 1,
+                  background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
+                  opacity: Math.random() * 0.7 + 0.3,
+                  animationDelay: `${Math.random() * 2}s`,
+                  animationDuration: `${Math.random() * 3 + 2}s`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="relative z-10 space-y-10">
         <StepNavigation
           plan={activePlan}
           currentStep={currentParcoursStep}
@@ -349,6 +387,7 @@ function NewCalendarPageContent() {
             onClose={() => setEditingDay(null)}
           />
         )}
+        </div>
       </main>
     </>
   );

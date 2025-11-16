@@ -138,41 +138,146 @@ function CreateAccountContent() {
 
   if (session) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
+      <main className="relative min-h-screen overflow-hidden">
         <Header />
-        <section className="mx-auto max-w-4xl px-6 py-32 text-center space-y-6">
-          <p className="text-sm uppercase tracking-[0.4em] text-gray-500">Connexion détectée</p>
-          <h1 className="text-4xl font-bold">Redirection vers votre calendrier…</h1>
-          <p className="text-gray-600">
+        {/* Fond rouge dégradé */}
+        <div 
+          className="fixed inset-0 z-0"
+          style={{
+            background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)'
+          }}
+        />
+        {/* Paillettes scintillantes */}
+        <div className="absolute inset-0 z-0">
+          {[...Array(150)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 6 + 2}px`,
+                height: `${Math.random() * 6 + 2}px`,
+                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+                opacity: Math.random() * 0.6 + 0.2,
+                animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 2}s`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+              }}
+            />
+          ))}
+        </div>
+        <section className="relative z-10 mx-auto max-w-4xl px-6 py-32 text-center space-y-6">
+          <p className="text-sm uppercase tracking-[0.4em] text-[#d4af37]">Connexion détectée</p>
+          <h1 className="text-4xl font-bold text-white">Redirection vers votre calendrier…</h1>
+          <p className="text-white/80">
             Vous êtes déjà connecté(e). Nous vous emmenons directement vers l&rsquo;étape de personnalisation.
           </p>
         </section>
+        <style jsx>{`
+          @keyframes sparkle {
+            0%, 100% {
+              opacity: 0.2;
+              transform: scale(0.8) rotate(0deg);
+            }
+            50% {
+              opacity: 1;
+              transform: scale(2) rotate(180deg);
+            }
+          }
+        `}</style>
       </main>
     );
   }
 
   if (checkingSession) {
     return (
-      <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
+      <main className="relative min-h-screen overflow-hidden">
         <Header />
-        <section className="mx-auto max-w-4xl px-6 py-32 text-center text-gray-500">Chargement…</section>
+        {/* Fond rouge dégradé */}
+        <div 
+          className="fixed inset-0 z-0"
+          style={{
+            background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)'
+          }}
+        />
+        {/* Paillettes scintillantes */}
+        <div className="absolute inset-0 z-0">
+          {[...Array(150)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                top: `${Math.random() * 100}%`,
+                left: `${Math.random() * 100}%`,
+                width: `${Math.random() * 6 + 2}px`,
+                height: `${Math.random() * 6 + 2}px`,
+                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+                opacity: Math.random() * 0.6 + 0.2,
+                animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
+                animationDelay: `${Math.random() * 2}s`,
+                transform: `rotate(${Math.random() * 360}deg)`,
+              }}
+            />
+          ))}
+        </div>
+        <section className="relative z-10 mx-auto max-w-4xl px-6 py-32 text-center text-white">Chargement…</section>
+        <style jsx>{`
+          @keyframes sparkle {
+            0%, 100% {
+              opacity: 0.2;
+              transform: scale(0.8) rotate(0deg);
+            }
+            50% {
+              opacity: 1;
+              transform: scale(2) rotate(180deg);
+            }
+          }
+        `}</style>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-24 text-black">
+    <main className="relative min-h-screen overflow-hidden">
       <Header />
+      {/* Fond rouge dégradé */}
+      <div 
+        className="fixed inset-0 z-0"
+        style={{
+          background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)'
+        }}
+      />
+      {/* Paillettes scintillantes */}
+      <div className="absolute inset-0 z-0">
+        {[...Array(150)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 6 + 2}px`,
+              height: `${Math.random() * 6 + 2}px`,
+              background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+              opacity: Math.random() * 0.6 + 0.2,
+              animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 2}s`,
+              transform: `rotate(${Math.random() * 360}deg)`,
+            }}
+          />
+        ))}
+      </div>
       <StepNavigation
         plan={planKey}
         currentStep={2}
         prev={{ onClick: () => router.push(`/calendars/new?plan=${planKey}&stage=plan`) }}
         next={{ onClick: () => router.push(`/calendars/new?plan=${planKey}`) }}
-        className="mt-6"
+        className="mt-6 relative z-10"
       />
-      <section className="mx-auto max-w-6xl px-6 py-12 space-y-10">
+      <section className="relative z-10 mx-auto max-w-6xl px-6 py-12 space-y-10">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-black">
+          <h1 className="text-4xl md:text-5xl font-bold text-white">
             Créez votre compte pour accéder à votre calendrier
           </h1>
         </div>
@@ -182,36 +287,36 @@ function CreateAccountContent() {
           <div className="grid gap-10 md:grid-cols-2 items-stretch">
             <form
               onSubmit={handleSubmit}
-              className={`bg-white rounded-3xl shadow-2xl border-2 ${theme.border} p-8 space-y-6`}
+              className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl border-2 border-white/20 p-8 space-y-6"
             >
               <input type="hidden" name="plan" value={planKey} />
               {/* Section compte acheteur */}
               <div>
-                <p className="text-xs uppercase tracking-[0.4em] font-semibold mb-2">Acheteur</p>
+                <p className="text-xs uppercase tracking-[0.4em] text-[#d4af37] font-semibold mb-2">Acheteur</p>
                 <div className="grid md:grid-cols-2 gap-4">
-                  <label className="text-sm font-semibold text-black">
+                  <label className="text-sm font-semibold text-white">
                     Nom complet
                     <input
                       name="buyer_full_name"
                       required
                       placeholder="Prénom Nom"
-                      className={`mt-1 w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                      className="mt-1 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                     />
                   </label>
-                  <label className="text-sm font-semibold text-black">
+                  <label className="text-sm font-semibold text-white">
                     Téléphone
                     <input
                       name="buyer_phone"
                       required
                       placeholder="+33 6 12 34 56 78"
-                      className={`mt-1 w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                      className="mt-1 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                     />
                   </label>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-black mb-2">
+                <label htmlFor="email" className="block text-sm font-semibold text-white mb-2">
                   Adresse e-mail
                 </label>
                 <input
@@ -219,12 +324,12 @@ function CreateAccountContent() {
                   name="email"
                   type="email"
                   placeholder="vous@example.com"
-                  className={`w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                  className="w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   required
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-black mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-white mb-2">
                   Mot de passe
                 </label>
                 <input
@@ -232,29 +337,33 @@ function CreateAccountContent() {
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className={`w-full rounded-2xl px-4 py-3 text-black focus:outline-none focus:ring-2 ${inputSurface} ${inputRing}`}
+                  className="w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   required
                 />
               </div>
-              {error && <p className="text-sm text-red-600">{error}</p>}
+              {error && <p className="text-sm text-red-200 bg-red-500/20 backdrop-blur px-4 py-2 rounded-lg border border-red-300/30">{error}</p>}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`block w-full rounded-full border-2 ${theme.border} ${theme.ctaBg} ${theme.ctaHover} ${theme.ctaText} px-8 py-4 text-lg font-bold text-center transition-all disabled:opacity-60 disabled:cursor-not-allowed`}
+                className="block w-full rounded-full border-2 border-[#4a0808] px-8 py-4 text-lg font-bold text-center transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                  color: '#4a0808'
+                }}
               >
                 {isSubmitting ? "Création en cours..." : "Créer mon compte"}
               </button>
-              <p className="text-center text-xs uppercase tracking-wide text-black">
+              <p className="text-center text-xs uppercase tracking-wide text-white/80">
                 Étape suivante : personnalisation du calendrier
               </p>
             </form>
 
             <div
-              className={`rounded-3xl shadow-2xl border-2 ${theme.border} bg-white p-8 space-y-6 flex flex-col h-full`}
+              className="rounded-3xl shadow-2xl border-2 border-white/20 bg-white/10 backdrop-blur-md p-8 space-y-6 flex flex-col h-full"
             >
               <div>
-                <h2 className="text-3xl font-bold">{plan.name}</h2>
-                <div className={`text-6xl font-black mt-2 ${theme.priceColor}`}>
+                <h2 className="text-3xl font-bold text-white">{plan.name}</h2>
+                <div className="text-6xl font-black mt-2 text-[#d4af37]">
                   {plan.price}
                 </div>
               </div>
@@ -265,7 +374,7 @@ function CreateAccountContent() {
                   const icon = included ? "✔" : "✘";
                   const iconClass = included ? "text-[#06B800]" : "text-[#ED0200]";
                   return (
-                    <li key={feature} className="flex items-center gap-3 text-lg font-medium">
+                    <li key={feature} className="flex items-center gap-3 text-lg font-medium text-white">
                       <span className={`text-xl font-semibold ${iconClass}`}>{icon}</span>
                       <span>{feature}</span>
                     </li>
@@ -276,6 +385,18 @@ function CreateAccountContent() {
           </div>
         </div>
       </section>
+      <style jsx>{`
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.2;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(2) rotate(180deg);
+          }
+        }
+      `}</style>
     </main>
   );
 }
