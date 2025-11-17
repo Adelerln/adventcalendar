@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 const plans = [
@@ -19,6 +20,23 @@ const plans = [
 ] as const;
 
 export default function GiftLoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main
+          className="min-h-screen flex items-center justify-center"
+          style={{ background: "linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)" }}
+        >
+          <p className="text-white text-xl">Chargement…</p>
+        </main>
+      }
+    >
+      <GiftLoginContent />
+    </Suspense>
+  );
+}
+
+function GiftLoginContent() {
   const searchParams = useSearchParams();
   const planKey = searchParams?.get('plan') === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = plans.find((p) => p.key === planKey)!;

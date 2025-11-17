@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
@@ -18,6 +19,23 @@ const PLAN_INFO = {
 } as const;
 
 export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <main
+          className="relative min-h-screen flex items-center justify-center"
+          style={{ background: "linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)" }}
+        >
+          <p className="text-white text-xl">Chargement du paiement…</p>
+        </main>
+      }
+    >
+      <CheckoutPageContent />
+    </Suspense>
+  );
+}
+
+function CheckoutPageContent() {
   const searchParams = useSearchParams();
   const planParam = searchParams?.get("plan");
   const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";

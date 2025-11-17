@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
 
@@ -127,6 +127,15 @@ const mockDays = [
   { day: 24, isUnlocked: true, isToday: false, message: "Joyeux Noël mon amour ! 🎄❤️🎅", photo: null, drawing: null, music: null },
 ];
 
+function createDeterministicRandom(seed: number) {
+  let value = seed % 2147483647;
+  if (value <= 0) value += 2147483646;
+  return () => {
+    value = (value * 16807) % 2147483647;
+    return (value - 1) / 2147483646;
+  };
+}
+
 export default function MarketingHomePage() {
   // Force le fond transparent sur cette page
   useEffect(() => {
@@ -134,6 +143,20 @@ export default function MarketingHomePage() {
     return () => {
       document.body.style.background = '';
     };
+  }, []);
+
+  const sparkles = useMemo(() => {
+    const rand = createDeterministicRandom(2025);
+    return Array.from({ length: 150 }, (_, i) => ({
+      id: i,
+      top: rand() * 100,
+      left: rand() * 100,
+      width: 2 + rand() * 4,
+      height: 2 + rand() * 4,
+      colorIndex: Math.floor(rand() * 3),
+      duration: 1 + rand() * 1.5,
+      delay: rand(),
+    }));
   }, []);
 
   return (
@@ -159,16 +182,16 @@ export default function MarketingHomePage() {
         
         {/* Paillettes scintillantes */}
         <div className="absolute inset-0">
-          {[...Array(150)].map((_, i) => (
+          {sparkles.map((sparkle) => (
             <motion.div
-              key={i}
+              key={sparkle.id}
               className="absolute rounded-full"
               style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: Math.random() * 6 + 2,
-                height: Math.random() * 6 + 2,
-                background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#fcd34d' : '#ffffff',
+                top: `${sparkle.top}%`,
+                left: `${sparkle.left}%`,
+                width: sparkle.width,
+                height: sparkle.height,
+                background: sparkle.colorIndex === 0 ? '#fbbf24' : sparkle.colorIndex === 1 ? '#fcd34d' : '#ffffff',
                 boxShadow: '0 0 20px currentColor',
               }}
               animate={{
@@ -177,9 +200,9 @@ export default function MarketingHomePage() {
                 rotate: [0, 180, 360],
               }}
               transition={{
-                duration: 1 + Math.random() * 1.5,
+                duration: sparkle.duration,
                 repeat: Infinity,
-                delay: Math.random() * 1,
+                delay: sparkle.delay,
                 ease: "easeInOut",
               }}
             />

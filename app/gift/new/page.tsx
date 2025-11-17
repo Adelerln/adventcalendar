@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import GiftWizard from "@/components/gift-builder/GiftWizard";
 import { useSearchParams } from "next/navigation";
 
-export default function GiftNewPage() {
+function GiftNewPageContent() {
   const searchParams = useSearchParams();
   const hasAccess = !!searchParams?.get('access');
 
@@ -124,5 +125,13 @@ export default function GiftNewPage() {
         <GiftWizard />
       </div>
     </main>
+  );
+}
+
+export default function GiftNewPage() {
+  return (
+    <Suspense fallback={null}>
+      <GiftNewPageContent />
+    </Suspense>
   );
 }

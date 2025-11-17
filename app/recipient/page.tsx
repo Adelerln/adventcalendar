@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
@@ -11,7 +12,7 @@ const PLAN_DETAILS = {
   plan_premium: { name: "Plan Premium", price: "15€" }
 } as const;
 
-export default function RecipientPage() {
+function RecipientPageContent() {
   const searchParams = useSearchParams();
   const planParam = searchParams?.get("plan");
   const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
@@ -178,5 +179,13 @@ export default function RecipientPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function RecipientPage() {
+  return (
+    <Suspense fallback={null}>
+      <RecipientPageContent />
+    </Suspense>
   );
 }
