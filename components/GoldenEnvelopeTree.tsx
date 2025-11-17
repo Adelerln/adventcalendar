@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type DayBox = {
@@ -26,6 +26,85 @@ const GRID_LAYOUT = [
   [13, 14, 15, 16, 17, 18],
   [19, 20, 21, 22, 23, 24],
 ];
+
+// Flocons de neige qui tombent
+function Snowfall() {
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number }>>([]);
+
+  useEffect(() => {
+    const flakes = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      delay: Math.random() * 5,
+      duration: 10 + Math.random() * 10,
+      size: 8 + Math.random() * 8,
+      rotation: Math.random() * 360,
+    }));
+    setSnowflakes(flakes);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {snowflakes.map((flake) => (
+        <motion.div
+          key={flake.id}
+          className="absolute"
+          style={{
+            left: `${flake.x}%`,
+            top: -20,
+          }}
+          animate={{
+            y: ['0vh', '110vh'],
+            x: [0, Math.random() * 100 - 50, 0],
+            rotate: [flake.rotation, flake.rotation + 360],
+            opacity: [0, 1, 1, 0],
+          }}
+          transition={{
+            duration: flake.duration,
+            delay: flake.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
+          {/* Flocon SVG avec 6 branches */}
+          <svg 
+            width={flake.size} 
+            height={flake.size} 
+            viewBox="0 0 24 24" 
+            fill="none"
+            style={{
+              filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.8))',
+            }}
+          >
+            {/* Branches principales */}
+            <line x1="12" y1="2" x2="12" y2="22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="4.93" y1="6.5" x2="19.07" y2="17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="4.93" y1="17.5" x2="19.07" y2="6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            
+            {/* Petites branches décoratives */}
+            <line x1="12" y1="5" x2="10" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="5" x2="14" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="19" x2="10" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="19" x2="14" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            <line x1="6.5" y1="8.2" x2="8.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="6.5" y1="8.2" x2="7.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="15.8" x2="15.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="15.8" x2="16.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            <line x1="6.5" y1="15.8" x2="8.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="6.5" y1="15.8" x2="7.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="8.2" x2="15.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="8.2" x2="16.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            {/* Centre */}
+            <circle cx="12" cy="12" r="1.5" fill="white"/>
+          </svg>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 // Confetti component
 function Confetti({ trigger }: { trigger: boolean }) {
@@ -77,6 +156,60 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
   const [isOpened, setIsOpened] = useState(false);
   const [openedDays, setOpenedDays] = useState<Set<number>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Créer le son d'ouverture
+  useEffect(() => {
+    // Son d'ouverture d'enveloppe (fréquences agréables)
+    const audioContext = typeof window !== 'undefined' ? new (window.AudioContext || (window as any).webkitAudioContext)() : null;
+    if (audioContext) {
+      audioRef.current = new Audio();
+    }
+  }, []);
+
+  const playOpenSound = () => {
+    if (typeof window === 'undefined') return;
+    
+    try {
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      // Son doux et satisfaisant
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.5);
+      
+      // Son de clochettes
+      setTimeout(() => {
+        const osc2 = audioContext.createOscillator();
+        const gain2 = audioContext.createGain();
+        
+        osc2.connect(gain2);
+        gain2.connect(audioContext.destination);
+        
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(1200, audioContext.currentTime);
+        
+        gain2.gain.setValueAtTime(0.15, audioContext.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        osc2.start(audioContext.currentTime);
+        osc2.stop(audioContext.currentTime + 0.3);
+      }, 100);
+    } catch (error) {
+      console.log('Audio not supported');
+    }
+  };
 
   const getDayData = (day: number) => days.find((d) => d.day === day) || { day, isUnlocked: false, isToday: false };
 
@@ -91,6 +224,7 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
 
   const handleOpenEnvelope = () => {
     if (selectedDay) {
+      playOpenSound();
       setOpenedDays(prev => new Set(prev).add(selectedDay));
       setIsOpened(true);
       setShowConfetti(true);
@@ -106,7 +240,7 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
 
   return (
     <div 
-      className={`relative w-full overflow-hidden flex items-center justify-center ${hideBackground ? 'py-4 px-2' : 'min-h-screen py-8 px-4'}`}
+      className={`relative w-full overflow-hidden flex items-center justify-center ${hideBackground ? 'py-4 px-2' : 'min-h-screen py-28 md:py-32 px-4'}`}
       style={hideBackground ? {} : {
         background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
       }}
@@ -120,6 +254,9 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
              }}
         />
       )}
+      
+      {/* Flocons de neige */}
+      {!hideBackground && <Snowfall />}
       
       {/* Paillettes scintillantes améliorées */}
       {!hideBackground && (
@@ -216,8 +353,10 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
                   <EnvelopeContent content={selectedContent} onClose={handleClose} />
                 )}
               </motion.div>
+              
+              {/* Confettis */}
+              <Confetti trigger={showConfetti} />
             </motion.div>
-            <Confetti trigger={showConfetti} />
           </>
         )}
       </AnimatePresence>
@@ -620,15 +759,28 @@ function EnvelopeLarge({ day, onClick }: { day: number; onClick: () => void }) {
         </motion.div>
       </motion.div>
 
-      {/* Indication élégante */}
+      {/* Indication élégante avec animation plus engageante */}
       {animationStage === 0 && (
         <motion.div
           className="absolute -bottom-20 left-1/2 -translate-x-1/2 text-center"
           initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: [0.7, 1, 0.7], y: [0, -5, 0] }}
+          animate={{ 
+            opacity: [0.7, 1, 0.7], 
+            y: [0, -5, 0],
+            scale: [1, 1.05, 1],
+          }}
           transition={{ duration: 2, repeat: Infinity }}
         >
           <p className="text-white text-xl font-bold drop-shadow-2xl">✨ Cliquez pour ouvrir ✨</p>
+          <motion.p 
+            className="text-yellow-300 text-sm mt-1 drop-shadow-lg"
+            animate={{
+              opacity: [0.5, 1, 0.5],
+            }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            Une surprise vous attend ! 🎁
+          </motion.p>
         </motion.div>
       )}
     </motion.div>
@@ -657,6 +809,107 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
         backdropFilter: 'blur(20px)',
       }}
     >
+      {/* Sapins dansants dans les 4 coins */}
+      <motion.div 
+        className="absolute top-4 left-4 z-10"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ 
+          scale: 1, 
+          rotate: 0,
+          y: [0, -8, 0],
+        }}
+        transition={{
+          scale: { type: "spring", damping: 10, stiffness: 100 },
+          rotate: { duration: 0.6 },
+          y: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+        }}
+      >
+        <svg width="50" height="60" viewBox="0 0 40 50" fill="none">
+          <rect x="16" y="38" width="8" height="10" fill="#5c3a1e" rx="1"/>
+          <path d="M20 5 L8 20 L12 20 L5 30 L10 30 L3 40 L37 40 L30 30 L35 30 L28 20 L32 20 Z" fill="#1e4620"/>
+          <path d="M20 8 L10 20 L14 20 L8 28 L13 28 L7 36 L33 36 L27 28 L32 28 L26 20 L30 20 Z" fill="#2d5016"/>
+          <path d="M20 2 L21 5 L24 5 L22 7 L23 10 L20 8 L17 10 L18 7 L16 5 L19 5 Z" fill="#fbbf24"/>
+          <circle cx="20" cy="15" r="1.5" fill="#dc2626"/>
+          <circle cx="15" cy="22" r="1.5" fill="#fbbf24"/>
+          <circle cx="25" cy="22" r="1.5" fill="#dc2626"/>
+        </svg>
+      </motion.div>
+
+      <motion.div 
+        className="absolute top-4 right-4 z-10"
+        initial={{ scale: 0, rotate: 180 }}
+        animate={{ 
+          scale: 1, 
+          rotate: 0,
+          y: [0, -8, 0],
+        }}
+        transition={{
+          scale: { type: "spring", damping: 10, stiffness: 100 },
+          rotate: { duration: 0.6 },
+          y: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }
+        }}
+      >
+        <svg width="50" height="60" viewBox="0 0 40 50" fill="none">
+          <rect x="16" y="38" width="8" height="10" fill="#5c3a1e" rx="1"/>
+          <path d="M20 5 L8 20 L12 20 L5 30 L10 30 L3 40 L37 40 L30 30 L35 30 L28 20 L32 20 Z" fill="#1e4620"/>
+          <path d="M20 8 L10 20 L14 20 L8 28 L13 28 L7 36 L33 36 L27 28 L32 28 L26 20 L30 20 Z" fill="#2d5016"/>
+          <path d="M20 2 L21 5 L24 5 L22 7 L23 10 L20 8 L17 10 L18 7 L16 5 L19 5 Z" fill="#fbbf24"/>
+          <circle cx="20" cy="15" r="1.5" fill="#dc2626"/>
+          <circle cx="15" cy="22" r="1.5" fill="#fbbf24"/>
+          <circle cx="25" cy="22" r="1.5" fill="#dc2626"/>
+        </svg>
+      </motion.div>
+
+      <motion.div 
+        className="absolute bottom-4 left-4 z-10"
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ 
+          scale: 1, 
+          rotate: 0,
+          y: [0, -8, 0],
+        }}
+        transition={{
+          scale: { type: "spring", damping: 10, stiffness: 100, delay: 0.2 },
+          rotate: { duration: 0.6, delay: 0.2 },
+          y: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }
+        }}
+      >
+        <svg width="50" height="60" viewBox="0 0 40 50" fill="none">
+          <rect x="16" y="38" width="8" height="10" fill="#5c3a1e" rx="1"/>
+          <path d="M20 5 L8 20 L12 20 L5 30 L10 30 L3 40 L37 40 L30 30 L35 30 L28 20 L32 20 Z" fill="#1e4620"/>
+          <path d="M20 8 L10 20 L14 20 L8 28 L13 28 L7 36 L33 36 L27 28 L32 28 L26 20 L30 20 Z" fill="#2d5016"/>
+          <path d="M20 2 L21 5 L24 5 L22 7 L23 10 L20 8 L17 10 L18 7 L16 5 L19 5 Z" fill="#fbbf24"/>
+          <circle cx="20" cy="15" r="1.5" fill="#dc2626"/>
+          <circle cx="15" cy="22" r="1.5" fill="#fbbf24"/>
+          <circle cx="25" cy="22" r="1.5" fill="#dc2626"/>
+        </svg>
+      </motion.div>
+
+      <motion.div 
+        className="absolute bottom-4 right-4 z-10"
+        initial={{ scale: 0, rotate: 180 }}
+        animate={{ 
+          scale: 1, 
+          rotate: 0,
+          y: [0, -8, 0],
+        }}
+        transition={{
+          scale: { type: "spring", damping: 10, stiffness: 100, delay: 0.2 },
+          rotate: { duration: 0.6, delay: 0.2 },
+          y: { duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }
+        }}
+      >
+        <svg width="50" height="60" viewBox="0 0 40 50" fill="none">
+          <rect x="16" y="38" width="8" height="10" fill="#5c3a1e" rx="1"/>
+          <path d="M20 5 L8 20 L12 20 L5 30 L10 30 L3 40 L37 40 L30 30 L35 30 L28 20 L32 20 Z" fill="#1e4620"/>
+          <path d="M20 8 L10 20 L14 20 L8 28 L13 28 L7 36 L33 36 L27 28 L32 28 L26 20 L30 20 Z" fill="#2d5016"/>
+          <path d="M20 2 L21 5 L24 5 L22 7 L23 10 L20 8 L17 10 L18 7 L16 5 L19 5 Z" fill="#fbbf24"/>
+          <circle cx="20" cy="15" r="1.5" fill="#dc2626"/>
+          <circle cx="15" cy="22" r="1.5" fill="#fbbf24"/>
+          <circle cx="25" cy="22" r="1.5" fill="#dc2626"/>
+        </svg>
+      </motion.div>
+
       {/* Paillettes dorées dans le fond */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(30)].map((_, i) => (

@@ -1,9 +1,88 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
+
+// Flocons de neige qui tombent
+function Snowfall() {
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number }>>([]);
+
+  useEffect(() => {
+    const flakes = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      delay: Math.random() * 5,
+      duration: 10 + Math.random() * 10,
+      size: 8 + Math.random() * 8,
+      rotation: Math.random() * 360,
+    }));
+    setSnowflakes(flakes);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {snowflakes.map((flake) => (
+        <motion.div
+          key={flake.id}
+          className="absolute"
+          style={{
+            left: `${flake.x}%`,
+            top: -20,
+          }}
+          animate={{
+            y: ['0vh', '110vh'],
+            x: [0, Math.random() * 100 - 50, 0],
+            rotate: [flake.rotation, flake.rotation + 360],
+            opacity: [0, 1, 1, 0],
+          }}
+          transition={{
+            duration: flake.duration,
+            delay: flake.delay,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        >
+          {/* Flocon SVG avec 6 branches */}
+          <svg 
+            width={flake.size} 
+            height={flake.size} 
+            viewBox="0 0 24 24" 
+            fill="none"
+            style={{
+              filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.8))',
+            }}
+          >
+            {/* Branches principales */}
+            <line x1="12" y1="2" x2="12" y2="22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="4.93" y1="6.5" x2="19.07" y2="17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            <line x1="4.93" y1="17.5" x2="19.07" y2="6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+            
+            {/* Petites branches décoratives */}
+            <line x1="12" y1="5" x2="10" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="5" x2="14" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="19" x2="10" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="12" y1="19" x2="14" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            <line x1="6.5" y1="8.2" x2="8.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="6.5" y1="8.2" x2="7.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="15.8" x2="15.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="15.8" x2="16.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            <line x1="6.5" y1="15.8" x2="8.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="6.5" y1="15.8" x2="7.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="8.2" x2="15.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            <line x1="17.5" y1="8.2" x2="16.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
+            
+            {/* Centre */}
+            <circle cx="12" cy="12" r="1.5" fill="white"/>
+          </svg>
+        </motion.div>
+      ))}
+    </div>
+  );
+}
 
 const steps = [
   {
@@ -74,6 +153,9 @@ export default function MarketingHomePage() {
             backgroundSize: '20px 20px',
           }}
         />
+        
+        {/* Flocons de neige */}
+        <Snowfall />
         
         {/* Paillettes scintillantes */}
         <div className="absolute inset-0">
