@@ -5,9 +5,29 @@ export async function POST(req: NextRequest) {
   await db.bootstrap();
   const cookie = req.cookies.get("recipient_session");
   if (!cookie) return new NextResponse("Unauthorized", { status: 401 });
-  const { calendar_id } = JSON.parse(cookie.value);
-  const { day_number } = await req.json();
-  const updated = await db.markDayOpened(calendar_id, Number(day_number), new Date().toISOString());
+  
+  const session = JSON.parse(cookie.value);
+  const calendar_id = session.calendarId || session.calendar_id;
+  
+  const { dayNumber, day_number } = await req.json();
+  const finalDayNumber = dayNumber || day_number;
+  
+  const updated = await db.markDayOpened(calendar_id, Number(finalDayNumber), new Date().toISOString());
   if (!updated) return NextResponse.json({ error: "locked or not found" }, { status: 400 });
-  return NextResponse.json({ ok: true });
+  
+  // TODO: Récupérer le vrai contenu depuis la DB
+  // Pour l'instant, retourner des données mockées
+  const mockContent = {
+    day: Number(finalDayNumber),
+    photo: null,
+    message: `Ceci est un message spécial pour le jour ${finalDayNumber} ! 🎄✨`,
+    drawing: null,
+    music: null,
+    musicTitle: null
+  };
+  
+  return NextResponse.json({ 
+    ok: true,
+    content: mockContent
+  });
 }
