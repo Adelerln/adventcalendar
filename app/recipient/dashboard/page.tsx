@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
-import CalendarGrid from "@/components/CalendarGrid";
+import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
+import SnowfallAnimation from "@/components/SnowfallAnimation";
 import DayModal from "@/components/DayModal";
 import { type PlanKey } from "@/lib/plan-theme";
 
@@ -23,12 +24,23 @@ type DayContent = {
   musicTitle?: string | null;
 };
 
+type DayData = {
+  day: number;
+  photo?: string | null;
+  message?: string | null;
+  drawing?: string | null;
+  music?: string | null;
+  isUnlocked: boolean;
+  isToday: boolean;
+};
+
 export default function RecipientDashboard() {
   const [session, setSession] = useState<RecipientSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [dayContent, setDayContent] = useState<DayContent | null>(null);
   const [loadingContent, setLoadingContent] = useState(false);
+  const [days, setDays] = useState<DayData[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -40,6 +52,7 @@ export default function RecipientDashboard() {
       })
       .then((data) => {
         setSession(data.session);
+        loadCalendarDays();
         setLoading(false);
       })
       .catch(() => {
@@ -47,6 +60,40 @@ export default function RecipientDashboard() {
         router.push("/");
       });
   }, [router]);
+
+  const loadCalendarDays = async () => {
+    try {
+      const response = await fetch("/api/advent/recipient/days");
+      if (!response.ok) throw new Error("Erreur de chargement");
+      
+      const data = await response.json();
+      const recipientDays = data.days || [];
+      
+      // Créer les 24 jours avec leur état
+      const openedDays = recipientDays.map((d: { dayNumber: number }) => d.dayNumber);
+      const openedSet = new Set(openedDays);
+      const lastOpened = openedDays.length ? Math.max(...openedDays) : 0;
+      const currentDay = Math.min(lastOpened + 1, 24);
+
+      const allDays: DayData[] = Array.from({ length: 24 }, (_, index) => {
+        const dayNumber = index + 1;
+        const isUnlocked = openedSet.has(dayNumber);
+        return {
+          day: dayNumber,
+          photo: null,
+          message: null,
+          drawing: null,
+          music: null,
+          isUnlocked,
+          isToday: !isUnlocked && dayNumber === currentDay
+        };
+      });
+
+      setDays(allDays);
+    } catch (error) {
+      console.error("Error loading calendar days:", error);
+    }
+  };
 
   const handleDayClick = async (day: number) => {
     setSelectedDay(day);
@@ -91,6 +138,7 @@ export default function RecipientDashboard() {
   return (
     <>
       <Header />
+      <SnowfallAnimation />
       <main className="min-h-screen relative pt-24 px-6 py-12">
         {/* Fond rouge pailleté festif */}
         <div 
@@ -108,21 +156,22 @@ export default function RecipientDashboard() {
             }}
           />
           
-          {/* Paillettes scintillantes */}
+          {/* Grosses paillettes dorées scintillantes */}
           <div className="absolute inset-0">
-            {[...Array(150)].map((_, i) => (
+            {[...Array(200)].map((_, i) => (
               <div
                 key={i}
-                className="absolute rounded-full animate-pulse"
+                className="absolute rounded-full"
                 style={{
                   top: `${Math.random() * 100}%`,
                   left: `${Math.random() * 100}%`,
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
-                  background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
-                  opacity: Math.random() * 0.7 + 0.3,
+                  width: Math.random() * 6 + 3,
+                  height: Math.random() * 6 + 3,
+                  background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#d4af37' : '#ffffff',
+                  opacity: Math.random() * 0.8 + 0.2,
+                  animation: `sparkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
                   animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${Math.random() * 3 + 2}s`,
+                  boxShadow: '0 0 10px rgba(255, 215, 0, 0.8)',
                 }}
               />
             ))}
@@ -132,7 +181,7 @@ export default function RecipientDashboard() {
         <div className="relative z-10 max-w-7xl mx-auto space-y-8">
           {/* En-tête personnalisé */}
           <div className="text-center space-y-4">
-            <div className="text-6xl mb-4">🎄</div>
+            <div className="text-6xl mb-4 animate-bounce">🎄</div>
             <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
               Bonjour {session.recipientName} !
             </h1>
@@ -156,18 +205,19 @@ export default function RecipientDashboard() {
                   Comment ça marche ?
                 </h2>
                 <p className="text-white/90 text-sm leading-relaxed">
-                  Chaque jour, une nouvelle surprise s'ouvre ! Cliquez sur les cases pour découvrir les attentions 
+                  Chaque jour, une nouvelle surprise s'ouvre ! Cliquez sur les enveloppes dorées pour découvrir les attentions 
                   qui ont été préparées pour vous : photos, messages, dessins et peut-être même de la musique 🎵
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Calendrier */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-8 border-2 border-white/20">
-            <CalendarGrid 
-              plan={session.plan}
+          {/* Calendrier avec enveloppes dorées */}
+          <div className="py-8">
+            <GoldenEnvelopeTree
+              days={days}
               onDayClick={handleDayClick}
+              hideBackground={true}
             />
           </div>
         </div>
@@ -196,6 +246,19 @@ export default function RecipientDashboard() {
           </div>
         )}
       </main>
+
+      <style jsx>{`
+        @keyframes sparkle {
+          0%, 100% {
+            opacity: 0.2;
+            transform: scale(0.8) rotate(0deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.5) rotate(180deg);
+          }
+        }
+      `}</style>
     </>
   );
 }

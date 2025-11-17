@@ -312,13 +312,17 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
                 onClick={() => handleEnvelopeClick(day)}
                 disabled={!canClick}
                 className="relative group aspect-[4/3]"
-                whileHover={canClick ? { scale: 1.1 } : {}}
+                whileHover={canClick ? (dayData.isToday ? { scale: 1.15 } : { scale: 1.1 }) : {}}
                 whileTap={canClick ? { scale: 0.95 } : {}}
                 transition={{ 
                   type: "spring", 
-                  stiffness: 300, 
-                  damping: 20,
+                  stiffness: dayData.isToday ? 400 : 300, 
+                  damping: dayData.isToday ? 15 : 20,
                   mass: 0.5
+                }}
+                style={{
+                  // L'enveloppe du jour est légèrement plus grande par défaut
+                  transform: dayData.isToday ? 'scale(1.08)' : 'scale(1)',
                 }}
               >
                 <Envelope day={day} canClick={canClick} isOpen={isOpen} content={dayData} isPreview={hideBackground} />
@@ -368,6 +372,7 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
 function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; canClick: boolean; isOpen: boolean; content: DayBox; isPreview?: boolean }) {
   // Jours spéciaux avec enveloppe rouge et ruban doré
   const isSpecialDay = [5, 15, 24].includes(day);
+  const isToday = content.isToday;
   
   // Taille des rubans : plus larges pour la page complète, fins pour l'aperçu
   const ribbonHorizontalClass = isPreview ? "h-3" : "h-5";
@@ -375,7 +380,7 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
   const knotClass = isPreview ? "w-6 h-6" : "w-8 h-8";
   
   return (
-    <div className={`relative w-full h-full ${canClick ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`}>
+    <div className={`relative w-full h-full ${canClick ? "cursor-pointer" : "cursor-not-allowed"}`}>
       {/* Enveloppe avec effet brillant - dorée ou rouge selon le jour */}
       <motion.div
         className="absolute inset-0 rounded-xl shadow-xl overflow-hidden"
@@ -384,7 +389,15 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
             ? "linear-gradient(135deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)"
             : "linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)",
         }}
-        animate={isOpen ? {
+        animate={isToday && !isOpen ? {
+          // Animation spéciale pour l'enveloppe du jour
+          scale: [1, 1.05, 1],
+          boxShadow: [
+            "0 4px 20px rgba(251,191,36,0.6), 0 0 0 4px rgba(251,191,36,0.4), 0 0 40px rgba(251,191,36,0.8)",
+            "0 4px 30px rgba(251,191,36,0.9), 0 0 0 6px rgba(251,191,36,0.7), 0 0 60px rgba(251,191,36,1)",
+            "0 4px 20px rgba(251,191,36,0.6), 0 0 0 4px rgba(251,191,36,0.4), 0 0 40px rgba(251,191,36,0.8)",
+          ]
+        } : isOpen ? {
           boxShadow: isSpecialDay
             ? [
                 "0 4px 20px rgba(220,38,38,0.6), 0 0 0 4px rgba(251,191,36,0.4)",
@@ -401,7 +414,7 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
             ? "0 4px 20px rgba(220,38,38,0.5), inset 0 1px 3px rgba(255,255,255,0.2)"
             : "0 4px 20px rgba(212,175,55,0.4), inset 0 1px 3px rgba(255,255,255,0.3)"
         }}
-        transition={{ duration: 2, repeat: isOpen ? Infinity : 0 }}
+        transition={{ duration: isToday ? 2 : 2, repeat: (isToday && !isOpen) || isOpen ? Infinity : 0 }}
       >
         {/* Effet paillettes scintillantes */}
         <motion.div 
@@ -475,7 +488,14 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
                 ? "linear-gradient(180deg, #f4d03f 0%, #e8c547 50%, #d4af37 100%)"
                 : "linear-gradient(180deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)",
             }}
-            animate={{
+            animate={isToday ? {
+              // Animation subtile de glow pour l'enveloppe du jour (sans mouvement)
+              boxShadow: [
+                "0 2px 15px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.8)",
+                "0 2px 25px rgba(220,38,38,1), 0 0 30px rgba(220,38,38,1)",
+                "0 2px 15px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.8)",
+              ]
+            } : {
               boxShadow: isSpecialDay
                 ? [
                     "0 2px 10px rgba(244,208,63,0.5)",
@@ -488,7 +508,7 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
                     "0 2px 10px rgba(220,38,38,0.4)",
                   ]
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: isToday ? 1.5 : 2, repeat: Infinity }}
           />
           <motion.div 
             className={`absolute top-0 bottom-0 left-1/2 ${ribbonVerticalClass} -translate-x-1/2 z-20 rounded-sm`}
@@ -497,7 +517,14 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
                 ? "linear-gradient(90deg, #f4d03f 0%, #e8c547 50%, #d4af37 100%)"
                 : "linear-gradient(90deg, #dc2626 0%, #b91c1c 50%, #7f1d1d 100%)",
             }}
-            animate={{
+            animate={isToday ? {
+              // Animation subtile de glow pour l'enveloppe du jour (sans mouvement)
+              boxShadow: [
+                "0 2px 15px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.8)",
+                "0 2px 25px rgba(220,38,38,1), 0 0 30px rgba(220,38,38,1)",
+                "0 2px 15px rgba(220,38,38,0.6), 0 0 20px rgba(220,38,38,0.8)",
+              ]
+            } : {
               boxShadow: isSpecialDay
                 ? [
                     "0 2px 10px rgba(244,208,63,0.5)",
@@ -510,7 +537,7 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
                     "0 2px 10px rgba(220,38,38,0.4)",
                   ]
             }}
-            transition={{ duration: 2, repeat: Infinity }}
+            transition={{ duration: isToday ? 1.5 : 2, repeat: Infinity }}
           />
 
           {/* Noeud brillant agrandi - doré ou rouge */}
@@ -521,7 +548,15 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
                 ? "radial-gradient(circle at 40% 40%, #fde68a 0%, #f4d03f 40%, #e8c547 100%)"
                 : "radial-gradient(circle at 40% 40%, #ef4444 0%, #dc2626 40%, #991b1b 100%)",
             }}
-            animate={{
+            animate={isToday ? {
+              // Animation subtile pour l'enveloppe du jour (sans rotation, juste scale et glow)
+              scale: [1, 1.15, 1],
+              boxShadow: [
+                "0 0 15px rgba(220,38,38,0.8), 0 0 30px rgba(220,38,38,0.6)",
+                "0 0 30px rgba(239,68,68,1), 0 0 50px rgba(220,38,38,1)",
+                "0 0 15px rgba(220,38,38,0.8), 0 0 30px rgba(220,38,38,0.6)",
+              ]
+            } : {
               scale: [1, 1.1, 1],
               boxShadow: isSpecialDay
                 ? [

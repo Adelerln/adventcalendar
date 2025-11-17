@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 
 interface Props {
-  params: { token: string };
+  params: Promise<{ token: string }>;
 }
 
-export default function RecipientAccessPage({ params }: Props) {
+export default function RecipientAccessPage(props: Props) {
+  const params = use(props.params);
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
