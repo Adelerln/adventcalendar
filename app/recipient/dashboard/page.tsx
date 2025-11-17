@@ -139,7 +139,7 @@ export default function RecipientDashboard() {
     <>
       <Header />
       <SnowfallAnimation />
-      <main className="min-h-screen relative pt-24 px-6 py-12">
+      <main className="min-h-screen relative pt-20 px-4 py-8">{/* Padding top réduit de 24 à 20 */}
         {/* Fond rouge pailleté festif */}
         <div 
           className="fixed inset-0 z-0"
@@ -178,42 +178,82 @@ export default function RecipientDashboard() {
           </div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto space-y-8">
-          {/* En-tête personnalisé */}
-          <div className="text-center space-y-4">
-            <div className="text-6xl mb-4 animate-bounce">🎄</div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
+        <div className="relative z-10 max-w-7xl mx-auto space-y-6">
+          {/* Message personnalisé de l'offreur */}
+          <div className="text-center space-y-3">
+            <div className="text-5xl animate-bounce">🎄</div>
+            <h1 className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
               Bonjour {session.recipientName} !
             </h1>
-            <p className="text-xl text-white/90 drop-shadow-md">
+            <p className="text-lg md:text-xl text-white/95 drop-shadow-md max-w-2xl mx-auto leading-relaxed">
               {session.senderName ? (
                 <>
-                  <span className="font-semibold">{session.senderName}</span> a créé ce calendrier de l'Avent spécialement pour vous ✨
+                  Un petit cadeau créé avec <span className="font-semibold" style={{ color: '#fda4af' }}>amour</span> par <span className="font-bold" style={{ color: '#fda4af' }}>{session.senderName}</span> juste pour <span className="text-white font-semibold">vous</span>
                 </>
               ) : (
-                <>Votre calendrier de l'Avent personnalisé vous attend ✨</>
+                <>Un petit cadeau créé avec <span className="font-semibold" style={{ color: '#fda4af' }}>amour</span> par <span className="font-bold" style={{ color: '#fda4af' }}>votre être cher</span> juste pour <span className="text-white font-semibold">vous</span></>
               )}
             </p>
           </div>
 
-          {/* Message d'instructions */}
-          <div className="max-w-3xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 border-2 border-white/20">
-            <div className="flex items-start gap-4">
-              <div className="text-4xl">🎁</div>
-              <div>
-                <h2 className="text-xl font-bold text-white mb-2">
-                  Comment ça marche ?
-                </h2>
-                <p className="text-white/90 text-sm leading-relaxed">
-                  Chaque jour, une nouvelle surprise s'ouvre ! Cliquez sur les enveloppes dorées pour découvrir les attentions 
-                  qui ont été préparées pour vous : photos, messages, dessins et peut-être même de la musique 🎵
-                </p>
+          {/* Instructions simplifiées et marketing */}
+          <div className="max-w-2xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-5 border-2 border-white/20">
+            <h2 className="text-lg font-bold text-white mb-3 text-center">
+              Comment ça marche ?
+            </h2>
+            <div className="space-y-2 text-white/90 text-sm md:text-base">
+              <div className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">•</span>
+                <p>Chaque jour, une nouvelle case dorée s'ouvre</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">•</span>
+                <p>Découvrez ce que votre proche a préparé : photos, messages, musiques…</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <span className="text-xl flex-shrink-0">•</span>
+                <p>Revenez demain pour la prochaine surprise !</p>
               </div>
             </div>
           </div>
 
+          {/* Progression visuelle - Sapin qui se décore */}
+          <div className="max-w-md mx-auto bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-4 border-2 border-white/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-4xl">
+                  {days.filter(d => d.isUnlocked).length >= 20 ? '🎄' : 
+                   days.filter(d => d.isUnlocked).length >= 10 ? '🌲' : '�'}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white">Votre progression</p>
+                  <p className="text-xs text-white/70">
+                    {days.filter(d => d.isUnlocked).length} / 24 cases ouvertes
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-bold" style={{ color: '#fbbf24' }}>
+                  {Math.round((days.filter(d => d.isUnlocked).length / 24) * 100)}%
+                </div>
+                <p className="text-xs text-white/70">complété</p>
+              </div>
+            </div>
+            {/* Barre de progression */}
+            <div className="mt-3 w-full bg-white/20 rounded-full h-2 backdrop-blur-sm overflow-hidden">
+              <div
+                className="h-2 rounded-full transition-all duration-1000"
+                style={{ 
+                  width: `${(days.filter(d => d.isUnlocked).length / 24) * 100}%`,
+                  background: 'linear-gradient(90deg, #fbbf24 0%, #fcd34d 50%, #fbbf24 100%)',
+                  boxShadow: '0 0 10px rgba(251, 191, 36, 0.8)'
+                }}
+              ></div>
+            </div>
+          </div>
+
           {/* Calendrier avec enveloppes dorées */}
-          <div className="py-8">
+          <div className="py-4">
             <GoldenEnvelopeTree
               days={days}
               onDayClick={handleDayClick}

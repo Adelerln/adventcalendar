@@ -592,6 +592,22 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
         </span>
       </motion.div>
 
+      {/* Verrou doux pour les cases futures */}
+      {!canClick && !isOpen && (
+        <div className="absolute top-2 right-2 z-50">
+          <div className="bg-white/20 backdrop-blur-sm rounded-full p-1.5 shadow-lg">
+            <motion.div
+              animate={{
+                opacity: [0.5, 0.8, 0.5],
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <span className="text-lg">🕒</span>
+            </motion.div>
+          </div>
+        </div>
+      )}
+
       {/* Indicateur spécial uniquement pour le jour 24 */}
       {day === 24 && !isOpen && (
         <motion.div
