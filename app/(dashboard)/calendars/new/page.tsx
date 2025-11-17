@@ -220,8 +220,8 @@ function NewCalendarPageContent() {
           className="mt-6"
         />
         <div className="text-center space-y-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">{heroTitle}</h1>
-          <p className="text-lg text-gray-600">{heroSubtitle}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">{heroTitle}</h1>
+          <p className="text-lg text-white/90 drop-shadow-md">{heroSubtitle}</p>
         </div>
         <ParcoursBanner plan={activePlan} currentStep={currentParcoursStep} className="max-w-7xl mx-auto" />
         {/* Step 1: Plan selection */}
@@ -229,72 +229,87 @@ function NewCalendarPageContent() {
           <div className="mx-auto max-w-5xl">
             <div className="grid lg:grid-cols-2 gap-8 items-start">
               {/* Plan Essentiel */}
-              <div className="bg-white rounded-3xl shadow-xl p-8 border-2 border-gray-300 hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
+              <div className="bg-white/10 backdrop-blur-md rounded-3xl shadow-xl p-8 border-2 border-white/20 hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
                 <div className="text-center mb-6 mt-6 min-h-[150px] flex flex-col justify-center">
-                  <h2 className="text-3xl font-bold mb-2">Plan Essentiel</h2>
-                  <div className="text-6xl font-bold text-gray-500 mb-2">10€</div>
-                  <p className="text-gray-600">Paiement après création</p>
+                  <h2 className="text-3xl font-bold mb-2 text-white">Plan Essentiel</h2>
+                  <div className="text-6xl font-bold text-[#d4af37] mb-2">10€</div>
+                  <p className="text-white/80">Paiement après création</p>
                 </div>
                 <div className="mb-6 flex-1">
-                  <div className="font-semibold text-lg mb-3 text-gray-800">
+                  <div className="font-semibold text-lg mb-3 text-white">
                     24 intentions avec plusieurs surprises possibles dont :
                   </div>
                   <ul className="space-y-2 ml-4">
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Photos personnalisées</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Messages personnalisés</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Dessins créatifs</span>
                     </li>
                   </ul>
                 </div>
                 <button
                   onClick={() => handlePlanSelection("plan_essentiel")}
-                  className="mt-auto w-full rounded-full bg-[#f0f2f6] text-[#4d5663] px-8 py-4 text-lg font-bold hover:bg-[#e0e4ec] transition-all"
+                  className="mt-auto w-full rounded-full px-8 py-4 text-lg font-bold transition-all border-2 border-[#4a0808]"
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                    color: '#4a0808'
+                  }}
                 >
                   Choisir ce plan
                 </button>
               </div>
 
               {/* Plan Premium */}
-              <div className="bg-white rounded-3xl shadow-2xl p-8 border-2 border-[#ead3c0] hover:shadow-2xl transition-all min-h-[560px] flex flex-col">
+              <div className="bg-gradient-to-br from-[#d4af37]/20 to-white/10 backdrop-blur-md rounded-3xl shadow-2xl p-8 border-2 border-[#d4af37] hover:shadow-2xl transition-all min-h-[560px] flex flex-col relative">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold text-[#4a0808]"
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)'
+                  }}
+                >
+                  ⭐ RECOMMANDÉ
+                </div>
                 <div className="text-center mb-6 mt-6 min-h-[150px] flex flex-col justify-center">
-                  <h2 className="text-3xl font-bold mb-2">Plan Premium</h2>
-                  <div className="text-6xl font-bold text-[#cda982] mb-2">15€</div>
-                  <p className="text-gray-600">Paiement après création</p>
+                  <h2 className="text-3xl font-bold mb-2 text-white">Plan Premium</h2>
+                  <div className="text-6xl font-bold text-[#d4af37] mb-2">15€</div>
+                  <p className="text-white/80">Paiement après création</p>
                 </div>
                 <div className="mb-6 flex-1">
-                  <div className="font-semibold text-lg mb-3 text-gray-800">
+                  <div className="font-semibold text-lg mb-3 text-white">
                     24 intentions avec plusieurs surprises possibles dont :
                   </div>
                   <ul className="space-y-2 ml-4">
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Photos personnalisées</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Messages personnalisés</span>
                     </li>
-                    <li className="flex items-center gap-2">
-                      <span className="text-[#06B800]">✔</span>
+                    <li className="flex items-center gap-2 text-white/90">
+                      <span className="text-[#d4af37]">✔</span>
                       <span>Dessins créatifs</span>
                     </li>
-                    <li className="flex items-center gap-2 bg-[#fdf6f1] -mx-4 px-4 py-2 rounded-lg">
-                      <span className="text-[#06B800] text-xl">✔</span>
-                      <span className="font-bold text-[#c89b65]">Musiques personnalisées</span>
+                    <li className="flex items-center gap-2 bg-[#d4af37]/20 backdrop-blur -mx-4 px-4 py-2 rounded-lg">
+                      <span className="text-[#d4af37] text-xl">✔</span>
+                      <span className="font-bold text-white">Musiques personnalisées</span>
                     </li>
                   </ul>
                 </div>
                 <button
                   onClick={() => handlePlanSelection("plan_premium")}
-                  className="mt-auto w-full rounded-full bg-[#fbeedc] text-[#5c3b1d] px-8 py-4 text-lg font-bold hover:bg-[#f3dfc7] transition-all"
+                  className="mt-auto w-full rounded-full px-8 py-4 text-lg font-bold transition-all border-2 border-[#4a0808]"
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                    color: '#4a0808'
+                  }}
                 >
                   Choisir le Premium
                 </button>
@@ -306,17 +321,17 @@ function NewCalendarPageContent() {
         {/* Step 2: Calendar creation */}
         {!showPlanSelection && (
           <div className="mx-auto max-w-7xl space-y-8">
-            <div className={`bg-white rounded-2xl shadow-lg p-6 border ${planTheme.border}`}>
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 border-2 border-white/20">
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h2 className={`text-3xl font-bold ${planTheme.accentText}`}>
+                  <h2 className="text-3xl font-bold text-white drop-shadow-lg">
                     Personnalisez votre calendrier
                   </h2>
-                  <p className={planTheme.mutedText}>{planPriceLabel}</p>
+                  <p className="text-white/90">{planPriceLabel}</p>
                 </div>
                 <button
                   onClick={() => setStep("plan")}
-                  className="text-sm text-gray-600 hover:text-gray-800"
+                  className="text-sm text-white/80 hover:text-white border border-white/30 px-4 py-2 rounded-full backdrop-blur-sm hover:bg-white/10 transition-all"
                 >
                   Changer de plan
                 </button>
@@ -324,15 +339,18 @@ function NewCalendarPageContent() {
 
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold">Progression</span>
-                  <span className={`text-sm font-bold ${planTheme.accentText}`}>
+                  <span className="text-sm font-semibold text-white">Progression</span>
+                  <span className="text-sm font-bold text-[#d4af37]">
                     {filledCount}/24 jours
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-white/20 rounded-full h-3 backdrop-blur-sm">
                   <div
-                    className={`${planTheme.progressFill} h-3 rounded-full transition-all duration-500`}
-                    style={{ width: `${progress}%` }}
+                    className="h-3 rounded-full transition-all duration-500"
+                    style={{ 
+                      width: `${progress}%`,
+                      background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)'
+                    }}
                   ></div>
                 </div>
               </div>
@@ -353,21 +371,25 @@ function NewCalendarPageContent() {
               })}
             </div>
 
-            <div className={`bg-white rounded-2xl shadow-lg p-6 border ${planTheme.border}`}>
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 border-2 border-white/20">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-white mb-1">
                     {filledCount === 24
                       ? "✨ Votre calendrier est complet !"
                       : `Encore ${24 - filledCount} jour(s) avant de passer à l'étape suivante`}
                   </p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-white/70">
                     Étape suivante : renseigner les informations du receveur
                   </p>
                 </div>
                 <button
                   onClick={handleContinue}
-                  className={`${planTheme.ctaBg} ${planTheme.ctaHover} ${planTheme.ctaText} px-8 py-4 rounded-full font-bold text-lg transition-all disabled:opacity-50`}
+                  className="px-8 py-4 rounded-full font-bold text-lg transition-all disabled:opacity-50 border-2 border-[#4a0808]"
+                  style={{
+                    background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                    color: '#4a0808'
+                  }}
                 >
                   Continuer vers les infos du receveur
                 </button>

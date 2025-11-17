@@ -137,7 +137,7 @@ export default function MarketingHomePage() {
             </p>
 
             <a 
-              href="/gift/new"
+              href="/pricing"
               className="inline-block px-10 py-4 text-lg font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
               style={{
                 background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
@@ -222,7 +222,7 @@ export default function MarketingHomePage() {
             Prêt à créer la magie ?
           </h2>
           <a 
-            href="/gift/new"
+            href="/pricing"
             className="inline-block px-12 py-5 text-xl font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
             style={{
               background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',

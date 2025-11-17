@@ -20,21 +20,24 @@ type Props = {
 export default function ParcoursBanner({ plan = DEFAULT_PLAN, currentStep, className }: Props) {
   const key = plan ?? DEFAULT_PLAN;
   const theme = PLAN_APPEARANCE[key];
-  const highlightBg = plan === "plan_premium" ? "bg-[#fbeedc]" : "bg-[#f0f2f6]";
-  const highlightText = plan === "plan_premium" ? "text-[#8a613c]" : "text-[#4d5663]";
 
   return (
-    <div className={`rounded-2xl border-2 ${theme.border} bg-white px-6 py-5 shadow-sm ${className ?? ""}`}>
-      <p className={`text-sm uppercase tracking-[0.3em] font-semibold mb-3 ${theme.accentText}`}>Parcours</p>
-      <ol className="flex flex-wrap gap-2 text-xs sm:text-sm font-semibold text-[#6f7782]">
+    <div className={`rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur-md px-6 py-5 shadow-sm ${className ?? ""}`}>
+      <p className="text-sm uppercase tracking-[0.3em] font-semibold mb-3 text-[#d4af37]">Parcours</p>
+      <ol className="flex flex-wrap gap-2 text-xs sm:text-sm font-semibold text-white/90">
         {STEPS.map((step) => {
           const isCurrent = step.id === currentStep;
           return (
             <li
               key={step.id}
-              className={`px-3 py-1 rounded-full border ${theme.border} ${
-                isCurrent ? `${highlightBg} ${highlightText}` : "bg-white/30"
+              className={`px-3 py-1 rounded-full border-2 ${
+                isCurrent 
+                  ? "border-[#d4af37] text-[#4a0808] font-bold" 
+                  : "border-white/30 bg-white/10"
               }`}
+              style={isCurrent ? {
+                background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)'
+              } : {}}
             >
               <span className="mr-1">{step.id}.</span>
               <span>{step.label}</span>

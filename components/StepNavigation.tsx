@@ -23,10 +23,7 @@ type StepNavigationProps = {
 export default function StepNavigation({ plan, currentStep, prev, next, className }: StepNavigationProps) {
   const theme = PLAN_APPEARANCE[plan];
   const baseButton = clsx(
-    "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 py-2 text-sm font-semibold transition-colors",
-    theme.border,
-    plan === "plan_premium" ? "bg-[#fff7ee] text-[#5c3b1d]" : "bg-[#f5f7fb] text-[#1f232b]",
-    "hover:opacity-90"
+    "inline-flex min-h-[44px] items-center justify-center rounded-full px-6 py-2 text-sm font-semibold transition-colors border-2 border-white/30 bg-white/10 backdrop-blur-sm text-white hover:bg-white/20"
   );
 
   return (
@@ -37,7 +34,7 @@ export default function StepNavigation({ plan, currentStep, prev, next, classNam
       )}
     >
       {renderAction(prev, baseButton, true)}
-      <div className={clsx("text-[0.65rem] uppercase tracking-[0.35em] font-semibold", theme.accentText)}>
+      <div className="text-[0.65rem] uppercase tracking-[0.35em] font-semibold text-[#d4af37]">
         Étape {currentStep} / 5
       </div>
       {renderAction(next, baseButton, false)}

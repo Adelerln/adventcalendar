@@ -45,14 +45,16 @@ export default function Header() {
           href="/"
           className="flex items-center gap-3 text-2xl tracking-[0.3em] uppercase hover:scale-105 transition-transform text-white drop-shadow-lg"
         >
-          <span className="relative inline-flex w-10 h-10 overflow-hidden rounded-full border-2 border-[#d4af37]">
+          <span className="relative inline-flex w-14 h-14 overflow-hidden rounded-full border-2 border-[#d4af37]">
             <Image
-              src="/envelope-logo.png"
+              src="/enveloppe-logo3.png"
               alt="Enveloppe dorée"
               fill
-              sizes="40px"
-              style={{ objectFit: "cover" }}
+              sizes="56px"
+              style={{ objectFit: "cover", objectPosition: "center" }}
               priority
+              quality={100}
+              unoptimized
             />
           </span>
           Advent Calendar
