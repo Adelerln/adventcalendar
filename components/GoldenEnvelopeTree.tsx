@@ -285,7 +285,7 @@ function Envelope({ day, canClick, isOpen, content, isPreview }: { day: number; 
         {/* Aperçu miniature du contenu si ouvert */}
         {isOpen && (
           <motion.div 
-            className="absolute inset-0 flex items-center justify-center p-2 bg-white/95 backdrop-blur-sm rounded-xl"
+            className="absolute inset-0 flex items-center justify-center p-2 bg-gradient-to-br from-[#d4af37]/30 to-white/20 backdrop-blur-sm rounded-xl border-2 border-[#d4af37]/50"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
@@ -653,7 +653,7 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
       onClick={(e) => e.stopPropagation()}
       className="relative max-w-4xl max-h-[90vh] w-full rounded-3xl shadow-2xl overflow-hidden"
       style={{
-        background: 'linear-gradient(145deg, rgba(120,20,20,0.95) 0%, rgba(60,10,10,0.98) 100%)',
+        background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
         backdropFilter: 'blur(20px)',
       }}
     >
