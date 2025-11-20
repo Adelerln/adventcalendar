@@ -96,7 +96,7 @@ export default function PricingPage() {
             </div>
           </div>
 
-          <div className="rounded-3xl border-2 border-[#d4af37] p-8 transition-colors bg-white/10 backdrop-blur-md hover:bg-white/15 flex flex-col relative overflow-hidden">
+          <div className="group rounded-3xl border-2 border-[#d4af37] p-8 transition-colors bg-white/10 backdrop-blur-md hover:bg-white/15 flex flex-col relative overflow-hidden">
             {/* Effet brillant doré */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#d4af37]/10 to-transparent pointer-events-none" />
             
@@ -121,17 +121,17 @@ export default function PricingPage() {
               </ul>
             </div>
             <div className="mt-10 relative z-10">
-              <div className="absolute -top-4 right-6">
-                <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-sm font-bold shadow-lg"
+            <div className="absolute -top-4 right-6 z-30 pointer-events-none">
+              <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-white text-sm font-bold shadow-lg transition-transform duration-200 will-change-transform group-hover:scale-105 hover:scale-105 origin-bottom"
                       style={{
                         background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                       }}>
                   ⭐ POPULAIRE
                 </span>
               </div>
-              <Link
-                href="/create-account?plan=plan_premium"
-                className="block w-full rounded-full border-2 border-[#4a0808] px-8 py-4 text-lg font-bold text-center transition-all hover:scale-105 text-[#4a0808]"
+            <Link
+              href="/create-account?plan=plan_premium"
+              className="relative z-10 block w-full rounded-full border-2 border-[#4a0808] px-8 py-4 text-lg font-bold text-center transition-transform duration-200 will-change-transform hover:scale-105 group-hover:scale-105 group-hover:z-20 origin-top text-[#4a0808]"
                 style={{
                   background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                 }}
