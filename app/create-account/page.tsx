@@ -73,9 +73,26 @@ function CreateAccountContent() {
 
   useEffect(() => {
     if (session) {
-      router.replace(`/calendars/new?plan=${session.plan}&stage=creation`);
+      // Si le plan de la session est différent du plan demandé, mettre à jour le plan
+      if (session.plan !== planKey) {
+        fetch("/api/session/update-plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ plan: planKey })
+        })
+          .then(() => {
+            router.replace(`/calendars/new?plan=${planKey}&stage=creation`);
+          })
+          .catch(() => {
+            // En cas d'erreur, rediriger quand même
+            router.replace(`/calendars/new?plan=${planKey}&stage=creation`);
+          });
+      } else {
+        // Le plan est déjà bon, rediriger directement
+        router.replace(`/calendars/new?plan=${planKey}&stage=creation`);
+      }
     }
-  }, [router, session]);
+  }, [router, session, planKey]);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();

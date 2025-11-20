@@ -87,10 +87,12 @@ function NewCalendarPageContent() {
   }, []);
 
   useEffect(() => {
-    if (!selectedPlan && session?.plan) {
+    // Ne pas écraser le plan sélectionné par l'utilisateur avec le plan de session
+    // Seulement utiliser le plan de session si aucun plan n'a été sélectionné ET qu'il n'y a pas de plan dans l'URL
+    if (!selectedPlan && !planFromQuery && session?.plan) {
       setSelectedPlan(session.plan);
     }
-  }, [selectedPlan, session]);
+  }, [selectedPlan, planFromQuery, session]);
 
   const handlePlanSelection = (plan: Plan) => {
     if (!plan) return;
@@ -135,7 +137,7 @@ function NewCalendarPageContent() {
     router.push(`/recipient?${params.toString()}`);
   };
 
-  const activePlan = (selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN) as PlanKey;
+  const activePlan = (selectedPlan ?? planFromQuery ?? DEFAULT_PLAN) as PlanKey;
   const planTheme = PLAN_APPEARANCE[activePlan];
   const planPriceLabel = activePlan === "plan_premium" ? "Plan Premium (15€)" : "Plan Essentiel (10€)";
   const allowMusic = activePlan === "plan_premium";
