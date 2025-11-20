@@ -7,8 +7,7 @@ const featureItems = [
   "Messages personnalisés",
   "Dessins créatifs",
   "Musique",
-  "Vidéos en IA",
-  "Prix à gagner $",
+  "Photos IA",
 ];
 
 export default function PricingPage() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 import SpotifySearchModal from "./SpotifySearchModal";
 
@@ -23,8 +23,17 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const [selectedType, setSelectedType] = useState<DayContent["type"] | null>(initialContent?.type || null);
   const [content, setContent] = useState(initialContent?.content || "");
   const [title, setTitle] = useState(initialContent?.title || "");
-  const [mp3Url, setMp3Url] = useState<string>("");
+  const [uploadedFileName, setUploadedFileName] = useState(
+    initialContent?.type === "photo" ? "Photo importée" : ""
+  );
+  const [mp3Url, setMp3Url] = useState(
+    initialContent?.type === "music" &&
+      (initialContent.content.startsWith("data:audio") || initialContent.content.endsWith(".mp3"))
+      ? initialContent.content
+      : ""
+  );
   const [showSpotifySearch, setShowSpotifySearch] = useState(false);
+  const photoUploadLabelId = useId();
   const planTheme = PLAN_APPEARANCE[plan];
   const headerSurface = plan === "plan_premium" ? "bg-[#fbeedc] text-[#5c3b1d]" : "bg-[#f4f6fb] text-[#1f232b]";
   const closeSurface = plan === "plan_premium" ? "bg-[#f3d6b7] text-[#5c3b1d]" : "bg-[#e5e9ef] text-[#4d5663]";
@@ -50,6 +59,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setUploadedFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
       setContent(event.target?.result as string);
@@ -78,7 +88,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
             <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
               <SelectionButton
                 type="photo"
-                label="Photo"
+                label="Photo ou Vidéo"
                 description="Ajouter une image"
                 icon="📷"
                 onSelect={setSelectedType}
@@ -122,15 +132,22 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 ← Retour
               </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Télécharger une photo</label>
+              <label className="block cursor-pointer" htmlFor={photoUploadLabelId}>
+                <span className="block text-sm font-medium mb-2">Télécharger une photo</span>
+                <div className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-900 flex items-center justify-between text-sm transition-colors hover:border-gray-300 dark:hover:border-gray-600">
+                  <span className={uploadedFileName ? "text-gray-800 dark:text-gray-100" : "text-gray-400"}>
+                    {uploadedFileName || "Uploader la photo"}
+                  </span>
+                  <span className="text-xs font-semibold text-[#d4af37]">Importer</span>
+                </div>
                 <input
+                  id={photoUploadLabelId}
                   type="file"
                   accept="image/*"
                   onChange={handleFileUpload}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+                  className="sr-only"
                 />
-              </div>
+              </label>
 
               {content && (
                 <div className="relative rounded-lg overflow-hidden max-h-64">
@@ -165,10 +182,13 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Écrivez votre message..."
+                  placeholder="Écriver votre texte"
                   rows={6}
                   className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none"
                 />
+              </div>
+              <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 min-h-[120px] flex items-center justify-center text-center px-4 text-gray-400 dark:text-gray-500">
+                {content || "Votre texte..."}
               </div>
             </div>
           )}
@@ -332,7 +352,7 @@ function SelectionButton({ type, label, description, icon, onSelect, className }
   return (
     <button onClick={() => onSelect(type)} className={className}>
       <div className="text-5xl mb-3">{icon}</div>
-      <div className="font-bold text-lg">{label}</div>
+      <div className="font-bold text-lg text-[#6b0f0f] dark:text-[#f5dada]">{label}</div>
       <div className="text-sm text-gray-600 dark:text-gray-400">{description}</div>
     </button>
   );

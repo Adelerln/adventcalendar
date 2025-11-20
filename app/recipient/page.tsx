@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
@@ -15,6 +15,7 @@ const PLAN_DETAILS = {
 
 function RecipientPageContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const planParam = searchParams?.get("plan");
   const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_DETAILS[planKey];
@@ -153,6 +154,13 @@ function RecipientPageContent() {
               <p className="text-sm text-white/70">
                 Vous pourrez encore modifier votre calendrier après le paiement.
               </p>
+              <button
+                type="button"
+                onClick={() => router.push("/pricing")}
+                className="mt-3 inline-flex w-full items-center justify-center rounded-full border-2 border-white/30 bg-white/10 backdrop-blur px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-white/20 hover:text-[#4a0808]"
+              >
+                Retourner aux tarifs
+              </button>
             </div>
             <div className="bg-white/5 backdrop-blur rounded-2xl border-2 border-white/10 p-6 mt-auto">
               <p className="text-sm text-white/70">Besoin d'aide ?</p>
