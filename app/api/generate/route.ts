@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readBuyerSession } from "@/lib/server-session";
 import { getBuyerPaymentInfo } from "@/lib/buyer-payment";
-export const runtime = "nodejs";
-
 import { findLatestProjectForUser } from "@/lib/projects-repository";
 
 export const runtime = "nodejs";
