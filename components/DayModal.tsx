@@ -116,13 +116,30 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                   </h3>
                 </div>
               </div>
-              <audio 
-                controls 
-                className="w-full"
-                src={content.music}
-              >
-                Votre navigateur ne supporte pas la lecture audio.
-              </audio>
+              
+              {/* Vérifier si c'est un lien Spotify */}
+              {content.music.includes('spotify.com') ? (
+                <div className="rounded-xl overflow-hidden shadow-lg">
+                  <iframe
+                    src={content.music.replace('open.spotify.com/track/', 'open.spotify.com/embed/track/')}
+                    width="100%"
+                    height="152"
+                    frameBorder="0"
+                    allow="encrypted-media"
+                    title="Spotify player"
+                    className="rounded-xl"
+                  ></iframe>
+                </div>
+              ) : (
+                /* Fallback pour les fichiers audio classiques */
+                <audio 
+                  controls 
+                  className="w-full"
+                  src={content.music}
+                >
+                  Votre navigateur ne supporte pas la lecture audio.
+                </audio>
+              )}
             </div>
           )}
         </div>

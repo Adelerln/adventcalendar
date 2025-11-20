@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
+import SpotifySearchModal from "./SpotifySearchModal";
 
 type DayContent = {
   type: "photo" | "message" | "drawing" | "music";
@@ -22,6 +23,8 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const [selectedType, setSelectedType] = useState<DayContent["type"] | null>(initialContent?.type || null);
   const [content, setContent] = useState(initialContent?.content || "");
   const [title, setTitle] = useState(initialContent?.title || "");
+  const [mp3Url, setMp3Url] = useState<string>("");
+  const [showSpotifySearch, setShowSpotifySearch] = useState(false);
   const planTheme = PLAN_APPEARANCE[plan];
   const headerSurface = plan === "plan_premium" ? "bg-[#fbeedc] text-[#5c3b1d]" : "bg-[#f4f6fb] text-[#1f232b]";
   const closeSurface = plan === "plan_premium" ? "bg-[#f3d6b7] text-[#5c3b1d]" : "bg-[#e5e9ef] text-[#4d5663]";
@@ -32,9 +35,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const handleSave = () => {
     if (!selectedType || !content) return;
 
+    // Pour la musique, si on a un lien MP3, l'utiliser en priorité
+    const finalContent = selectedType === "music" && mp3Url ? mp3Url : content;
+
     onSave({
       type: selectedType,
-      content,
+      content: finalContent,
       title: title || undefined
     });
     onClose();
@@ -203,30 +209,74 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 ← Retour
               </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Télécharger un fichier audio</label>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleFileUpload}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
-                />
-              </div>
+              {!content ? (
+                <div className="text-center py-12">
+                  <div className="text-6xl mb-4">🎵</div>
+                  <h3 className="text-xl font-bold mb-2">Cherchez une chanson sur Spotify</h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Trouvez la musique parfaite pour ce jour spécial
+                  </p>
+                  <button
+                    onClick={() => setShowSpotifySearch(true)}
+                    className="px-8 py-4 rounded-full font-bold transition-all hover:scale-105"
+                    style={{
+                      background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                      color: '#4a0808'
+                    }}
+                  >
+                    🔍 Rechercher sur Spotify
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 p-6 rounded-xl border-2 border-green-200 dark:border-green-700">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="text-4xl">✅</div>
+                      <div className="flex-1">
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">{title || "Chanson sélectionnée"}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Spotify</p>
+                      </div>
+                    </div>
+                    
+                    {/* Preview du lien Spotify */}
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-3">
+                      <div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Chanson sélectionnée:</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 break-all">{title}</p>
+                      </div>
+                      
+                      {mp3Url && (
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">🎵 Lecteur audio:</p>
+                          <audio controls className="w-full mt-2" src={mp3Url}>
+                            Votre navigateur ne supporte pas l'élément audio.
+                          </audio>
+                          <p className="text-xs text-green-600 dark:text-green-400 mt-2">✅ Fichier MP3 prêt à être écouté</p>
+                        </div>
+                      )}
+                      
+                      {!mp3Url && (
+                        <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            ⚠️ MP3 non disponible pour cette chanson. 
+                            <br />
+                            Lien Spotify: <span className="font-mono text-xs">{content}</span>
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Titre de la chanson</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Notre chanson"
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900"
-                />
-              </div>
-
-              {content && (
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-                  <audio controls src={content} className="w-full" />
+                  <button
+                    onClick={() => {
+                      setContent("");
+                      setTitle("");
+                      setShowSpotifySearch(true);
+                    }}
+                    className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  >
+                    Changer de chanson
+                  </button>
                 </div>
               )}
             </div>
@@ -251,6 +301,20 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           )}
         </div>
       </div>
+
+      {/* Spotify Search Modal */}
+      {showSpotifySearch && (
+        <SpotifySearchModal
+          plan={plan}
+          onSelect={(track) => {
+            setContent(track.spotifyUrl);
+            setMp3Url(track.mp3Url || track.downloadUrl || "");
+            setTitle(`${track.name} - ${track.artist}`);
+            setShowSpotifySearch(false);
+          }}
+          onClose={() => setShowSpotifySearch(false)}
+        />
+      )}
     </div>
   );
 }
