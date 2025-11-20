@@ -4,7 +4,7 @@ import { useState } from "react";
 
 type EnvelopeContent = {
   day: number;
-  type: "photo" | "music" | "message" | "drawing";
+  type: "photo" | "music" | "message" | "drawing" | "voice" | "ai_photo";
   content: string;
   title?: string;
 };
@@ -111,6 +111,19 @@ export default function Envelope({ day, content }: Props) {
               </div>
             )}
 
+            {/* Message vocal */}
+            {content.type === "voice" && (
+              <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                <div className="text-6xl">🎙️</div>
+                <p className="text-center text-sm font-bold text-black">
+                  Message vocal personnalisé
+                </p>
+                <audio controls className="w-full max-w-[220px]" src={content.content}>
+                  Votre navigateur ne supporte pas l&rsquo;audio.
+                </audio>
+              </div>
+            )}
+
             {/* Dessin */}
             {content.type === "drawing" && (
               <div className="w-full h-full flex flex-col gap-2">
@@ -122,6 +135,16 @@ export default function Envelope({ day, content }: Props) {
                     className="w-full h-full object-contain"
                   />
                 </div>
+              </div>
+            )}
+
+            {/* Photo IA / Brief */}
+            {content.type === "ai_photo" && (
+              <div className="w-full h-full flex flex-col items-center justify-center p-3">
+                <div className="text-5xl mb-3">🤖</div>
+                <p className="text-center text-sm leading-relaxed text-black font-medium overflow-y-auto max-h-full">
+                  Brief IA : {content.content}
+                </p>
               </div>
             )}
           </div>

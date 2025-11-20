@@ -15,7 +15,7 @@ import { sparkleRandom } from "@/lib/sparkle-random";
 type Plan = PlanKey | null;
 
 type DayContent = {
-  type: "photo" | "message" | "drawing" | "music";
+  type: "photo" | "message" | "drawing" | "music" | "voice" | "ai_photo";
   content: string;
   title?: string;
 };

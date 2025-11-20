@@ -5,7 +5,7 @@ import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 import SpotifySearchModal from "./SpotifySearchModal";
 
 type DayContent = {
-  type: "photo" | "message" | "drawing" | "music";
+  type: "photo" | "message" | "drawing" | "music" | "voice" | "ai_photo";
   content: string;
   title?: string;
 };
@@ -83,7 +83,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
         </div>
 
-        <div className="p-6">
+        <div className="p-6 space-y-4">
           {!selectedType && (
             <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
               <SelectionButton
@@ -111,14 +111,32 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 className={selectionButtonClass}
               />
               {allowMusic && (
-                <SelectionButton
-                  type="music"
-                  label="Musique"
-                  description="Ajouter un son"
-                  icon="🎵"
-                  onSelect={setSelectedType}
-                  className={selectionButtonClass}
-                />
+                <>
+                  <SelectionButton
+                    type="music"
+                    label="Musique"
+                    description="Ajouter un son"
+                    icon="🎵"
+                    onSelect={setSelectedType}
+                    className={selectionButtonClass}
+                  />
+                  <SelectionButton
+                    type="voice"
+                    label="Messages vocaux"
+                    description="Enregistrer une note audio"
+                    icon="🎙️"
+                    onSelect={setSelectedType}
+                    className={selectionButtonClass}
+                  />
+                  <SelectionButton
+                    type="ai_photo"
+                    label="Photos IA"
+                    description="Générer une image magique"
+                    icon="🤖"
+                    onSelect={setSelectedType}
+                    className={selectionButtonClass}
+                  />
+                </>
               )}
             </div>
           )}
@@ -299,6 +317,59 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                   </button>
                 </div>
               )}
+            </div>
+          )}
+
+          {selectedType === "voice" && (
+            <div className="space-y-4">
+              <button
+                onClick={() => setSelectedType(null)}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                ← Retour
+              </button>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Déposer un message vocal</label>
+                <input
+                  type="file"
+                  accept="audio/*"
+                  onChange={handleFileUpload}
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+                />
+              </div>
+
+              {content && (
+                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <audio controls src={content} className="w-full" />
+                </div>
+              )}
+            </div>
+          )}
+
+          {selectedType === "ai_photo" && (
+            <div className="space-y-4">
+              <button
+                onClick={() => setSelectedType(null)}
+                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+              >
+                ← Retour
+              </button>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Brief IA</label>
+                <textarea
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Décrivez la scène que l’IA devra générer..."
+                  rows={4}
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none"
+                />
+              </div>
+
+              <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 min-h-[120px] flex items-center justify-center text-center px-4 text-gray-400 dark:text-gray-500">
+                {content ? `Brief IA : ${content}` : "Votre brief IA apparaîtra ici"}
+              </div>
             </div>
           )}
 

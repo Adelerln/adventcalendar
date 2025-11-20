@@ -4,7 +4,7 @@ import type { PlanKey } from "@/lib/plan-theme";
 import { PLAN_APPEARANCE, DEFAULT_PLAN } from "@/lib/plan-theme";
 
 type DayContent = {
-  type: "photo" | "message" | "drawing" | "music";
+  type: "photo" | "message" | "drawing" | "music" | "voice" | "ai_photo";
   content: string;
   title?: string;
 };
@@ -55,6 +55,8 @@ export default function EmptyEnvelope({ day, content, onClick, plan }: Props) {
               {content.type === "message" && "💌"}
               {content.type === "drawing" && "🎨"}
               {content.type === "music" && "🎵"}
+              {content.type === "voice" && "🎙️"}
+              {content.type === "ai_photo" && "🤖"}
             </span>
           </div>
         )}
