@@ -4,6 +4,8 @@ import { getPlanPricing } from "@/lib/plan-pricing";
 import { createCheckoutSession } from "@/lib/stripe";
 import { markBuyerPaymentPending } from "@/lib/buyer-payment";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   const session = readBuyerSession(req);
   if (!session) {
