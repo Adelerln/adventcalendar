@@ -7,7 +7,7 @@ import { supabaseBrowser, supabaseServer } from "@/lib/supabase";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 export async function GET(req: NextRequest) {
-  const session = await readBuyerSession(req);
+  const session = readBuyerSession(req);
   return NextResponse.json({ user: session ?? null });
 }
 
@@ -36,7 +36,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Identifiants invalides." }, { status: 401 });
   }
 
-  return attachBuyerSession(NextResponse.json({ user: buyerSessionPayload(buyer) }, { status: 200 }), buyerSessionPayload(buyer));
+  const payload = buyerSessionPayload(buyer);
+  return attachBuyerSession(NextResponse.json({ user: payload }, { status: 200 }), payload);
 }
 
 export async function DELETE() {
@@ -66,7 +67,7 @@ async function handleSupabaseSignIn(email: string, password: string) {
 
   const sessionPayload = {
     id: buyer.id,
-    plan: (isPlanKey(buyer.plan) ? buyer.plan : DEFAULT_PLAN) as PlanKey,
+    plan: isPlanKey(buyer.plan) ? buyer.plan : DEFAULT_PLAN,
     name: buyer.full_name ?? "Client"
   };
 
@@ -84,6 +85,33 @@ async function findBuyerForFallback(email: string) {
       return rows[0];
     }
   }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && supabaseServiceRole) {
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("buyers")
+        .select("id, plan, full_name, password_hash")
+        .eq("email", email)
+        .single();
+      if (error) {
+        throw error;
+      }
+      if (data) {
+        return {
+          id: data.id,
+          plan: data.plan,
+          full_name: data.full_name,
+          password_hash: data.password_hash
+        };
+      }
+    } catch (supabaseError) {
+      console.error("Supabase buyers lookup failed", supabaseError);
+    }
+  }
+
   return findBuyerByEmail(email);
 }
 

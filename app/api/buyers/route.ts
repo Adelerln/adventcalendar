@@ -66,7 +66,7 @@ export async function POST(req: Request) {
 
         if (supabaseError || !data) {
           if (createdUserId) {
-            await supabase.auth.admin.deleteUser(createdUserId);
+            await supabase.auth.admin.deleteUser(createdUserId).catch(() => {});
           }
           throw supabaseError ?? new Error("Impossible d'enregistrer l'acheteur");
         }
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
         if (error && typeof error === "object" && "status" in error && (error as { status?: number }).status === 422) {
           return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
         }
-        throw error;
+        console.error("Supabase buyers insert failed, falling back to in-memory store", error);
       }
     }
 
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     const fallbackBuyer = saveBuyer({
       plan: pricing.plan,
       full_name: fullName,
-      phone,
+      phone: normalizedPhone ?? phone,
       email: normalizedEmail,
       password_hash: passwordHash,
       payment_status: "pending",
@@ -106,8 +106,7 @@ export async function POST(req: Request) {
     if (isPgUniqueViolation(error)) {
       return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
     }
-    const message =
-      error instanceof Error ? error.message : "Erreur serveur";
+    const message = error instanceof Error ? error.message : "Erreur serveur";
     console.error("Error creating buyer", error);
     return NextResponse.json({ error: message }, { status: 500 });
   }
