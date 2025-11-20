@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readBuyerSession } from "@/lib/server-session";
 import { getBuyerPaymentInfo } from "@/lib/buyer-payment";
+import { findLatestProjectForUser } from "@/lib/projects-repository";
 
 export const runtime = "nodejs";
 
-// Compat: expose a project-like payload based on buyer payment info.
+// Return the latest project for the logged-in buyer, falling back to payment info for backward compatibility.
 export async function GET(req: NextRequest) {
   const session = readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ project: null }, { status: 200 });
+  }
+
+  const project = await findLatestProjectForUser(session.id);
+  if (project) {
+    return NextResponse.json({ project });
   }
 
   const payment = await getBuyerPaymentInfo(session.id);
