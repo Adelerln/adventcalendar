@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
@@ -38,6 +38,8 @@ export default function CheckoutPage() {
 
 function CheckoutPageContent() {
   const searchParams = useSearchParams();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const planParam = searchParams?.get("plan");
   const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_INFO[planKey];
@@ -47,6 +49,34 @@ function CheckoutPageContent() {
   const recipientEmail = searchParams?.get("recipient_email");
   const notes = searchParams?.get("notes");
   const filled = searchParams?.get("filled");
+
+  async function handleCheckout() {
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({})
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Impossible de lancer Stripe Checkout");
+      }
+      const data = await res.json();
+      if (data.checkoutUrl) {
+        // Rediriger vers Stripe
+        window.location.href = data.checkoutUrl as string;
+      } else {
+        throw new Error("URL de paiement absente");
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -156,14 +186,15 @@ function CheckoutPageContent() {
               <p className="text-lg font-semibold text-[#4a0808]/90">
                 Le paiement s'effectue sur Stripe. Utilisez le même e-mail que celui fourni à l&rsquo;étape précédente pour faciliter la correspondance.
               </p>
-              <a
-                href="https://stripe.com/payments/checkout"
-                target="_blank"
-                rel="noreferrer"
-                className="block w-full text-center rounded-full bg-[#4a0808] text-white font-bold py-4 text-lg hover:shadow-xl transition-all border-2 border-[#4a0808]"
+              <button
+                type="button"
+                onClick={handleCheckout}
+                disabled={loading}
+                className="block w-full text-center rounded-full bg-[#4a0808] text-white font-bold py-4 text-lg hover:shadow-xl transition-all border-2 border-[#4a0808] disabled:opacity-60"
               >
-                Ouvrir Stripe dans un nouvel onglet
-              </a>
+                {loading ? "Redirection vers Stripe..." : "Payer via Stripe"}
+              </button>
+              {error && <p className="text-sm text-[#4a0808]">{error}</p>}
               <div className="bg-[#4a0808]/20 backdrop-blur rounded-2xl p-4 border border-[#4a0808]/30">
                 <p className="text-base font-semibold text-[#4a0808]">Une fois le paiement validé</p>
                 <p className="text-sm text-[#4a0808]/80">

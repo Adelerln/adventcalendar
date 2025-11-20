@@ -61,7 +61,7 @@ export async function POST(req: Request) {
             stripe_payment_intent_id: null,
             stripe_checkout_session_id: null
           })
-          .select("id, plan, full_name")
+          .select("id, plan, full_name, payment_status, payment_amount")
           .single();
 
         if (supabaseError || !data) {
@@ -77,7 +77,12 @@ export async function POST(req: Request) {
           fullName: data.full_name
         });
       } catch (error) {
-        if (error && typeof error === "object" && "status" in error && (error as { status?: number }).status === 422) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "status" in error &&
+          (error as { status?: number }).status === 422
+        ) {
           return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
         }
         console.error("Supabase buyers insert failed, falling back to in-memory store", error);
@@ -88,7 +93,7 @@ export async function POST(req: Request) {
     const fallbackBuyer = saveBuyer({
       plan: pricing.plan,
       full_name: fullName,
-      phone: normalizedPhone ?? phone,
+      phone: normalizedPhone ?? "",
       email: normalizedEmail,
       password_hash: passwordHash,
       payment_status: "pending",
