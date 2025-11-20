@@ -26,6 +26,9 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const [uploadedFileName, setUploadedFileName] = useState(
     initialContent?.type === "photo" ? "Photo importée" : ""
   );
+  const [drawingFileName, setDrawingFileName] = useState(
+    initialContent?.type === "drawing" ? "Dessin importé" : ""
+  );
   const [mp3Url, setMp3Url] = useState(
     initialContent?.type === "music" &&
       (initialContent.content.startsWith("data:audio") || initialContent.content.endsWith(".mp3"))
@@ -34,6 +37,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   );
   const [showSpotifySearch, setShowSpotifySearch] = useState(false);
   const photoUploadLabelId = useId();
+  const drawingUploadLabelId = useId();
   const planTheme = PLAN_APPEARANCE[plan];
   const headerSurface = plan === "plan_premium" ? "bg-[#fbeedc] text-[#5c3b1d]" : "bg-[#f4f6fb] text-[#1f232b]";
   const closeSurface = plan === "plan_premium" ? "bg-[#f3d6b7] text-[#5c3b1d]" : "bg-[#e5e9ef] text-[#4d5663]";
@@ -55,17 +59,30 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
     onClose();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleFileUpload =
+    (type: DayContent["type"]) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
 
-    setUploadedFileName(file.name);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setContent(event.target?.result as string);
+      if (type === "photo") {
+        setUploadedFileName(file.name);
+      }
+      if (type === "drawing") {
+        setDrawingFileName(file.name);
+      }
+      if (type === "music") {
+        setMp3Url("");
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setContent(event.target?.result as string);
+        if (type === "music") {
+          setMp3Url((event.target?.result as string) || "");
+        }
+      };
+      reader.readAsDataURL(file);
     };
-    reader.readAsDataURL(file);
-  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -162,7 +179,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                   id={photoUploadLabelId}
                   type="file"
                   accept="image/*"
-                  onChange={handleFileUpload}
+                  onChange={handleFileUpload("photo")}
                   className="sr-only"
                 />
               </label>
@@ -175,13 +192,19 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
               <div>
                 <label className="block text-sm font-medium mb-2">Titre (optionnel)</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Ex: Notre premier Noël ensemble"
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900"
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className={`w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 ${title ? "text-black dark:text-white" : ""}`}
+                  />
+                  {!title && (
+                    <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-black text-base">
+                      Votre texte...
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -200,13 +223,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
-                  placeholder="Écriver votre texte"
+                  placeholder="Votre texte..."
                   rows={6}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none"
+                  className={`w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none ${
+                    content ? "text-black dark:text-white" : "text-black"
+                  }`}
                 />
-              </div>
-              <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 min-h-[120px] flex items-center justify-center text-center px-4 text-gray-400 dark:text-gray-500">
-                {content || "Votre texte..."}
               </div>
             </div>
           )}
@@ -220,15 +242,22 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 ← Retour
               </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Télécharger un dessin</label>
+              <label className="block cursor-pointer" htmlFor={drawingUploadLabelId}>
+                <span className="block text-sm font-medium mb-2">Télécharger un dessin</span>
+                <div className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-900 flex items-center justify-between text-sm transition-colors hover:border-gray-300 dark:hover:border-gray-600">
+                  <span className={drawingFileName ? "text-gray-800 dark:text-gray-100" : "text-gray-400"}>
+                    {drawingFileName || "Uploader le dessin"}
+                  </span>
+                  <span className="text-xs font-semibold text-[#d4af37]">Importer</span>
+                </div>
                 <input
+                  id={drawingUploadLabelId}
                   type="file"
                   accept="image/*"
-                  onChange={handleFileUpload}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+                  onChange={handleFileUpload("drawing")}
+                  className="sr-only"
                 />
-              </div>
+              </label>
 
               {content && (
                 <div className="relative rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
@@ -248,22 +277,35 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </button>
 
               {!content ? (
-                <div className="text-center py-12">
-                  <div className="text-6xl mb-4">🎵</div>
-                  <h3 className="text-xl font-bold mb-2">Cherchez une chanson sur Spotify</h3>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Trouvez la musique parfaite pour ce jour spécial
-                  </p>
-                  <button
-                    onClick={() => setShowSpotifySearch(true)}
-                    className="px-8 py-4 rounded-full font-bold transition-all hover:scale-105"
-                    style={{
-                      background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
-                      color: '#4a0808'
-                    }}
-                  >
-                    🔍 Rechercher sur Spotify
-                  </button>
+                <div className="space-y-6">
+                  <div className="text-center py-6">
+                    <div className="text-6xl mb-4">🎵</div>
+                    <h3 className="text-xl font-bold mb-2">Choisissez votre musique</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-6">
+                      Cherchez sur Spotify ou importez un fichier audio.
+                    </p>
+                    <div className="flex flex-col gap-3">
+                      <button
+                        onClick={() => setShowSpotifySearch(true)}
+                        className="px-8 py-4 rounded-full font-bold transition-all hover:scale-105"
+                        style={{
+                          background: "linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)",
+                          color: "#4a0808"
+                        }}
+                      >
+                        🔍 Rechercher sur Spotify
+                      </button>
+                      <label className="block">
+                        <span className="block text-sm font-medium mb-2">Ou téléchargez un fichier audio</span>
+                        <input
+                          type="file"
+                          accept="audio/*"
+                          onChange={handleFileUpload("music")}
+                          className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -271,18 +313,21 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     <div className="flex items-center gap-4 mb-4">
                       <div className="text-4xl">✅</div>
                       <div className="flex-1">
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">{title || "Chanson sélectionnée"}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Spotify</p>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                          {title || "Chanson sélectionnée"}
+                        </h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {mp3Url ? "Fichier audio" : "Spotify"}
+                        </p>
                       </div>
                     </div>
-                    
-                    {/* Preview du lien Spotify */}
+
                     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-3">
                       <div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Chanson sélectionnée:</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Titre:</p>
                         <p className="text-sm text-gray-700 dark:text-gray-300 break-all">{title}</p>
                       </div>
-                      
+
                       {mp3Url && (
                         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                           <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">🎵 Lecteur audio:</p>
@@ -292,11 +337,11 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                           <p className="text-xs text-green-600 dark:text-green-400 mt-2">✅ Fichier MP3 prêt à être écouté</p>
                         </div>
                       )}
-                      
+
                       {!mp3Url && (
                         <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            ⚠️ MP3 non disponible pour cette chanson. 
+                            ⚠️ MP3 non disponible pour cette chanson.
                             <br />
                             Lien Spotify: <span className="font-mono text-xs">{content}</span>
                           </p>
@@ -305,16 +350,28 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setContent("");
-                      setTitle("");
-                      setShowSpotifySearch(true);
-                    }}
-                    className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  >
-                    Changer de chanson
-                  </button>
+                  <div className="flex flex-col gap-3">
+                    <button
+                      onClick={() => {
+                        setContent("");
+                        setTitle("");
+                        setMp3Url("");
+                        setShowSpotifySearch(true);
+                      }}
+                      className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                    >
+                      Changer de chanson (Spotify)
+                    </button>
+                    <label className="block">
+                      <span className="block text-sm font-medium mb-2">Remplacer par un fichier audio</span>
+                      <input
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleFileUpload("music")}
+                        className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+                      />
+                    </label>
+                  </div>
                 </div>
               )}
             </div>
@@ -334,7 +391,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 <input
                   type="file"
                   accept="audio/*"
-                  onChange={handleFileUpload}
+                  onChange={handleFileUpload("voice")}
                   className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
                 />
               </div>
@@ -384,7 +441,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </button>
               <button
                 onClick={onClose}
-                className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="px-6 py-3 border-2 border-[#4a0808] text-[#4a0808] rounded-lg font-semibold bg-white hover:bg-[#4a0808]/10 transition-colors"
               >
                 Annuler
               </button>
