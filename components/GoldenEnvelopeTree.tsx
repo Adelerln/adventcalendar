@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { sparkleRandom } from "@/lib/sparkle-random";
+import { playOpeningSound } from "@/lib/opening-sound";
 
 type DayBox = {
   day: number;
@@ -168,50 +169,6 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
     }
   }, []);
 
-  const playOpenSound = () => {
-    if (typeof window === 'undefined') return;
-    
-    try {
-      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const oscillator = audioContext.createOscillator();
-      const gainNode = audioContext.createGain();
-      
-      oscillator.connect(gainNode);
-      gainNode.connect(audioContext.destination);
-      
-      // Son doux et satisfaisant
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-      oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.3);
-      
-      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-      
-      oscillator.start(audioContext.currentTime);
-      oscillator.stop(audioContext.currentTime + 0.5);
-      
-      // Son de clochettes
-      setTimeout(() => {
-        const osc2 = audioContext.createOscillator();
-        const gain2 = audioContext.createGain();
-        
-        osc2.connect(gain2);
-        gain2.connect(audioContext.destination);
-        
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(1200, audioContext.currentTime);
-        
-        gain2.gain.setValueAtTime(0.15, audioContext.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-        
-        osc2.start(audioContext.currentTime);
-        osc2.stop(audioContext.currentTime + 0.3);
-      }, 100);
-    } catch (error) {
-      console.log('Audio not supported');
-    }
-  };
-
   const getDayData = (day: number) => days.find((d) => d.day === day) || { day, isUnlocked: false, isToday: false };
 
   const handleEnvelopeClick = (day: number) => {
@@ -225,7 +182,7 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
 
   const handleOpenEnvelope = () => {
     if (selectedDay) {
-      playOpenSound();
+      playOpeningSound();
       setOpenedDays(prev => new Set(prev).add(selectedDay));
       setIsOpened(true);
       setShowConfetti(true);
@@ -858,7 +815,7 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
         duration: 0.6
       }}
       onClick={(e) => e.stopPropagation()}
-      className="relative max-w-4xl max-h-[90vh] w-full rounded-3xl shadow-2xl overflow-hidden"
+      className="relative max-w-4xl max-h-[85vh] w-full rounded-3xl shadow-2xl overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, #a52a2a 0%, #8b1a1a 40%, #6b0f0f 70%, #4a0808 100%)',
         backdropFilter: 'blur(20px)',
@@ -1032,29 +989,123 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.3, duration: 0.5 }}
-        className="overflow-y-auto p-8 max-h-[calc(90vh-100px)] relative z-10"
+        className="overflow-y-auto p-8 max-h-[calc(85vh-80px)] relative z-10"
       >
-        {content.photo && (
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.5, type: "spring" }}
-            className="mb-8 relative"
-          >
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl"
-                 style={{
-                   boxShadow: '0 0 40px rgba(251,191,36,0.3), 0 20px 60px rgba(0,0,0,0.5)'
-                 }}>
-              <img 
-                src={content.photo} 
-                alt={`Jour ${content.day}`} 
-                className="w-full h-auto max-h-[60vh] object-contain bg-gradient-to-br from-yellow-900/20 to-red-900/20" 
-              />
-              {/* Cadre doré brillant */}
-              <div className="absolute inset-0 border-4 border-yellow-500/30 rounded-2xl pointer-events-none" />
-            </div>
-          </motion.div>
+        {/* Layout en grille si photo + message */}
+        {content.photo && content.message ? (
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            {/* Photo à gauche */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, x: -20 }}
+              animate={{ scale: 1, opacity: 1, x: 0 }}
+              transition={{ delay: 0.4, duration: 0.5, type: "spring" }}
+              className="relative"
+            >
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl h-full max-h-[55vh]"
+                   style={{
+                     boxShadow: '0 0 40px rgba(251,191,36,0.3), 0 20px 60px rgba(0,0,0,0.5)'
+                   }}>
+                <img 
+                  src={content.photo} 
+                  alt={`Jour ${content.day}`} 
+                  className="w-full h-full object-cover bg-gradient-to-br from-yellow-900/20 to-red-900/20" 
+                />
+                {/* Cadre doré brillant */}
+                <div className="absolute inset-0 border-4 border-yellow-500/30 rounded-2xl pointer-events-none" />
+              </div>
+            </motion.div>
+
+            {/* Message à droite */}
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, x: 20 }}
+              animate={{ scale: 1, opacity: 1, x: 0 }}
+              transition={{ delay: 0.6, duration: 0.5, type: "spring" }}
+              className="rounded-2xl p-6 relative overflow-hidden flex flex-col justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(236,72,153,0.2) 100%)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(239,68,68,0.4)',
+                boxShadow: '0 0 40px rgba(239,68,68,0.3)',
+              }}
+            >
+              <div className="flex items-start gap-4 mb-4">
+                <motion.span 
+                  className="text-5xl"
+                  animate={{ 
+                    scale: [1, 1.1, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                >
+                  💌
+                </motion.span>
+                <h3 className="text-2xl font-bold text-red-200 drop-shadow-lg">Message du cœur</h3>
+              </div>
+              <p className="text-xl leading-relaxed text-white drop-shadow-lg whitespace-pre-wrap">
+                {content.message}
+              </p>
+            </motion.div>
+          </div>
+        ) : (
+          <>
+            {/* Photo seule (layout original) */}
+            {content.photo && !content.message && (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ delay: 0.4, duration: 0.5, type: "spring" }}
+                className="mb-8 relative"
+              >
+                <div className="relative rounded-2xl overflow-hidden shadow-2xl"
+                     style={{
+                       boxShadow: '0 0 40px rgba(251,191,36,0.3), 0 20px 60px rgba(0,0,0,0.5)'
+                     }}>
+                  <img 
+                    src={content.photo} 
+                    alt={`Jour ${content.day}`} 
+                    className="w-full h-auto max-h-[40vh] object-contain bg-gradient-to-br from-yellow-900/20 to-red-900/20" 
+                  />
+                  {/* Cadre doré brillant */}
+                  <div className="absolute inset-0 border-4 border-yellow-500/30 rounded-2xl pointer-events-none" />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Message seul (layout original) */}
+            {content.message && !content.photo && (
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ delay: 0.6, duration: 0.5, type: "spring" }}
+                className="mb-8 rounded-2xl p-8 relative overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(236,72,153,0.2) 100%)',
+                  backdropFilter: 'blur(10px)',
+                  border: '2px solid rgba(239,68,68,0.4)',
+                  boxShadow: '0 0 40px rgba(239,68,68,0.3)',
+                }}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <motion.span 
+                    className="text-5xl"
+                    animate={{ 
+                      scale: [1, 1.1, 1],
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ duration: 3, repeat: Infinity }}
+                  >
+                    💌
+                  </motion.span>
+                  <h3 className="text-2xl font-bold text-red-200 drop-shadow-lg">Message du cœur</h3>
+                </div>
+                <p className="text-xl leading-relaxed text-white drop-shadow-lg whitespace-pre-wrap">
+                  {content.message}
+                </p>
+              </motion.div>
+            )}
+          </>
         )}
+
 
         {content.drawing && (
           <motion.div
@@ -1083,41 +1134,6 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
                  style={{ boxShadow: '0 0 30px rgba(168,85,247,0.3)' }}>
               <img src={content.drawing} alt="Dessin" className="w-full h-auto max-h-[50vh] object-contain bg-white/90" />
             </div>
-          </motion.div>
-        )}
-
-        {content.message && (
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.5, type: "spring" }}
-            className="mb-8 rounded-2xl p-8 relative overflow-hidden"
-            style={{
-              background: 'linear-gradient(135deg, rgba(239,68,68,0.2) 0%, rgba(236,72,153,0.2) 100%)',
-              backdropFilter: 'blur(10px)',
-              border: '2px solid rgba(239,68,68,0.4)',
-              boxShadow: '0 0 40px rgba(239,68,68,0.3)',
-            }}
-          >
-            <div className="flex items-start gap-4 mb-4">
-              <motion.span 
-                className="text-5xl"
-                animate={{ 
-                  scale: [1, 1.1, 1],
-                  rotate: [0, 5, -5, 0]
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-              >
-                💌
-              </motion.span>
-              <h3 className="text-2xl font-bold text-red-200 drop-shadow-lg">Message du cœur</h3>
-            </div>
-            <motion.p 
-              className="text-xl text-white/95 leading-relaxed whitespace-pre-wrap font-light"
-              style={{ textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}
-            >
-              {content.message}
-            </motion.p>
           </motion.div>
         )}
 

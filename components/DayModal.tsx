@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { playOpeningSound } from "@/lib/opening-sound";
 
 type DayContent = {
   day: number;
@@ -18,6 +19,13 @@ type DayModalProps = {
 };
 
 export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
+  // Jouer le son d'ouverture
+  useEffect(() => {
+    if (isOpen) {
+      playOpeningSound();
+    }
+  }, [isOpen]);
+
   // Fermer avec Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
