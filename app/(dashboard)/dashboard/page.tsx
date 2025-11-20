@@ -190,7 +190,6 @@ function PaymentBlock() {
       )}
 
       {error && <p className="text-sm text-red-200">{error}</p>}
-      {successMessage && <p className="text-sm text-green-200">{successMessage}</p>}
     </section>
   );
 }
