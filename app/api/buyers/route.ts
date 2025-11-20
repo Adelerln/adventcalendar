@@ -27,31 +27,64 @@ export async function POST(req: Request) {
 
     if (supabaseUrl && supabaseServiceRole) {
       const supabase = supabaseServer();
-      const { data, error: supabaseError } = await supabase
-        .from("buyers")
-        .insert({
-          plan: pricing.plan,
-          full_name: fullName,
-          phone_e164: normalizedPhone,
+      let createdUserId: string | null = null;
+
+      try {
+        const { data: userResp, error: userError } = await supabase.auth.admin.createUser({
           email: normalizedEmail,
-          password_hash: passwordHash,
-          payment_status: "pending",
-          payment_amount: pricing.amountCents / 100,
-          stripe_checkout_session_id: null,
-          stripe_payment_intent_id: null
-        })
-        .select("id, plan, full_name, payment_status, payment_amount")
-        .single();
+          password,
+          email_confirm: true,
+          phone: normalizedPhone ?? undefined,
+          user_metadata: {
+            full_name: fullName
+          }
+        });
 
-      if (supabaseError) {
-        throw supabaseError;
+        if (userError || !userResp?.user?.id) {
+          throw userError ?? new Error("Impossible de créer l'utilisateur Supabase");
+        }
+
+        createdUserId = userResp.user.id;
+
+        const { data, error: supabaseError } = await supabase
+          .from("buyers")
+          .insert({
+            id: createdUserId,
+            plan: pricing.plan,
+            full_name: fullName,
+            phone_e164: normalizedPhone,
+            email: normalizedEmail,
+            payment_status: "pending",
+            payment_amount: pricing.amountCents / 100,
+            stripe_payment_intent_id: null,
+            stripe_checkout_session_id: null
+          })
+          .select("id, plan, full_name, payment_status, payment_amount")
+          .single();
+
+        if (supabaseError || !data) {
+          if (createdUserId) {
+            await supabase.auth.admin.deleteUser(createdUserId);
+          }
+          throw supabaseError ?? new Error("Impossible d'enregistrer l'acheteur");
+        }
+
+        return respondWithSession({
+          id: data.id,
+          plan: data.plan,
+          fullName: data.full_name,
+        });
+      } catch (error) {
+        if (
+          error &&
+          typeof error === "object" &&
+          "status" in error &&
+          (error as { status?: number }).status === 422
+        ) {
+          return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+        }
+        throw error;
       }
-
-      return respondWithSession({
-        id: data.id,
-        plan: data.plan,
-        fullName: data.full_name,
-      });
     }
 
     console.warn("Supabase env vars missing; falling back to in-memory buyers store.");
