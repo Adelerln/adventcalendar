@@ -4,14 +4,15 @@ import { sparkleRandom } from "@/lib/sparkle-random";
 
 const featureItems = [
   "Photos personnalisées",
+  "Vidéos personnalisées",
   "Messages personnalisés",
   "Dessins créatifs",
   "Musique",
-  "Photos IA",
+  "Photos IA"
 ];
 
 export default function PricingPage() {
-  const essentialIncluded = new Set(featureItems.slice(0, 3));
+  const essentialIncluded = new Set(featureItems.slice(0, 4));
 
   return (
     <main className="min-h-screen relative bg-transparent px-6 pt-20 pb-16">
@@ -111,12 +112,23 @@ export default function PricingPage() {
             <div className="flex-1 relative z-10">
               <div className="font-semibold text-lg mb-4 text-white">24 intentions avec plusieurs surprises possibles dont :</div>
               <ul className="space-y-3 ml-2">
-                {featureItems.map((feature) => (
-                  <li key={feature} className="flex items-center gap-3 text-lg">
-                    <span className="text-xl font-semibold text-[#4ade80]">✔</span>
-                    <span className="font-medium text-white">{feature}</span>
-                  </li>
-                ))}
+                {featureItems.flatMap((feature) => {
+                  const entries = [
+                    <li key={feature} className="flex items-center gap-3 text-lg">
+                      <span className="text-xl font-semibold text-[#4ade80]">✔</span>
+                      <span className="font-medium text-white">{feature}</span>
+                    </li>
+                  ];
+                  if (feature === "Dessins créatifs") {
+                    entries.push(
+                      <li key="messages-vocaux" className="flex items-center gap-3 text-lg">
+                        <span className="text-xl font-semibold text-[#4ade80]">✔</span>
+                        <span className="font-medium text-white">Messages vocaux personnalisés</span>
+                      </li>
+                    );
+                  }
+                  return entries;
+                })}
               </ul>
             </div>
             <div className="mt-10 relative z-10">
