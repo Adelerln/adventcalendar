@@ -7,7 +7,7 @@ import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
 
 // Flocons de neige qui tombent
 function Snowfall() {
-  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number }>>([]);
+  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number; drift: number }>>([]);
 
   useEffect(() => {
     const flakes = Array.from({ length: 50 }, (_, i) => ({
@@ -17,6 +17,7 @@ function Snowfall() {
       duration: 10 + Math.random() * 10,
       size: 8 + Math.random() * 8,
       rotation: Math.random() * 360,
+      drift: Math.random() * 100 - 50,
     }));
     setSnowflakes(flakes);
   }, []);
@@ -33,7 +34,7 @@ function Snowfall() {
           }}
           animate={{
             y: ['0vh', '110vh'],
-            x: [0, Math.random() * 100 - 50, 0],
+            x: [0, flake.drift, 0],
             rotate: [flake.rotation, flake.rotation + 360],
             opacity: [0, 1, 1, 0],
           }}

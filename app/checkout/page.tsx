@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
 import { type PlanKey } from "@/lib/plan-theme";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 const PLAN_INFO = {
   plan_essentiel: {
@@ -59,23 +60,26 @@ function CheckoutPageContent() {
       />
       {/* Paillettes scintillantes */}
       <div className="absolute inset-0 z-0">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              background: i % 2 === 0 ? '#d4af37' : '#ffffff',
-              opacity: Math.random() * 0.6 + 0.2,
-              animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
-              transform: `rotate(${Math.random() * 360}deg)`,
-            }}
-          />
-        ))}
+        {[...Array(150)].map((_, i) => {
+          const size = sparkleRandom(i, 3) * 6 + 2;
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                top: `${sparkleRandom(i, 1) * 100}%`,
+                left: `${sparkleRandom(i, 2) * 100}%`,
+                width: `${size}px`,
+                height: `${size}px`,
+                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+                opacity: sparkleRandom(i, 4) * 0.6 + 0.2,
+                animation: `sparkle ${sparkleRandom(i, 5) * 1.5 + 1}s ease-in-out infinite`,
+                animationDelay: `${sparkleRandom(i, 6) * 2}s`,
+                transform: `rotate(${sparkleRandom(i, 7) * 360}deg)`,
+              }}
+            />
+          );
+        })}
       </div>
       <StepNavigation
         plan={planKey}
@@ -167,7 +171,7 @@ function CheckoutPageContent() {
                 </p>
               </div>
               <p className="text-xs text-[#4a0808]/90 text-center">
-                Besoin d'aide ? Écrivez-nous à <span className="font-semibold">support@avent.com</span>
+                Besoin d'aide ? Nous restons disponibles pour vous accompagner.
               </p>
             </div>
           </div>

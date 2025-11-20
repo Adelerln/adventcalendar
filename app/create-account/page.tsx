@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 const PLAN_COPY = {
   plan_essentiel: {
@@ -135,6 +136,31 @@ function CreateAccountContent() {
       ? "border-[#f5e6d4] bg-[#fff9f4]"
       : "border-[#e5e9ef] bg-[#f8fafd]";
   const inputRing = planKey === "plan_premium" ? "focus:ring-[#f6dfc2]" : "focus:ring-[#d7dde5]";
+  const renderSparkles = (seedOffset = 0) => (
+    <div className="absolute inset-0 z-0">
+      {[...Array(150)].map((_, i) => {
+        const idx = seedOffset * 200 + i;
+        const size = sparkleRandom(idx, 3) * 6 + 2;
+        return (
+          <div
+            key={idx}
+            className="absolute rounded-full"
+            style={{
+              top: `${sparkleRandom(idx, 1) * 100}%`,
+              left: `${sparkleRandom(idx, 2) * 100}%`,
+              width: `${size}px`,
+              height: `${size}px`,
+              background: idx % 2 === 0 ? '#d4af37' : '#ffffff',
+              opacity: sparkleRandom(idx, 4) * 0.6 + 0.2,
+              animation: `sparkle ${sparkleRandom(idx, 5) * 1.5 + 1}s ease-in-out infinite`,
+              animationDelay: `${sparkleRandom(idx, 6) * 2}s`,
+              transform: `rotate(${sparkleRandom(idx, 7) * 360}deg)`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
 
   if (session) {
     return (
@@ -148,25 +174,7 @@ function CreateAccountContent() {
           }}
         />
         {/* Paillettes scintillantes */}
-        <div className="absolute inset-0 z-0">
-          {[...Array(150)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 6 + 2}px`,
-                height: `${Math.random() * 6 + 2}px`,
-                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
-                opacity: Math.random() * 0.6 + 0.2,
-                animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
-            />
-          ))}
-        </div>
+        {renderSparkles(0)}
         <section className="relative z-10 mx-auto max-w-4xl px-6 py-32 text-center space-y-6">
           <p className="text-sm uppercase tracking-[0.4em] text-[#d4af37]">Connexion détectée</p>
           <h1 className="text-4xl font-bold text-white">Redirection vers votre calendrier…</h1>
@@ -202,25 +210,7 @@ function CreateAccountContent() {
           }}
         />
         {/* Paillettes scintillantes */}
-        <div className="absolute inset-0 z-0">
-          {[...Array(150)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: `${Math.random() * 6 + 2}px`,
-                height: `${Math.random() * 6 + 2}px`,
-                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
-                opacity: Math.random() * 0.6 + 0.2,
-                animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
-                animationDelay: `${Math.random() * 2}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-              }}
-            />
-          ))}
-        </div>
+        {renderSparkles(1)}
         <section className="relative z-10 mx-auto max-w-4xl px-6 py-32 text-center text-white">Chargement…</section>
         <style jsx>{`
           @keyframes sparkle {
@@ -249,25 +239,7 @@ function CreateAccountContent() {
         }}
       />
       {/* Paillettes scintillantes */}
-      <div className="absolute inset-0 z-0">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              background: i % 2 === 0 ? '#d4af37' : '#ffffff',
-              opacity: Math.random() * 0.6 + 0.2,
-              animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
-              transform: `rotate(${Math.random() * 360}deg)`,
-            }}
-          />
-        ))}
-      </div>
+      {renderSparkles(2)}
       <StepNavigation
         plan={planKey}
         currentStep={2}

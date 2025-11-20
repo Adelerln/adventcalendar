@@ -3,6 +3,7 @@
 import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 interface Props {
   params: Promise<{ token: string }>;
@@ -72,14 +73,14 @@ export default function RecipientAccessPage(props: Props) {
                 key={i}
                 className="absolute rounded-full animate-pulse"
                 style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
+                  top: `${sparkleRandom(i, 1) * 100}%`,
+                  left: `${sparkleRandom(i, 2) * 100}%`,
+                  width: sparkleRandom(i, 3) * 3 + 1,
+                  height: sparkleRandom(i, 4) * 3 + 1,
                   background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
-                  opacity: Math.random() * 0.7 + 0.3,
-                  animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${Math.random() * 3 + 2}s`,
+                  opacity: sparkleRandom(i, 5) * 0.7 + 0.3,
+                  animationDelay: `${sparkleRandom(i, 6) * 2}s`,
+                  animationDuration: `${sparkleRandom(i, 7) * 3 + 2}s`,
                 }}
               />
             ))}

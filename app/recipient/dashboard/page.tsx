@@ -7,6 +7,7 @@ import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
 import SnowfallAnimation from "@/components/SnowfallAnimation";
 import DayModal from "@/components/DayModal";
 import { type PlanKey } from "@/lib/plan-theme";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 type RecipientSession = {
   calendarId: string;
@@ -158,23 +159,26 @@ export default function RecipientDashboard() {
           
           {/* Grosses paillettes dorées scintillantes */}
           <div className="absolute inset-0">
-            {[...Array(200)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute rounded-full"
-                style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  width: Math.random() * 6 + 3,
-                  height: Math.random() * 6 + 3,
-                  background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#d4af37' : '#ffffff',
-                  opacity: Math.random() * 0.8 + 0.2,
-                  animation: `sparkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
-                  animationDelay: `${Math.random() * 2}s`,
-                  boxShadow: '0 0 10px rgba(255, 215, 0, 0.8)',
-                }}
-              />
-            ))}
+            {[...Array(200)].map((_, i) => {
+              const size = sparkleRandom(i, 3) * 6 + 3;
+              return (
+                <div
+                  key={i}
+                  className="absolute rounded-full"
+                  style={{
+                    top: `${sparkleRandom(i, 1) * 100}%`,
+                    left: `${sparkleRandom(i, 2) * 100}%`,
+                    width: size,
+                    height: size,
+                    background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#d4af37' : '#ffffff',
+                    opacity: sparkleRandom(i, 4) * 0.8 + 0.2,
+                    animation: `sparkle ${sparkleRandom(i, 5) * 3 + 2}s ease-in-out infinite`,
+                    animationDelay: `${sparkleRandom(i, 6) * 2}s`,
+                    boxShadow: '0 0 10px rgba(255, 215, 0, 0.8)',
+                  }}
+                />
+              );
+            })}
           </div>
         </div>
 

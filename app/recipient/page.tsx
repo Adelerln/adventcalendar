@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import StepNavigation from "@/components/StepNavigation";
 import { type PlanKey } from "@/lib/plan-theme";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 const PLAN_DETAILS = {
   plan_essentiel: { name: "Plan Essentiel", price: "10€" },
@@ -31,23 +32,26 @@ function RecipientPageContent() {
       />
       {/* Paillettes scintillantes */}
       <div className="absolute inset-0 z-0">
-        {[...Array(150)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 6 + 2}px`,
-              height: `${Math.random() * 6 + 2}px`,
-              background: i % 2 === 0 ? '#d4af37' : '#ffffff',
-              opacity: Math.random() * 0.6 + 0.2,
-              animation: `sparkle ${Math.random() * 1.5 + 1}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 2}s`,
-              transform: `rotate(${Math.random() * 360}deg)`,
-            }}
-          />
-        ))}
+        {[...Array(150)].map((_, i) => {
+          const size = sparkleRandom(i, 3) * 6 + 2;
+          return (
+            <div
+              key={i}
+              className="absolute rounded-full"
+              style={{
+                top: `${sparkleRandom(i, 1) * 100}%`,
+                left: `${sparkleRandom(i, 2) * 100}%`,
+                width: `${size}px`,
+                height: `${size}px`,
+                background: i % 2 === 0 ? '#d4af37' : '#ffffff',
+                opacity: sparkleRandom(i, 4) * 0.6 + 0.2,
+                animation: `sparkle ${sparkleRandom(i, 5) * 1.5 + 1}s ease-in-out infinite`,
+                animationDelay: `${sparkleRandom(i, 6) * 2}s`,
+                transform: `rotate(${sparkleRandom(i, 7) * 360}deg)`,
+              }}
+            />
+          );
+        })}
       </div>
       <StepNavigation
         plan={planKey}
@@ -97,22 +101,13 @@ function RecipientPageContent() {
                 </label>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid gap-6">
                 <label className="text-sm font-semibold text-white">
                   Relation
                   <input
                     name="relationship"
                     required
                     placeholder="Partenaire, ami(e), famille..."
-                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
-                  />
-                </label>
-                <label className="text-sm font-semibold text-white">
-                  Date d'ouverture prévue
-                  <input
-                    name="delivery_date"
-                    type="date"
-                    required
                     className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
@@ -161,7 +156,6 @@ function RecipientPageContent() {
             </div>
             <div className="bg-white/5 backdrop-blur rounded-2xl border-2 border-white/10 p-6 mt-auto">
               <p className="text-sm text-white/70">Besoin d'aide ?</p>
-              <p className="text-lg font-semibold text-[#d4af37]">support@avent.com</p>
             </div>
           </aside>
         </div>

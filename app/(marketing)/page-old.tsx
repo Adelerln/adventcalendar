@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 import Header from "@/components/Header";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 const steps = [
   {
@@ -48,31 +49,34 @@ export default function MarketingHomePage() {
         
         {/* Paillettes scintillantes */}
         <div className="absolute inset-0">
-          {[...Array(150)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-                width: Math.random() * 6 + 2,
-                height: Math.random() * 6 + 2,
-                background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#fcd34d' : '#ffffff',
-                boxShadow: '0 0 20px currentColor',
-              }}
-              animate={{
-                opacity: [0.1, 1, 0.1],
-                scale: [0.8, 2, 0.8],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: 1 + Math.random() * 1.5,
-                repeat: Infinity,
-                delay: Math.random() * 1,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
+          {[...Array(150)].map((_, i) => {
+            const size = sparkleRandom(i, 3) * 6 + 2;
+            return (
+              <motion.div
+                key={i}
+                className="absolute rounded-full"
+                style={{
+                  top: `${sparkleRandom(i, 1) * 100}%`,
+                  left: `${sparkleRandom(i, 2) * 100}%`,
+                  width: size,
+                  height: size,
+                  background: i % 3 === 0 ? '#fbbf24' : i % 3 === 1 ? '#fcd34d' : '#ffffff',
+                  boxShadow: '0 0 20px currentColor',
+                }}
+                animate={{
+                  opacity: [0.1, 1, 0.1],
+                  scale: [0.8, 2, 0.8],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: 1 + sparkleRandom(i, 4) * 1.5,
+                  repeat: Infinity,
+                  delay: sparkleRandom(i, 5),
+                  ease: "easeInOut",
+                }}
+              />
+            );
+          })}
         </div>
         
         {/* Effet de vignette */}

@@ -34,13 +34,8 @@ export default function SiteFooter() {
           ))}
         </div>
       </div>
-      <div className="max-w-6xl mx-auto px-6 mt-6 flex items-center justify-center gap-2 text-center text-sm sm:text-base text-white/90">
-        <span role="img" aria-label="email">
-          ✉️
-        </span>
-        <a href="mailto:aymeric.desbazeille@hec.edu" className="underline underline-offset-4 hover:text-white transition-colors">
-          aymeric.desbazeille@hec.edu
-        </a>
+      <div className="max-w-6xl mx-auto px-6 mt-6 text-center text-sm sm:text-base text-white/90">
+        <p>Calendrier Avent © 2025</p>
       </div>
     </footer>
   );

@@ -10,6 +10,7 @@ import EnvelopeEditor from "@/components/EnvelopeEditor";
 import ParcoursBanner from "@/components/ParcoursBanner";
 import { PLAN_APPEARANCE, DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 import StepNavigation from "@/components/StepNavigation";
+import { sparkleRandom } from "@/lib/sparkle-random";
 
 type Plan = PlanKey | null;
 
@@ -174,14 +175,14 @@ function NewCalendarPageContent() {
                 key={i}
                 className="absolute rounded-full animate-pulse"
                 style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  width: Math.random() * 3 + 1,
-                  height: Math.random() * 3 + 1,
+                  top: `${sparkleRandom(i, 1) * 100}%`,
+                  left: `${sparkleRandom(i, 2) * 100}%`,
+                  width: sparkleRandom(i, 3) * 3 + 1,
+                  height: sparkleRandom(i, 4) * 3 + 1,
                   background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
-                  opacity: Math.random() * 0.7 + 0.3,
-                  animationDelay: `${Math.random() * 2}s`,
-                  animationDuration: `${Math.random() * 3 + 2}s`,
+                  opacity: sparkleRandom(i, 5) * 0.7 + 0.3,
+                  animationDelay: `${sparkleRandom(i, 6) * 2}s`,
+                  animationDuration: `${sparkleRandom(i, 7) * 3 + 2}s`,
                 }}
               />
             ))}
