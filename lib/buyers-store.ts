@@ -1,5 +1,7 @@
 import crypto from "crypto";
 
+type BuyerPaymentStatus = "pending" | "paid";
+
 type BuyerRecord = {
   id: string;
   plan: string;
@@ -7,8 +9,24 @@ type BuyerRecord = {
   phone: string;
   email: string;
   password_hash: string;
+  payment_status: BuyerPaymentStatus;
+  payment_amount: number;
+  stripe_payment_intent_id: string | null;
+  stripe_checkout_session_id: string | null;
   created_at: Date;
   updated_at: Date;
+};
+
+type SaveBuyerInput = {
+  plan: string;
+  full_name: string;
+  phone: string;
+  email: string;
+  password_hash: string;
+  payment_status?: BuyerPaymentStatus;
+  payment_amount?: number;
+  stripe_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
 };
 
 type BuyersStore = {
@@ -37,7 +55,7 @@ class UniqueEmailError extends Error {
   }
 }
 
-export function saveBuyer(data: Omit<BuyerRecord, "id" | "created_at" | "updated_at">) {
+export function saveBuyer(data: SaveBuyerInput) {
   const email = data.email.toLowerCase();
   const existing = buyers.byEmail.get(email);
   if (existing) {
@@ -52,6 +70,10 @@ export function saveBuyer(data: Omit<BuyerRecord, "id" | "created_at" | "updated
     updated_at: now,
     ...data,
     email,
+    payment_status: data.payment_status ?? "pending",
+    payment_amount: data.payment_amount ?? 0,
+    stripe_checkout_session_id: data.stripe_checkout_session_id ?? null,
+    stripe_payment_intent_id: data.stripe_payment_intent_id ?? null
   };
 
   buyers.byId.set(id, record);
@@ -62,4 +84,21 @@ export function saveBuyer(data: Omit<BuyerRecord, "id" | "created_at" | "updated
 export function findBuyerByEmail(email: string) {
   const normalized = email.toLowerCase();
   return buyers.byEmail.get(normalized) ?? null;
+}
+
+export function findBuyerById(id: string) {
+  return buyers.byId.get(id) ?? null;
+}
+
+export function updateBuyerPayment(id: string, updates: Partial<BuyerRecord>) {
+  const existing = buyers.byId.get(id);
+  if (!existing) return null;
+  const updated: BuyerRecord = {
+    ...existing,
+    ...updates,
+    updated_at: new Date()
+  };
+  buyers.byId.set(id, updated);
+  buyers.byEmail.set(updated.email, updated);
+  return updated;
 }
