@@ -621,7 +621,8 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
                 setCustomColor(e.target.value);
                 setBrushColor(e.target.value);
               }}
-              className="h-8 w-8 rounded-full border border-gray-300 cursor-pointer"
+              className="h-9 w-9 cursor-pointer rounded-full border-2 border-gray-400 p-0 appearance-none"
+              style={{ backgroundColor: customColor }}
               aria-label="Choisir une couleur personnalisée"
             />
           </label>
