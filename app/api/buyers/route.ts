@@ -3,6 +3,7 @@ import { hash } from "bcryptjs";
 import { saveBuyer } from "@/lib/buyers-store";
 import { attachBuyerSession } from "@/lib/server-session";
 import { supabaseServer } from "@/lib/supabase";
+import { getPlanPricing } from "@/lib/plan-pricing";
 
 type PostgresError = {
   code?: string;
@@ -17,6 +18,9 @@ export async function POST(req: Request) {
 
   try {
     const passwordHash = await hash(password, 12);
+    const normalizedEmail = email.toLowerCase();
+    const normalizedPhone = phone.trim() || null;
+    const pricing = getPlanPricing(plan);
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -26,13 +30,17 @@ export async function POST(req: Request) {
       const { data, error: supabaseError } = await supabase
         .from("buyers")
         .insert({
-          plan,
+          plan: pricing.plan,
           full_name: fullName,
-          phone,
-          email: email.toLowerCase(),
+          phone_e164: normalizedPhone,
+          email: normalizedEmail,
           password_hash: passwordHash,
+          payment_status: "pending",
+          payment_amount: pricing.amountCents / 100,
+          stripe_checkout_session_id: null,
+          stripe_payment_intent_id: null
         })
-        .select("id, plan, full_name")
+        .select("id, plan, full_name, payment_status, payment_amount")
         .single();
 
       if (supabaseError) {
@@ -48,11 +56,15 @@ export async function POST(req: Request) {
 
     console.warn("Supabase env vars missing; falling back to in-memory buyers store.");
     const fallbackBuyer = saveBuyer({
-      plan,
+      plan: pricing.plan,
       full_name: fullName,
-      phone,
-      email,
+      phone: normalizedPhone ?? "",
+      email: normalizedEmail,
       password_hash: passwordHash,
+      payment_status: "pending",
+      payment_amount: pricing.amountCents / 100,
+      stripe_checkout_session_id: null,
+      stripe_payment_intent_id: null
     });
 
     return respondWithSession({
