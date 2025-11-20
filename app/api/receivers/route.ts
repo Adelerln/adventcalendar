@@ -5,7 +5,6 @@ import { supabaseServer } from "@/lib/supabase";
 import { saveReceiver } from "@/lib/receivers-store";
 
 export const runtime = "nodejs";
-
 const payloadSchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),

@@ -8,7 +8,6 @@ export function getStripeClient(): Stripe {
   if (!secretKey) {
     throw new Error("STRIPE_SECRET_KEY is not set");
   }
-  // Allow overriding API version via env, fallback to latest
   const apiVersion = process.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined;
   stripeClient = new Stripe(secretKey, apiVersion ? { apiVersion } : undefined);
   return stripeClient;
@@ -16,11 +15,12 @@ export function getStripeClient(): Stripe {
 
 type AmountCheckoutParams = {
   amountCents: number;
-  planLabel: string;
-  buyerId: string;
-  successUrl: string;
-  cancelUrl: string;
   currency?: string;
+  planLabel: string;
+  buyerId?: string;
+  projectId?: string;
+  successUrl?: string;
+  cancelUrl?: string;
 };
 
 type ProductCheckoutParams = {
@@ -32,14 +32,12 @@ type ProductCheckoutParams = {
   currency?: string;
 };
 
-type CreateCheckoutSessionOptions = AmountCheckoutParams | ProductCheckoutParams;
-
-export async function createCheckoutSession(params: CreateCheckoutSessionOptions) {
+export async function createCheckoutSession(params: AmountCheckoutParams | ProductCheckoutParams) {
   const stripe = getStripeClient();
   const host = process.env.NEXT_PUBLIC_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-  const successUrl = "successUrl" in params ? params.successUrl ?? `${host}/dashboard` : `${host}/dashboard`;
-  const cancelUrl = "cancelUrl" in params ? params.cancelUrl ?? `${host}/dashboard` : `${host}/dashboard`;
+  const successUrl = params.successUrl ?? `${host}/dashboard`;
+  const cancelUrl = params.cancelUrl ?? `${host}/dashboard`;
 
   if ("amountCents" in params) {
     return stripe.checkout.sessions.create({
@@ -59,13 +57,14 @@ export async function createCheckoutSession(params: CreateCheckoutSessionOptions
         }
       ],
       metadata: {
-        buyer_id: params.buyerId
+        ...(params.buyerId ? { buyer_id: params.buyerId } : {}),
+        ...(params.projectId ? { project_id: params.projectId } : {})
       }
     });
   }
 
   const metadata: Record<string, string> = {};
-  if ("calendarId" in params && params.calendarId) {
+  if (params.calendarId) {
     metadata.calendar_id = params.calendarId;
   }
 
@@ -81,4 +80,9 @@ export async function createCheckoutSession(params: CreateCheckoutSessionOptions
     ],
     metadata: Object.keys(metadata).length ? metadata : undefined
   });
+}
+
+export function constructStripeEvent(payload: Buffer | string, signature: string, webhookSecret: string) {
+  const stripe = getStripeClient();
+  return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 }
