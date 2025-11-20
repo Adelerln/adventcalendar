@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 import SpotifySearchModal from "./SpotifySearchModal";
 
@@ -234,7 +234,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           )}
 
           {selectedType === "drawing" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
               <button
                 onClick={() => setSelectedType(null)}
                 className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
@@ -242,22 +242,35 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 ← Retour
               </button>
 
-              <label className="block cursor-pointer" htmlFor={drawingUploadLabelId}>
-                <span className="block text-sm font-medium mb-2">Télécharger un dessin</span>
-                <div className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-900 flex items-center justify-between text-sm transition-colors hover:border-gray-300 dark:hover:border-gray-600">
-                  <span className={drawingFileName ? "text-gray-800 dark:text-gray-100" : "text-gray-400"}>
-                    {drawingFileName || "Uploader le dessin"}
-                  </span>
-                  <span className="text-xs font-semibold text-[#d4af37]">Importer</span>
-                </div>
-                <input
-                  id={drawingUploadLabelId}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileUpload("drawing")}
-                  className="sr-only"
+              <div className="bg-white/80 dark:bg-gray-900/70 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-4">
+                <h3 className="font-semibold text-lg text-[#4a0808] mb-3">Dessinez comme sur Paint</h3>
+                <DrawingPad
+                  initialImage={content}
+                  onSave={(data) => {
+                    setContent(data);
+                    setDrawingFileName("Dessin enregistré");
+                  }}
                 />
-              </label>
+              </div>
+
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">Ou importez un dessin existant</p>
+                <label className="block cursor-pointer" htmlFor={drawingUploadLabelId}>
+                  <div className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 bg-white dark:bg-gray-900 flex items-center justify-between text-sm transition-colors hover:border-gray-300 dark:hover:border-gray-600">
+                    <span className={drawingFileName ? "text-gray-800 dark:text-gray-100" : "text-gray-400"}>
+                      {drawingFileName || "Uploader le dessin"}
+                    </span>
+                    <span className="text-xs font-semibold text-[#d4af37]">Importer</span>
+                  </div>
+                  <input
+                    id={drawingUploadLabelId}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload("drawing")}
+                    className="sr-only"
+                  />
+                </label>
+              </div>
 
               {content && (
                 <div className="relative rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
@@ -483,5 +496,183 @@ function SelectionButton({ type, label, description, icon, onSelect, className }
       <div className="font-bold text-lg text-[#6b0f0f] dark:text-[#f5dada]">{label}</div>
       <div className="text-sm text-gray-600 dark:text-gray-400">{description}</div>
     </button>
+  );
+}
+
+type DrawingPadProps = {
+  initialImage: string | null;
+  onSave: (dataUrl: string) => void;
+};
+
+function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [brushColor, setBrushColor] = useState("#4a0808");
+  const [brushSize, setBrushSize] = useState(4);
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    canvas.width = canvas.offsetWidth;
+    canvas.height = 320;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (initialImage) {
+      const img = new Image();
+      img.src = initialImage;
+      img.onload = () => ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    }
+    ctxRef.current = ctx;
+  }, [initialImage]);
+
+  const getPosition = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
+    const rect = canvas.getBoundingClientRect();
+    if ("touches" in event) {
+      const touch = event.touches[0];
+      return { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    }
+    return {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top
+    };
+  };
+
+  const startDrawing = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    event.preventDefault();
+    setStatus(null);
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const { x, y } = getPosition(event);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setIsDrawing(true);
+  };
+
+  const draw = (event: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!isDrawing) return;
+    event.preventDefault();
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const { x, y } = getPosition(event);
+    ctx.strokeStyle = brushColor;
+    ctx.lineWidth = brushSize;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const stopDrawing = () => {
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    ctx.closePath();
+    setIsDrawing(false);
+  };
+
+  const handleSave = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const data = canvas.toDataURL("image/png");
+    onSave(data);
+    setStatus("Dessin enregistré !");
+    setTimeout(() => setStatus(null), 2000);
+  };
+
+  const handleClear = () => {
+    const canvas = canvasRef.current;
+    const ctx = ctxRef.current;
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    onSave("");
+    setStatus("Toile réinitialisée");
+    setTimeout(() => setStatus(null), 1500);
+  };
+
+  const colors = ["#4a0808", "#d97706", "#b45309", "#78350f", "#f4f1eb", "#1f2937"];
+  const [customColor, setCustomColor] = useState("#4a0808");
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          {colors.map((color) => (
+            <button
+              key={color}
+              type="button"
+              onClick={() => setBrushColor(color)}
+              className={`w-8 h-8 rounded-full border-2 transition ${brushColor === color ? "border-[#4a0808]" : "border-transparent"}`}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+          <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-500">
+            Palette
+            <input
+              type="color"
+              value={customColor}
+              onChange={(e) => {
+                setCustomColor(e.target.value);
+                setBrushColor(e.target.value);
+              }}
+              className="h-8 w-8 rounded-full border border-gray-300 cursor-pointer"
+              aria-label="Choisir une couleur personnalisée"
+            />
+          </label>
+        </div>
+        <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
+          Taille
+          <input
+            type="range"
+            min={2}
+            max={20}
+            value={brushSize}
+            onChange={(e) => setBrushSize(Number(e.target.value))}
+            className="w-32"
+          />
+        </label>
+      </div>
+      <div className="relative">
+        <canvas
+          ref={canvasRef}
+          className="w-full border-2 border-gray-200 rounded-2xl bg-white shadow-inner"
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={startDrawing}
+          onTouchMove={draw}
+          onTouchEnd={stopDrawing}
+          style={{ touchAction: "none" }}
+        />
+        {status && (
+          <div className="absolute top-3 right-3 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[#4a0808] shadow">
+            {status}
+          </div>
+        )}
+      </div>
+      <div className="flex gap-3 flex-wrap">
+        <button
+          type="button"
+          onClick={handleSave}
+          className="flex-1 min-w-[180px] rounded-full bg-[#4a0808] text-white font-semibold py-2 px-4 hover:bg-[#701010] transition-colors"
+        >
+          Enregistrer mon dessin
+        </button>
+        <button
+          type="button"
+          onClick={handleClear}
+          className="rounded-full border-2 border-gray-300 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-100"
+        >
+          Effacer
+        </button>
+      </div>
+    </div>
   );
 }
