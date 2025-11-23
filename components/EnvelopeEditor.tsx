@@ -98,22 +98,23 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
     };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full my-8 flex flex-col max-h-[calc(100vh-4rem)]">
-        <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5 flex-shrink-0`}>
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Jour {day}</h2>
-            <button
-              onClick={onClose}
-              className={`${closeSurface} w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-colors`}
-            >
-              ✕
-            </button>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
+      <div className="container mx-auto px-4 pt-24 pb-8">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl mx-auto">
+          <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5`}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Jour {day}</h2>
+              <button
+                onClick={onClose}
+                className={`${closeSurface} w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-colors`}
+              >
+                ✕
+              </button>
+            </div>
+            <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
           </div>
-          <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
-        </div>
 
-        <div className="p-6 space-y-4 overflow-y-auto flex-1">
+          <div className="p-6 space-y-4">
           {!selectedType && (
             <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
               <SelectionButton
@@ -471,6 +472,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </button>
             </div>
           )}
+        </div>
         </div>
       </div>
 
