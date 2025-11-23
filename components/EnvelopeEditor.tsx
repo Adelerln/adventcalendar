@@ -200,7 +200,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     className={`w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 ${title ? "text-black dark:text-white" : ""}`}
                   />
                   {!title && (
-                    <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-black text-base">
+                    <span className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-gray-400 dark:text-gray-500 text-base">
                       Votre texte...
                     </span>
                   )}
@@ -225,9 +225,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                   onChange={(e) => setContent(e.target.value)}
                   placeholder="Votre texte..."
                   rows={6}
-                  className={`w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none ${
-                    content ? "text-black dark:text-white" : "text-black"
-                  }`}
+                  className={`w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-black dark:text-white placeholder:text-gray-400 placeholder:dark:text-gray-500`}
                 />
               </div>
             </div>

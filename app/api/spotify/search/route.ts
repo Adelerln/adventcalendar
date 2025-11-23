@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 
+// Simple in-memory cache to avoid re-hitting RapidAPI for the same track in a short window
+const mp3Cache = new Map<string, { url: string; fetchedAt: number }>();
+const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
+const RAPIDAPI_HOST = "spotify-downloader9.p.rapidapi.com";
+
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
@@ -31,52 +36,62 @@ export async function POST(req: Request) {
 
 // Enrichir les tracks avec les liens de téléchargement MP3 via RapidAPI
 async function enrichTracksWithMp3Links(tracks: any[], rapidApiKey: string) {
-  const enrichedTracks = await Promise.all(
-    tracks.map(async (track) => {
-      try {
-        // Utiliser juste le trackId (les deux formats fonctionnent, mais l'ID est plus simple)
-        const downloadUrl = `https://spotify-downloader9.p.rapidapi.com/downloadSong?songId=${track.id}`;
-        
-        console.log(`🎵 Recherche MP3 pour: ${track.name} (ID: ${track.id})`);
-        
-        const response = await fetch(downloadUrl, {
-          method: "GET",
-          headers: {
-            "x-rapidapi-key": rapidApiKey,
-            "x-rapidapi-host": "spotify-downloader9.p.rapidapi.com",
-          },
-        });
+  const enriched: any[] = [];
 
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Vérifier si le téléchargement a réussi
-          if (data.success && data.data?.downloadLink) {
-            console.log(`✅ MP3 trouvé pour ${track.name}: ${data.data.downloadLink}`);
-            return {
-              ...track,
-              downloadUrl: data.data.downloadLink,
-              mp3Url: data.data.downloadLink,
-              // Optionnel: enrichir avec d'autres infos de RapidAPI si disponibles
-              releaseDate: data.data.releaseDate,
-            };
-          } else {
-            console.warn(`⚠️  Pas de MP3 disponible pour ${track.name}:`, data.message || "Chanson non trouvée");
-          }
-        } else {
-          console.error(`❌ Erreur HTTP ${response.status} pour ${track.name}`);
+  for (const track of tracks) {
+    const cached = getCachedMp3(track.id);
+    if (cached) {
+      enriched.push({
+        ...track,
+        downloadUrl: cached,
+        mp3Url: cached
+      });
+      continue;
+    }
+
+    try {
+      const downloadUrl = `https://${RAPIDAPI_HOST}/downloadSong?songId=${track.id}`;
+      console.log(`🎵 Recherche MP3 pour: ${track.name} (ID: ${track.id})`);
+
+      // Éviter de spammer RapidAPI: petites pauses + retry sur 429/5xx
+      await wait(250);
+      const response = await fetchWithRetry(downloadUrl, {
+        method: "GET",
+        headers: {
+          "x-rapidapi-key": rapidApiKey,
+          "x-rapidapi-host": RAPIDAPI_HOST,
+        },
+      });
+
+      if (response?.ok) {
+        const data = await response.json();
+
+        if (data.success && data.data?.downloadLink) {
+          console.log(`✅ MP3 trouvé pour ${track.name}: ${data.data.downloadLink}`);
+          mp3Cache.set(track.id, { url: data.data.downloadLink, fetchedAt: Date.now() });
+          enriched.push({
+            ...track,
+            downloadUrl: data.data.downloadLink,
+            mp3Url: data.data.downloadLink,
+            releaseDate: data.data.releaseDate,
+          });
+          continue;
         }
-        
-        // Si échec, retourner le track sans lien MP3
-        return track;
-      } catch (error) {
-        console.error(`❌ Erreur enrichissement MP3 pour ${track.name}:`, error);
-        return track;
-      }
-    })
-  );
 
-  return enrichedTracks;
+        console.warn(`⚠️ Pas de MP3 disponible pour ${track.name}:`, data.message || "Chanson non trouvée");
+        enriched.push(track);
+        continue;
+      }
+
+      console.error(`❌ Erreur HTTP ${response?.status} pour ${track.name}`);
+      enriched.push(track);
+    } catch (error) {
+      console.error(`❌ Erreur enrichissement MP3 pour ${track.name}:`, error);
+      enriched.push(track);
+    }
+  }
+
+  return enriched;
 }
 
 // Recherche avec l'API Spotify Web publique
@@ -177,4 +192,47 @@ function generateMockResults(query: string): any[] {
       uri: `spotify:track:6habFhsOp2NvshLv26DqMb`,
     },
   ];
+}
+
+function getCachedMp3(trackId: string) {
+  const cached = mp3Cache.get(trackId);
+  if (!cached) return null;
+
+  const isFresh = Date.now() - cached.fetchedAt < CACHE_TTL_MS;
+  if (!isFresh) {
+    mp3Cache.delete(trackId);
+    return null;
+  }
+
+  return cached.url;
+}
+
+async function fetchWithRetry(url: string, options: RequestInit, attempts = 3, delayMs = 600) {
+  let lastError: any;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const response = await fetch(url, options);
+
+    // Succès
+    if (response.ok) return response;
+
+    // Sur 429 ou 5xx, on retente après une pause
+    if (response.status === 429 || response.status >= 500) {
+      const waitTime = delayMs * attempt;
+      console.warn(`⚠️ Tentative ${attempt}/${attempts} échouée (HTTP ${response.status}). Nouveau try dans ${waitTime}ms.`);
+      await wait(waitTime);
+      lastError = new Error(`HTTP ${response.status}`);
+      continue;
+    }
+
+    // Autres codes: on arrête
+    lastError = new Error(`HTTP ${response.status}`);
+    break;
+  }
+
+  throw lastError;
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
