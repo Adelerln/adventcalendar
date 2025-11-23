@@ -127,9 +127,9 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
               
               {/* Vérifier si c'est un lien Spotify */}
               {content.music.includes('spotify.com') ? (
-                <div className="rounded-xl overflow-hidden shadow-lg">
+                <div className="rounded-xl overflow-hidden shadow-lg bg-black">
                   <iframe
-                    src={content.music.replace('open.spotify.com/track/', 'open.spotify.com/embed/track/')}
+                    src={content.music.replace('open.spotify.com/track/', 'open.spotify.com/embed/track/') + '?theme=0'}
                     width="100%"
                     height="152"
                     frameBorder="0"
@@ -142,7 +142,7 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                 /* Fallback pour les fichiers audio classiques */
                 <audio 
                   controls 
-                  className="w-full"
+                  className="w-full rounded-lg"
                   src={content.music}
                 >
                   Votre navigateur ne supporte pas la lecture audio.
