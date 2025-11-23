@@ -33,50 +33,85 @@ export async function POST(req: Request) {
 async function enrichTracksWithMp3Links(tracks: any[], rapidApiKey: string) {
   const enrichedTracks = await Promise.all(
     tracks.map(async (track) => {
-      try {
-        // Utiliser juste le trackId (les deux formats fonctionnent, mais l'ID est plus simple)
-        const downloadUrl = `https://spotify-downloader9.p.rapidapi.com/downloadSong?songId=${track.id}`;
-        
-        console.log(`🎵 Recherche MP3 pour: ${track.name} (ID: ${track.id})`);
-        
-        const response = await fetch(downloadUrl, {
-          method: "GET",
-          headers: {
-            "x-rapidapi-key": rapidApiKey,
-            "x-rapidapi-host": "spotify-downloader9.p.rapidapi.com",
-          },
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          
-          // Vérifier si le téléchargement a réussi
-          if (data.success && data.data?.downloadLink) {
-            console.log(`✅ MP3 trouvé pour ${track.name}: ${data.data.downloadLink}`);
-            return {
-              ...track,
-              downloadUrl: data.data.downloadLink,
-              mp3Url: data.data.downloadLink,
-              // Optionnel: enrichir avec d'autres infos de RapidAPI si disponibles
-              releaseDate: data.data.releaseDate,
-            };
-          } else {
-            console.warn(`⚠️  Pas de MP3 disponible pour ${track.name}:`, data.message || "Chanson non trouvée");
-          }
-        } else {
-          console.error(`❌ Erreur HTTP ${response.status} pour ${track.name}`);
-        }
-        
-        // Si échec, retourner le track sans lien MP3
-        return track;
-      } catch (error) {
-        console.error(`❌ Erreur enrichissement MP3 pour ${track.name}:`, error);
-        return track;
-      }
+      return await fetchMp3WithRetry(track, rapidApiKey, 3); // 3 tentatives max
     })
   );
 
   return enrichedTracks;
+}
+
+// Fonction avec retry pour récupérer le MP3
+async function fetchMp3WithRetry(track: any, rapidApiKey: string, maxRetries: number) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const downloadUrl = `https://spotify-downloader9.p.rapidapi.com/downloadSong?songId=${track.id}`;
+      
+      console.log(`🎵 [Tentative ${attempt}/${maxRetries}] Recherche MP3 pour: ${track.name} (ID: ${track.id})`);
+      
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15 secondes timeout
+      
+      const response = await fetch(downloadUrl, {
+        method: "GET",
+        headers: {
+          "x-rapidapi-key": rapidApiKey,
+          "x-rapidapi-host": "spotify-downloader9.p.rapidapi.com",
+        },
+        signal: controller.signal,
+      });
+      
+      clearTimeout(timeout);
+
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Vérifier si le téléchargement a réussi
+        if (data.success && data.data?.downloadLink) {
+          console.log(`✅ MP3 trouvé pour ${track.name}: ${data.data.downloadLink}`);
+          return {
+            ...track,
+            downloadUrl: data.data.downloadLink,
+            mp3Url: data.data.downloadLink,
+            releaseDate: data.data.releaseDate,
+          };
+        } else {
+          console.warn(`⚠️  [Tentative ${attempt}] Pas de MP3 dans la réponse pour ${track.name}:`, data.message || "Chanson non trouvée");
+          
+          // Si c'est la dernière tentative et qu'on n'a pas de MP3, on retourne sans MP3
+          if (attempt === maxRetries) {
+            console.error(`❌ Échec définitif après ${maxRetries} tentatives pour ${track.name}`);
+            return track;
+          }
+          
+          // Sinon on attend un peu avant de réessayer
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt)); // Backoff progressif
+        }
+      } else {
+        console.error(`❌ [Tentative ${attempt}] Erreur HTTP ${response.status} pour ${track.name}`);
+        
+        if (attempt === maxRetries) {
+          return track;
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      }
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.error(`⏱️  [Tentative ${attempt}] Timeout pour ${track.name}`);
+      } else {
+        console.error(`❌ [Tentative ${attempt}] Erreur pour ${track.name}:`, error.message);
+      }
+      
+      if (attempt === maxRetries) {
+        console.error(`❌ Échec définitif après ${maxRetries} tentatives pour ${track.name}`);
+        return track;
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+    }
+  }
+  
+  return track;
 }
 
 // Recherche avec l'API Spotify Web publique
