@@ -77,13 +77,9 @@ async function enrichTracksWithMp3Links(tracks: any[], rapidApiKey: string) {
           });
           continue;
         }
-
-        console.warn(`⚠️ Pas de MP3 disponible pour ${track.name}:`, data.message || "Chanson non trouvée");
-        enriched.push(track);
-        continue;
       }
 
-      console.error(`❌ Erreur HTTP ${response?.status} pour ${track.name}`);
+      console.warn(`⚠️ Pas de MP3 disponible pour ${track.name}`);
       enriched.push(track);
     } catch (error) {
       console.error(`❌ Erreur enrichissement MP3 pour ${track.name}:`, error);

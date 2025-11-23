@@ -67,7 +67,7 @@ export default function Header() {
             FAQ
           </Link>
           <Link href="/dashboard" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
-            Exemple
+            Essaie-le
           </Link>
         </nav>
         <div className="ml-6 flex items-center gap-3">
