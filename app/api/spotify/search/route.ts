@@ -2,7 +2,21 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { query } = await req.json();
+    const { query, trackId } = await req.json();
+
+    // Si on a un trackId, chercher directement cette chanson
+    if (trackId && typeof trackId === "string") {
+      const track = await getTrackById(trackId);
+      if (track) {
+        const rapidApiKey = process.env.RAPIDAPI_KEY;
+        if (rapidApiKey) {
+          const enrichedTrack = await fetchMp3WithRetry(track, rapidApiKey, 3);
+          return NextResponse.json({ tracks: [enrichedTrack] });
+        }
+        return NextResponse.json({ tracks: [track] });
+      }
+      return NextResponse.json({ error: "Chanson non trouvée" }, { status: 404 });
+    }
 
     if (!query || typeof query !== "string" || query.trim().length === 0) {
       return NextResponse.json({ error: "Query invalide" }, { status: 400 });
@@ -150,6 +164,44 @@ async function searchWithSpotifyPublicAPI(query: string) {
   } catch (error) {
     console.error("Spotify public API failed:", error);
     return [];
+  }
+}
+
+// Récupérer une chanson par son ID Spotify
+async function getTrackById(trackId: string) {
+  try {
+    const accessToken = await getSpotifyAccessToken();
+    
+    const response = await fetch(
+      `https://api.spotify.com/v1/tracks/${trackId}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`Erreur lors de la récupération de la chanson ${trackId}`);
+      return null;
+    }
+
+    const item = await response.json();
+    
+    return {
+      id: item.id,
+      name: item.name,
+      artist: item.artists?.map((a: any) => a.name).join(", ") || "Artiste inconnu",
+      album: item.album?.name || "",
+      albumArt: item.album?.images?.[0]?.url || "",
+      previewUrl: item.preview_url,
+      spotifyUrl: item.external_urls?.spotify || `https://open.spotify.com/track/${item.id}`,
+      uri: item.uri,
+      duration: item.duration_ms,
+    };
+  } catch (error) {
+    console.error("Erreur lors de la récupération par ID:", error);
+    return null;
   }
 }
 

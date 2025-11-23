@@ -298,7 +298,15 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           {selectedType === "music" && (
             <div className="space-y-4">
               <button
-                onClick={() => setSelectedType(null)}
+                onClick={() => {
+                  if (content) {
+                    // Si une musique est déjà sélectionnée, rouvrir le modal Spotify
+                    setShowSpotifySearch(true);
+                  } else {
+                    // Sinon, retour au choix du type de contenu
+                    setSelectedType(null);
+                  }
+                }}
                 className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
               >
                 ← Retour
@@ -388,7 +396,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                       }}
                       className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
                     >
-                      Changer de chanson (Spotify)
+                      ← Changer de musique
                     </button>
                     <label className="block">
                       <span className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Remplacer par un fichier audio</span>
