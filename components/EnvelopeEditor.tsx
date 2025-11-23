@@ -29,12 +29,25 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const [drawingFileName, setDrawingFileName] = useState(
     initialContent?.type === "drawing" ? "Dessin importé" : ""
   );
-  const [mp3Url, setMp3Url] = useState(
-    initialContent?.type === "music" &&
-      (initialContent.content.startsWith("data:audio") || initialContent.content.endsWith(".mp3"))
-      ? initialContent.content
-      : ""
-  );
+  
+  // Pour la musique : détecter si c'est un MP3 (fichier encodé, lien .mp3, ou URL de téléchargement)
+  const [mp3Url, setMp3Url] = useState(() => {
+    if (initialContent?.type === "music" && initialContent.content) {
+      const url = initialContent.content;
+      // Vérifier si c'est un fichier audio ou un lien de téléchargement MP3
+      if (url.startsWith("data:audio") || 
+          url.endsWith(".mp3") ||
+          url.includes("download") || 
+          url.includes("spotify-api") ||
+          url.includes("mybackend.in") ||
+          url.includes("cloudfront") || 
+          url.includes("cdn.")) {
+        return url;
+      }
+    }
+    return "";
+  });
+  
   const [showSpotifySearch, setShowSpotifySearch] = useState(false);
   const photoUploadLabelId = useId();
   const drawingUploadLabelId = useId();
@@ -85,9 +98,9 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
     };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5`}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full my-8 flex flex-col max-h-[calc(100vh-4rem)]">
+        <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5 flex-shrink-0`}>
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">Jour {day}</h2>
             <button
@@ -100,7 +113,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 overflow-y-auto flex-1">
           {!selectedType && (
             <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
               <SelectionButton
@@ -371,12 +384,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                         setMp3Url("");
                         setShowSpotifySearch(true);
                       }}
-                      className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                      className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
                     >
                       Changer de chanson (Spotify)
                     </button>
                     <label className="block">
-                      <span className="block text-sm font-medium mb-2">Remplacer par un fichier audio</span>
+                      <span className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Remplacer par un fichier audio</span>
                       <input
                         type="file"
                         accept="audio/*"

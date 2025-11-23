@@ -126,7 +126,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Nom de la chanson, artiste..."
-              className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent"
+              className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent bg-white text-gray-900 placeholder:text-gray-500"
               autoFocus
             />
             <button
@@ -154,21 +154,21 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
           {loading && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4 animate-bounce">🎵</div>
-              <p className="text-gray-600">Recherche en cours...</p>
+              <p className="text-gray-900 font-medium">Recherche en cours...</p>
             </div>
           )}
 
           {!loading && tracks.length === 0 && query && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12">
               <div className="text-4xl mb-4">🔍</div>
-              <p>Aucun résultat trouvé</p>
+              <p className="text-gray-800 font-medium">Aucun résultat trouvé</p>
             </div>
           )}
 
           {!loading && tracks.length === 0 && !query && (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12">
               <div className="text-4xl mb-4">🎼</div>
-              <p>Recherchez une chanson pour commencer</p>
+              <p className="text-gray-800 font-medium">Recherchez une chanson pour commencer</p>
             </div>
           )}
 
@@ -192,9 +192,9 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                     {/* Track Info */}
                     <div className="flex-1 min-w-0">
                       <h3 className="font-bold text-gray-900 truncate">{track.name}</h3>
-                      <p className="text-sm text-gray-600 truncate">{track.artist}</p>
+                      <p className="text-sm text-gray-800 truncate">{track.artist}</p>
                       {track.album && (
-                        <p className="text-xs text-gray-500 truncate">{track.album}</p>
+                        <p className="text-xs text-gray-700 truncate">{track.album}</p>
                       )}
                     </div>
 
@@ -231,7 +231,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-black/10 bg-gray-50/50 text-center text-xs text-gray-500">
+        <div className="p-4 border-t border-black/10 bg-gray-50/50 text-center text-xs text-gray-800">
           Propulsé par Spotify 🎵
         </div>
       </div>
