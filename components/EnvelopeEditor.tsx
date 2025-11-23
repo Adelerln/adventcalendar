@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { PLAN_APPEARANCE, type PlanKey } from "@/lib/plan-theme";
 import SpotifySearchModal from "./SpotifySearchModal";
+import VoiceRecorder from "./VoiceRecorder";
 
 type DayContent = {
   type: "photo" | "message" | "drawing" | "music" | "voice" | "ai_photo";
@@ -413,19 +414,32 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 ← Retour
               </button>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Déposer un message vocal</label>
-                <input
-                  type="file"
-                  accept="audio/*"
-                  onChange={handleFileUpload("voice")}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
+              {!content ? (
+                <VoiceRecorder
+                  onSave={(audioDataUrl) => {
+                    setContent(audioDataUrl);
+                  }}
+                  onCancel={() => setSelectedType(null)}
                 />
-              </div>
-
-              {content && (
-                <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
-                  <audio controls src={content} className="w-full" />
+              ) : (
+                <div className="space-y-4">
+                  <div className="bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-amber-900/20 dark:to-yellow-900/20 p-6 rounded-xl border-2 border-amber-200 dark:border-amber-700">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-3xl">🎤</span>
+                      <div>
+                        <h3 className="font-bold text-lg text-gray-900 dark:text-white">Message vocal enregistré</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Prêt à être ajouté au calendrier</p>
+                      </div>
+                    </div>
+                    <audio controls src={content} className="w-full rounded-lg" />
+                  </div>
+                  
+                  <button
+                    onClick={() => setContent("")}
+                    className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
+                  >
+                    🔄 Réenregistrer
+                  </button>
                 </div>
               )}
             </div>
