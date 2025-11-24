@@ -14,9 +14,9 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Calendrier de l'Avent personnalisable",
   description: "Créez un calendrier de l'Avent magique et partagez-le avec vos proches.",
-  icons: {
-    icon: '/icon.png',
-  },
+    icons: {
+      icon: '/favicon2.png',
+    },
 };
 
 export default function RootLayout({

@@ -47,13 +47,13 @@ export default function Header() {
           href="/"
           className="flex items-center gap-2 sm:gap-3 text-base sm:text-2xl tracking-[0.2em] sm:tracking-[0.3em] uppercase hover:scale-105 transition-transform text-white drop-shadow-lg"
         >
-          <span className="relative inline-flex w-10 h-10 sm:w-14 sm:h-14 overflow-hidden rounded-full border-2 border-[#d4af37] flex-shrink-0">
+          <span className="relative inline-block w-10 h-10 sm:w-12 sm:h-12 overflow-hidden rounded-full border-4 border-[#6b0f0f] flex-shrink-0 shadow-[0_0_18px_rgba(107,15,15,0.22)] bg-gradient-to-br from-[#fff8e6] to-transparent">
             <Image
-              src="/enveloppe-logo3.png"
-              alt="Enveloppe dorée"
+              src="/favicon2.png"
+              alt="Logo"
               fill
-              sizes="56px"
-              style={{ objectFit: "cover", objectPosition: "center" }}
+              sizes="(min-width: 640px) 48px, 40px"
+              className="object-cover object-center scale-110"
               priority
               quality={100}
               unoptimized
@@ -104,8 +104,8 @@ export default function Header() {
                 className="text-xs uppercase tracking-wide px-4 py-2 rounded-full text-white hover:scale-105 transition-transform"
                 style={{
                   background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
-                  border: '2px solid #4a0808',
-                  color: '#4a0808',
+                  border: '2px solid #6b0f0f',
+                  color: '#6b0f0f',
                 }}
               >
                 Créer un compte
@@ -179,8 +179,8 @@ export default function Header() {
                     className="block text-center px-4 py-2 rounded-full text-white"
                     style={{
                       background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
-                      border: '2px solid #4a0808',
-                      color: '#4a0808',
+                      border: '2px solid #6b0f0f',
+                      color: '#6b0f0f',
                     }}
                     onClick={() => setMobileMenuOpen(false)}
                   >
