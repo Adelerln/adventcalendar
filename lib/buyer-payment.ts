@@ -19,10 +19,14 @@ const PAYMENT_FIELDS =
 
 export async function getBuyerPaymentInfo(buyerId: string): Promise<BuyerPaymentInfo | null> {
   if (hasSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase.from("buyers").select(PAYMENT_FIELDS).eq("id", buyerId).maybeSingle();
-    if (error) throw error;
-    return data ? mapSupabaseBuyer(data) : null;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase.from("buyers").select(PAYMENT_FIELDS).eq("id", buyerId).maybeSingle();
+      if (error) throw error;
+      return data ? mapSupabaseBuyer(data) : null;
+    } catch (error) {
+      console.error("[buyer-payment] getBuyerPaymentInfo supabase failed, fallback to store", error);
+    }
   }
 
   const buyer = findBuyerById(buyerId);
@@ -36,21 +40,25 @@ export async function markBuyerPaymentPending(params: {
   stripeSessionId: string;
 }) {
   if (hasSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase
-      .from("buyers")
-      .update({
-        plan: params.plan,
-        payment_status: "pending",
-        payment_amount: params.amountEuros,
-        stripe_checkout_session_id: params.stripeSessionId,
-        stripe_payment_intent_id: null
-      })
-      .eq("id", params.buyerId)
-      .select(PAYMENT_FIELDS)
-      .maybeSingle();
-    if (error) throw error;
-    return data ? mapSupabaseBuyer(data) : null;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("buyers")
+        .update({
+          plan: params.plan,
+          payment_status: "pending",
+          payment_amount: params.amountEuros,
+          stripe_checkout_session_id: params.stripeSessionId,
+          stripe_payment_intent_id: null
+        })
+        .eq("id", params.buyerId)
+        .select(PAYMENT_FIELDS)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapSupabaseBuyer(data) : null;
+    } catch (error) {
+      console.error("[buyer-payment] markBuyerPaymentPending supabase failed, fallback to store", error);
+    }
   }
 
   const updated = updateBuyerPayment(params.buyerId, {
@@ -69,19 +77,23 @@ export async function markBuyerPaymentAsPaid(params: {
   paymentIntentId?: string | null;
 }) {
   if (hasSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase
-      .from("buyers")
-      .update({
-        payment_status: "paid",
-        stripe_checkout_session_id: params.stripeSessionId,
-        stripe_payment_intent_id: params.paymentIntentId ?? null
-      })
-      .eq("id", params.buyerId)
-      .select(PAYMENT_FIELDS)
-      .maybeSingle();
-    if (error) throw error;
-    return data ? mapSupabaseBuyer(data) : null;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("buyers")
+        .update({
+          payment_status: "paid",
+          stripe_checkout_session_id: params.stripeSessionId,
+          stripe_payment_intent_id: params.paymentIntentId ?? null
+        })
+        .eq("id", params.buyerId)
+        .select(PAYMENT_FIELDS)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapSupabaseBuyer(data) : null;
+    } catch (error) {
+      console.error("[buyer-payment] markBuyerPaymentAsPaid supabase failed, fallback to store", error);
+    }
   }
 
   const updated = updateBuyerPayment(params.buyerId, {

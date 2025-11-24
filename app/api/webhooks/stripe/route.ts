@@ -32,38 +32,43 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
+  if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session;
-    const projectId = session.metadata?.project_id;
-    const buyerId = session.metadata?.buyer_id;
-
-    if (projectId) {
-      const project = await findProjectById(projectId);
-      if (project) {
-        await updateProject(project.id, {
-          payment_status: "paid",
-          status: "paid",
-          stripe_checkout_session_id: session.id ?? null,
-          payment_amount:
-            typeof session.amount_total === "number" ? session.amount_total / 100 : project.payment_amount
-        });
-
-        await sendPaymentEmail(project.user_id);
-      } else {
-        console.warn("[stripe-webhook] project not found", projectId);
-      }
-    }
-
-    if (buyerId) {
-      await markBuyerPaymentAsPaid({
-        buyerId,
-        stripeSessionId: session.id ?? "",
-        paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : null
-      }).catch((error) => console.error("[stripe-webhook] markBuyerPaymentAsPaid failed", error));
-    }
+    await handleCheckoutSession(session);
+  } else if (event.type === "checkout.session.async_payment_failed") {
+    console.warn("[stripe-webhook] async payment failed", event.id);
   }
 
   return NextResponse.json({ received: true });
+}
+
+async function handleCheckoutSession(session: Stripe.Checkout.Session) {
+  const projectId = session.metadata?.project_id;
+  const buyerId = session.metadata?.buyer_id;
+
+  if (projectId) {
+    const project = await findProjectById(projectId);
+    if (project) {
+      await updateProject(project.id, {
+        payment_status: "paid",
+        status: "paid",
+        stripe_checkout_session_id: session.id ?? null,
+        payment_amount: typeof session.amount_total === "number" ? session.amount_total / 100 : project.payment_amount
+      });
+
+      await sendPaymentEmail(project.user_id);
+    } else {
+      console.warn("[stripe-webhook] project not found", projectId);
+    }
+  }
+
+  if (buyerId) {
+    await markBuyerPaymentAsPaid({
+      buyerId,
+      stripeSessionId: session.id ?? "",
+      paymentIntentId: typeof session.payment_intent === "string" ? session.payment_intent : null
+    }).catch((error) => console.error("[stripe-webhook] markBuyerPaymentAsPaid failed", error));
+  }
 }
 
 async function sendPaymentEmail(buyerId: string) {

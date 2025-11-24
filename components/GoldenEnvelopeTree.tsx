@@ -158,6 +158,7 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
   const [isOpened, setIsOpened] = useState(false);
   const [openedDays, setOpenedDays] = useState<Set<number>>(new Set());
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Créer le son d'ouverture
@@ -167,6 +168,11 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
     if (audioContext) {
       audioRef.current = new Audio();
     }
+  }, []);
+
+  useEffect(() => {
+    // Évite les écarts SSR/CSR sur les éléments générés aléatoirement (paillettes, neige).
+    setIsClient(true);
   }, []);
 
   const getDayData = (day: number) => days.find((d) => d.day === day) || { day, isUnlocked: false, isToday: false };
@@ -214,10 +220,10 @@ export default function GoldenEnvelopeTree({ days, onDayClick, hideBackground = 
       )}
       
       {/* Flocons de neige */}
-      {!hideBackground && <Snowfall />}
+      {!hideBackground && isClient && <Snowfall />}
       
       {/* Paillettes scintillantes améliorées */}
-      {!hideBackground && (
+      {!hideBackground && isClient && (
         <div className="absolute inset-0 pointer-events-none">
           {[...Array(150)].map((_, i) => {
             const size = sparkleRandom(i, 3) * 6 + 2;

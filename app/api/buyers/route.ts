@@ -32,6 +32,12 @@ export async function POST(req: Request) {
       let createdUserId: string | null = null;
 
       try {
+        // Si un buyer existe déjà en base, on retourne directement le conflit
+        const existingBuyer = await findBuyerByEmailSupabase(supabase, normalizedEmail);
+        if (existingBuyer) {
+          return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+        }
+
         const { data: userResp, error: userError } = await supabase.auth.admin.createUser({
           email: normalizedEmail,
           password,
@@ -77,13 +83,58 @@ export async function POST(req: Request) {
           fullName: data.full_name
         });
       } catch (error) {
-        if (
-          error &&
-          typeof error === "object" &&
-          "status" in error &&
-          (error as { status?: number }).status === 422
-        ) {
-          return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+        // Email déjà utilisé dans auth: on tente de réutiliser le compte existant s'il n'y a pas de buyer.
+        if (isSupabaseEmailConflict(error)) {
+          try {
+            const existingUserId = await findAuthUserIdByEmail(supabase, normalizedEmail);
+            if (!existingUserId) {
+              return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+            }
+
+            // Si aucun buyer associé, on le crée et on met à jour le mot de passe
+            const { data: buyerRow } = await supabase
+              .from("buyers")
+              .select("id, plan, full_name")
+              .eq("id", existingUserId)
+              .maybeSingle();
+
+            if (!buyerRow) {
+              // Mettre à jour le mot de passe de l'utilisateur existant
+              await supabase.auth.admin.updateUserById(existingUserId, { password });
+
+              const { data, error: supabaseError } = await supabase
+                .from("buyers")
+                .insert({
+                  id: existingUserId,
+                  plan: pricing.plan,
+                  full_name: fullName,
+                  phone_e164: normalizedPhone,
+                  email: normalizedEmail,
+                  payment_status: "pending",
+                  payment_amount: pricing.amountCents / 100,
+                  stripe_payment_intent_id: null,
+                  stripe_checkout_session_id: null
+                })
+                .select("id, plan, full_name, payment_status, payment_amount")
+                .single();
+
+              if (supabaseError || !data) {
+                throw supabaseError ?? new Error("Impossible d'enregistrer l'acheteur");
+              }
+
+              return respondWithSession({
+                id: data.id,
+                plan: data.plan,
+                fullName: data.full_name
+              });
+            }
+
+            // Buyer déjà existant pour cet email
+            return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+          } catch (reuseError) {
+            console.error("Supabase reuse existing auth user failed", reuseError);
+            return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+          }
         }
         console.error("Supabase buyers insert failed, falling back to in-memory store", error);
       }
@@ -135,4 +186,43 @@ function respondWithSession(data: { id: string; plan: string; fullName: string }
   };
   const response = NextResponse.json({ buyer: session }, { status: 201 });
   return attachBuyerSession(response, session);
+}
+
+function isSupabaseEmailConflict(error: unknown) {
+  return (
+    error &&
+    typeof error === "object" &&
+    "status" in error &&
+    (error as { status?: number }).status === 422
+  );
+}
+
+async function findAuthUserIdByEmail(
+  supabase: ReturnType<typeof supabaseServer>,
+  email: string
+): Promise<string | null> {
+  const { data, error } = await supabase.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (error) {
+    console.error("Lookup auth users failed", error);
+    return null;
+  }
+  const normalized = email.toLowerCase();
+  const match = data?.users?.find((u) => (u.email ?? "").toLowerCase() === normalized);
+  return match?.id ?? null;
+}
+
+async function findBuyerByEmailSupabase(
+  supabase: ReturnType<typeof supabaseServer>,
+  email: string
+) {
+  const { data, error } = await supabase
+    .from("buyers")
+    .select("id, plan, full_name")
+    .eq("email", email)
+    .maybeSingle();
+  if (error && error.code !== "PGRST116") {
+    // PGRST116 = no rows returned, ignore
+    console.error("Lookup buyers by email failed", error);
+  }
+  return data ?? null;
 }

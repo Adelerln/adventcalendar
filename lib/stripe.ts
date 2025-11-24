@@ -2,6 +2,28 @@ import Stripe from "stripe";
 
 let stripeClient: Stripe | null = null;
 
+function resolveAppHost() {
+  const candidates = [
+    process.env.NEXT_PUBLIC_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate) continue;
+    const cleaned = candidate.trim().split(/\s+/)[0];
+    try {
+      const url = cleaned.startsWith("http") ? new URL(cleaned) : new URL(`https://${cleaned}`);
+      return url.origin;
+    } catch {
+      const withoutTrailingSlash = cleaned.replace(/\/+$/, "");
+      if (withoutTrailingSlash) return withoutTrailingSlash;
+    }
+  }
+
+  return "http://localhost:3000";
+}
+
 export function getStripeClient(): Stripe {
   if (stripeClient) return stripeClient;
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -13,33 +35,41 @@ export function getStripeClient(): Stripe {
   return stripeClient;
 }
 
-type AmountCheckoutParams = {
-  amountCents: number;
+type BaseCheckoutParams = {
   currency?: string;
+  successUrl?: string;
+  cancelUrl?: string;
+  metadata?: Record<string, string>;
+};
+
+type AmountCheckoutParams = BaseCheckoutParams & {
+  amountCents: number;
   planLabel: string;
   buyerId?: string;
   projectId?: string;
-  successUrl?: string;
-  cancelUrl?: string;
 };
 
-type ProductCheckoutParams = {
+type ProductCheckoutParams = BaseCheckoutParams & {
   mode: Stripe.Checkout.SessionCreateParams.Mode;
-  productId: string;
+  productId?: string;
   calendarId?: string;
-  successUrl?: string;
-  cancelUrl?: string;
-  currency?: string;
+  inlineAmountCents?: number;
+  productName?: string;
 };
 
 export async function createCheckoutSession(params: AmountCheckoutParams | ProductCheckoutParams) {
   const stripe = getStripeClient();
-  const host = process.env.NEXT_PUBLIC_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const host = resolveAppHost();
 
   const successUrl = params.successUrl ?? `${host}/dashboard`;
   const cancelUrl = params.cancelUrl ?? `${host}/dashboard`;
 
+  const metadata: Record<string, string> = { ...(params.metadata ?? {}) };
+
   if ("amountCents" in params) {
+    if (params.buyerId) metadata.buyer_id = params.buyerId;
+    if (params.projectId) metadata.project_id = params.projectId;
+
     return stripe.checkout.sessions.create({
       mode: "payment",
       success_url: successUrl,
@@ -56,16 +86,19 @@ export async function createCheckoutSession(params: AmountCheckoutParams | Produ
           quantity: 1
         }
       ],
-      metadata: {
-        ...(params.buyerId ? { buyer_id: params.buyerId } : {}),
-        ...(params.projectId ? { project_id: params.projectId } : {})
-      }
+      metadata: Object.keys(metadata).length ? metadata : undefined
     });
   }
 
-  const metadata: Record<string, string> = {};
   if (params.calendarId) {
     metadata.calendar_id = params.calendarId;
+  }
+
+  const inlineAmount =
+    typeof params.inlineAmountCents === "number" && params.inlineAmountCents > 0 ? params.inlineAmountCents : null;
+
+  if (!inlineAmount && !params.productId) {
+    throw new Error("Stripe price ID or inline amount is required to start checkout");
   }
 
   return stripe.checkout.sessions.create({
@@ -74,7 +107,17 @@ export async function createCheckoutSession(params: AmountCheckoutParams | Produ
     cancel_url: cancelUrl,
     line_items: [
       {
-        price: params.productId,
+        ...(inlineAmount
+          ? {
+              price_data: {
+                currency: params.currency ?? "eur",
+                product_data: {
+                  name: params.productName ?? "Calendrier de l'Avent"
+                },
+                unit_amount: inlineAmount
+              }
+            }
+          : { price: params.productId }),
         quantity: 1
       }
     ],
@@ -86,3 +129,5 @@ export function constructStripeEvent(payload: Buffer | string, signature: string
   const stripe = getStripeClient();
   return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
 }
+
+export { resolveAppHost };

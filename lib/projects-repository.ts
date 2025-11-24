@@ -34,28 +34,36 @@ type UpdateProjectInput = Partial<
 >;
 
 const memoryStore: Map<string, ProjectRecord> = new Map();
-const useSupabase = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+// Supabase projects tables are optional. Only opt-in if explicitly enabled and tables exist.
+const useSupabase =
+  process.env.SUPABASE_PROJECTS_ENABLED === "true" &&
+  Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 export async function createProjectRecord(input: CreateProjectInput): Promise<ProjectRecord> {
   if (useSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase
-      .from("projects")
-      .insert({
-        user_id: input.userId,
-        plan: input.plan,
-        status: input.status ?? "pending",
-        payment_status: input.paymentStatus ?? "pending",
-        payment_amount: input.paymentAmount,
-        image_file: input.imageFile ?? null,
-        prompt: input.prompt ?? null
-      })
-      .select("*")
-      .single();
-    if (error) {
-      throw error;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("projects")
+        .insert({
+          user_id: input.userId,
+          plan: input.plan,
+          status: input.status ?? "pending",
+          payment_status: input.paymentStatus ?? "pending",
+          payment_amount: input.paymentAmount,
+          image_file: input.imageFile ?? null,
+          prompt: input.prompt ?? null
+        })
+        .select("*")
+        .single();
+      if (error) {
+        throw error;
+      }
+      return mapProjectRecord(data);
+    } catch (error) {
+      console.error("[projects] createProjectRecord supabase failed, fallback to memory store", error);
     }
-    return mapProjectRecord(data);
   }
 
   const now = new Date().toISOString();
@@ -78,26 +86,34 @@ export async function createProjectRecord(input: CreateProjectInput): Promise<Pr
 
 export async function findProjectById(projectId: string): Promise<ProjectRecord | null> {
   if (useSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase.from("projects").select("*").eq("id", projectId).maybeSingle();
-    if (error) throw error;
-    return data ? mapProjectRecord(data) : null;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase.from("projects").select("*").eq("id", projectId).maybeSingle();
+      if (error) throw error;
+      return data ? mapProjectRecord(data) : null;
+    } catch (error) {
+      console.error("[projects] findProjectById supabase failed, fallback to memory store", error);
+    }
   }
   return memoryStore.get(projectId) ?? null;
 }
 
 export async function findLatestProjectForUser(userId: string): Promise<ProjectRecord | null> {
   if (useSupabase) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    if (error) throw error;
-    return data ? mapProjectRecord(data) : null;
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapProjectRecord(data) : null;
+    } catch (error) {
+      console.error("[projects] findLatestProjectForUser supabase failed, fallback to memory store", error);
+    }
   }
   const records = Array.from(memoryStore.values())
     .filter((record) => record.user_id === userId)
@@ -111,22 +127,26 @@ export async function updateProject(projectId: string, updates: UpdateProjectInp
   }
 
   if (useSupabase) {
-    const supabase = supabaseServer();
-    const payload = mapProjectUpdates(updates);
-    if (Object.keys(payload).length === 0) {
-      return findProjectById(projectId);
+    try {
+      const supabase = supabaseServer();
+      const payload = mapProjectUpdates(updates);
+      if (Object.keys(payload).length === 0) {
+        return findProjectById(projectId);
+      }
+      const { data, error } = await supabase
+        .from("projects")
+        .update({
+          ...payload,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", projectId)
+        .select("*")
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapProjectRecord(data) : null;
+    } catch (error) {
+      console.error("[projects] updateProject supabase failed, fallback to memory store", error);
     }
-    const { data, error } = await supabase
-      .from("projects")
-      .update({
-        ...payload,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", projectId)
-      .select("*")
-      .maybeSingle();
-    if (error) throw error;
-    return data ? mapProjectRecord(data) : null;
   }
 
   const existing = memoryStore.get(projectId);

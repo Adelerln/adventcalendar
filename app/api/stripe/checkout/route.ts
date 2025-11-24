@@ -14,11 +14,35 @@ export async function POST(req: NextRequest) {
 
   const product = PRODUCTS[productId];
   const mode = product.type === "subscription" ? "subscription" : "payment";
-  const session = await createCheckoutSession({
-    mode,
-    productId: product.stripePriceId,
-    calendarId
-  });
+
+  const hasStripePrice = Boolean(product.stripePriceId);
+  const inlineAmount =
+    typeof (product as { price?: unknown }).price === "number" ? (product as { price: number }).price : null;
+
+  if (mode === "subscription" && !hasStripePrice) {
+    return NextResponse.json({ error: "Produit Stripe manquant pour l'abonnement" }, { status: 400 });
+  }
+
+  if (!hasStripePrice && inlineAmount === null) {
+    return NextResponse.json({ error: "Aucun prix configuré pour ce produit" }, { status: 400 });
+  }
+
+  const session = await createCheckoutSession(
+    hasStripePrice
+      ? {
+          mode,
+          productId: product.stripePriceId,
+          calendarId,
+          metadata: { product_id: product.id }
+        }
+      : {
+          mode: "payment",
+          inlineAmountCents: inlineAmount!,
+          productName: "name" in product ? product.name : product.id,
+          calendarId,
+          metadata: { product_id: product.id }
+        }
+  );
   return NextResponse.json({ url: session.url });
 }
 
@@ -35,4 +59,3 @@ function parseCheckoutPayload(body: Record<string, unknown>) {
 function isValidProduct(productId: string): productId is keyof typeof PRODUCTS {
   return productId.length > 0 && productId in PRODUCTS;
 }
-

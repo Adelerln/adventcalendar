@@ -61,7 +61,15 @@ function CheckoutPageContent() {
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || "Impossible de lancer Stripe Checkout");
+        const detail = body.details ? ` (Détail: ${body.details})` : "";
+        if (res.status === 401) {
+          throw new Error(body.error || "Vous devez vous reconnecter avant de payer." + detail);
+        }
+        throw new Error(
+          (body.error ||
+            "Impossible de lancer Stripe Checkout. Vérifiez votre connexion/bloqueur de pub et réessayez, ou contactez le support.") +
+            detail
+        );
       }
       const data = await res.json();
       if (data.checkoutUrl) {
