@@ -28,3 +28,34 @@ Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
  GET /api/session 200 in 7ms (compile: 1447µs, proxy.ts: 1464µs, render: 4ms)
  GET /api/session 200 in 5ms (compile: 1424µs, proxy.ts: 1431µs, render: 2ms)
  GET /api/session 200 in 5ms (compile: 1683µs, proxy.ts: 1646µs, render: 1834µs)
+ ⨯ Error: supabaseUrl is required.
+    at module evaluation (app/api/ai-photo/route.ts:8:30)
+    at Object.<anonymous> (.next/dev/server/app/api/ai-photo/route.js:8:3)
+   6 | const model = process.env.REPLICATE_MODEL || "google/nano-banana";
+   7 |
+>  8 | const supabase = createClient(
+     |                              ^
+   9 |   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  10 |   process.env.SUPABASE_SERVICE_ROLE_KEY!
+  11 | ); {
+  page: '/api/ai-photo'
+}
+ POST /api/ai-photo 500 in 1080ms (compile: 967ms, proxy.ts: 11ms, render: 101ms)
+ ⨯ Error: supabaseUrl is required.
+    at module evaluation (app/api/ai-photo/route.ts:8:30)
+    at Object.<anonymous> (.next/dev/server/app/api/ai-photo/route.js:8:3)
+   6 | const model = process.env.REPLICATE_MODEL || "google/nano-banana";
+   7 |
+>  8 | const supabase = createClient(
+     |                              ^
+   9 |   process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  10 |   process.env.SUPABASE_SERVICE_ROLE_KEY!
+  11 | ); {
+  page: '/api/ai-photo'
+}
+ POST /api/ai-photo 500 in 193ms (compile: 174ms, proxy.ts: 8ms, render: 11ms)
+   Reload env: .env.local
+ GET /calendars/new?plan=plan_premium&stage=creation 200 in 255ms (compile: 70ms, proxy.ts: 40ms, render: 144ms)
+Image with src "/enveloppe-logo3.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET /calendars/new?plan=plan_premium&stage=creation 200 in 346ms (compile: 16ms, proxy.ts: 15ms, render: 315ms)
