@@ -244,7 +244,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
           uri: rec.uri || `spotify:track:${rec.id}`,
           mp3Url: rec.mp3Url
         });
-        setLoading(false);
+        setSearching(false);
         return;
       }
 
