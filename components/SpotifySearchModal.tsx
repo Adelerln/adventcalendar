@@ -26,7 +26,8 @@ type Props = {
 export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
   const [query, setQuery] = useState("");
   const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [selectingTrackId, setSelectingTrackId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [playingPreview, setPlayingPreview] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
@@ -228,7 +229,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
   };
 
   const handleRecommendationClick = async (rec: { id: string; name: string; artist: string; mp3Url?: string; spotifyUrl?: string; uri?: string }) => {
-    setLoading(true);
+    setSearching(true);
     setError(null);
 
     try {
@@ -282,7 +283,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
       console.error("💥 Erreur complète:", err);
       setError(`Impossible de charger cette chanson: ${err.message}`);
     } finally {
-      setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -291,27 +292,38 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
     
     if (!query.trim()) return;
 
-    setLoading(true);
+    setSearching(true);
     setError(null);
 
     try {
       const response = await fetch("/api/spotify/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim() })
+        body: JSON.stringify({ query: query.trim() }),
+        cache: "no-store"
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Erreur lors de la recherche");
+        throw new Error(data?.error || "Erreur lors de la recherche");
       }
 
-      const data = await response.json();
       setTracks(data.tracks || []);
-    } catch (err) {
-      setError("Impossible de rechercher sur Spotify. Réessayez.");
-      console.error(err);
+
+      if (data?.error) {
+        setError(data.error);
+      }
+    } catch (err: any) {
+      console.error("Recherche Spotify échouée:", err);
+      setError(err?.message || "Impossible de rechercher sur Spotify. Réessayez.");
+      // Afficher quand même des suggestions pour ne pas bloquer l'utilisateur
+      const fallback = Object.values(recommendations).flat();
+      if (fallback.length) {
+        setTracks(fallback);
+      }
     } finally {
-      setLoading(false);
+      setSearching(false);
     }
   };
 
@@ -340,15 +352,47 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
     setPlayingPreview(trackId);
   };
 
-  const handleSelectTrack = (track: SpotifyTrack) => {
+  const handleSelectTrack = async (track: SpotifyTrack) => {
     // Arrêter la lecture
     if (audioElement) {
       audioElement.pause();
       audioElement.currentTime = 0;
     }
-    
-    onSelect(track);
-    onClose();
+
+    setSelectingTrackId(track.id);
+    setError(null);
+
+    try {
+      // Récupérer la piste enrichie (MP3) uniquement au moment du choix
+      const response = await fetch("/api/spotify/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ trackId: track.id, forceDownload: true }),
+        cache: "no-store"
+      });
+
+      const data = await response.json();
+      const enriched = data?.tracks?.[0];
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Erreur lors du chargement de la chanson");
+      }
+
+      if (enriched) {
+        onSelect(enriched);
+      } else {
+        onSelect(track);
+      }
+      onClose();
+    } catch (err: any) {
+      console.error("Sélection de piste échouée:", err);
+      setError(err?.message || "Impossible de charger cette chanson.");
+      // Utiliser la piste de base si l'enrichissement échoue
+      onSelect(track);
+      onClose();
+    } finally {
+      setSelectingTrackId(null);
+    }
   };
 
   const isPremium = plan === "plan_premium";
@@ -386,14 +430,14 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
             />
             <button
               type="submit"
-              disabled={loading || !query.trim()}
+              disabled={searching || !query.trim()}
               className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                 color: '#4a0808'
               }}
             >
-              {loading ? "..." : "🔍"}
+              {searching ? "..." : "🔍"}
             </button>
           </form>
         </div>
@@ -401,7 +445,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
         {/* Results */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Recommandations - Maintenant dans la zone scrollable */}
-          {!query && tracks.length === 0 && !loading && (
+          {!query && tracks.length === 0 && !searching && (
             <div className="space-y-4 mb-6">
               {/* Noël */}
               <div className="space-y-2">
@@ -413,7 +457,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
-                      disabled={loading}
+                      disabled={searching || !!selectingTrackId}
                       className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
                       {rec.name}
@@ -432,7 +476,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
-                      disabled={loading}
+                      disabled={searching || !!selectingTrackId}
                       className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
                       {rec.name}
@@ -451,7 +495,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
-                      disabled={loading}
+                      disabled={searching || !!selectingTrackId}
                       className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
                       {rec.name}
@@ -470,7 +514,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
-                      disabled={loading}
+                      disabled={searching || !!selectingTrackId}
                       className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
                       {rec.name}
@@ -487,21 +531,21 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
             </div>
           )}
 
-          {loading && (
+          {searching && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4 animate-bounce">🎵</div>
               <p className="text-gray-900 font-medium">Recherche en cours...</p>
             </div>
           )}
 
-          {!loading && tracks.length === 0 && query && (
+          {!searching && tracks.length === 0 && query && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">🔍</div>
               <p className="text-gray-800 font-medium">Aucun résultat trouvé</p>
             </div>
           )}
 
-          {!loading && tracks.length === 0 && !query && (
+          {!searching && tracks.length === 0 && !query && (
             <div className="text-center py-12">
               <div className="text-4xl mb-4">🎼</div>
               <p className="text-gray-800 font-medium">Recherchez une chanson pour commencer</p>
@@ -550,18 +594,32 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                       {/* Select button */}
                       <button
                         onClick={() => handleSelectTrack(track)}
+                        disabled={!!selectingTrackId}
                         className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105"
                         style={{
                           background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                           color: '#4a0808'
                         }}
                       >
-                        Choisir
+                        {selectingTrackId === track.id ? "🎄 Téléchargement..." : "Choisir"}
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+          )}
+
+          {selectingTrackId && (
+            <div className="mt-4 rounded-xl border-2 border-[#d4af37] bg-gradient-to-r from-[#8b0000] via-[#b22222] to-[#8b0000] text-white p-4 shadow-lg animate-pulse">
+              <div className="flex items-center gap-3">
+                <div className="text-2xl">🎅</div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">Téléchargement du MP3 en cours...</p>
+                  <p className="text-xs opacity-90">Les lutins emballent votre chanson sélectionnée.</p>
+                </div>
+                <div className="text-2xl animate-bounce">🎁</div>
+              </div>
             </div>
           )}
         </div>

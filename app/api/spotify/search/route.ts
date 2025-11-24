@@ -1,22 +1,51 @@
 import { NextResponse } from "next/server";
 
+// Forcer l'exécution côté Node (token Spotify + Buffer)
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 // Simple in-memory cache to avoid re-hitting RapidAPI for the same track in a short window
 const mp3Cache = new Map<string, { url: string; fetchedAt: number }>();
 const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
 const RAPIDAPI_HOST = "spotify-downloader9.p.rapidapi.com";
 const SEARCH_LIMIT = 6; // reduce payload for faster responses
 
+type TrackResult = {
+  id: string;
+  name: string;
+  artist: string;
+  album?: string;
+  albumArt?: string;
+  previewUrl?: string;
+  spotifyUrl: string;
+  uri: string;
+  duration?: number;
+  mp3Url?: string;
+  downloadUrl?: string;
+  releaseDate?: string;
+};
+
 export async function POST(req: Request) {
+  let body: { query?: string; trackId?: string; forceDownload?: boolean };
   try {
-    const { query, trackId } = await req.json();
+    body = await req.json();
+  } catch (error) {
+    console.error("Spotify search: unable to parse body", error);
+    return NextResponse.json({ error: "Requête invalide", tracks: [] }, { status: 400 });
+  }
+
+  try {
+    const { query, trackId, forceDownload } = body || {};
 
     // Si on a un trackId, chercher directement cette chanson
     if (trackId && typeof trackId === "string") {
+      console.log(`🎯 Track unique demandé: ${trackId}`);
       const track = await getTrackById(trackId);
       if (track) {
         const rapidApiKey = process.env.RAPIDAPI_KEY;
         if (rapidApiKey) {
-          const enrichedTrack = await fetchMp3WithRetry(track, rapidApiKey, 3);
+          console.log(`⬇️  Récupération MP3 via RapidAPI pour ${trackId}`);
+          const enrichedTrack = await fetchMp3WithRetry(track, rapidApiKey, 3, Boolean(forceDownload));
           return NextResponse.json({ tracks: [enrichedTrack] });
         }
         return NextResponse.json({ tracks: [track] });
@@ -30,13 +59,11 @@ export async function POST(req: Request) {
 
     // Toujours utiliser l'API Spotify pour la recherche (meilleure qualité)
     const tracks = await searchWithSpotifyPublicAPI(query);
-    
-    // Si on a RapidAPI configuré, enrichir avec les liens de téléchargement MP3
-    const rapidApiKey = process.env.RAPIDAPI_KEY;
-    if (rapidApiKey && tracks.length > 0) {
-      console.log("Enrichissement avec RapidAPI pour les liens MP3...");
-      const enrichedTracks = await enrichTracksWithMp3Links(tracks, rapidApiKey);
-      return NextResponse.json({ tracks: enrichedTracks });
+
+    // Fallback mock (évite une erreur front si Spotify rate pour une raison externe)
+    if (tracks.length === 0) {
+      const fallbackTracks = generateMockResults(query);
+      return NextResponse.json({ tracks: fallbackTracks, fallback: true });
     }
 
     return NextResponse.json({ tracks });
@@ -44,14 +71,14 @@ export async function POST(req: Request) {
     console.error("Error searching Spotify:", error);
     return NextResponse.json({ 
       error: "Erreur lors de la recherche",
-      tracks: []
-    }, { status: 500 });
+      tracks: body?.query ? generateMockResults(body.query) : []
+    }, { status: 200 });
   }
 }
 
 // Enrichir les tracks avec les liens de téléchargement MP3 via RapidAPI
-async function enrichTracksWithMp3Links(tracks: any[], rapidApiKey: string) {
-  const enriched: any[] = [];
+async function enrichTracksWithMp3Links(tracks: TrackResult[], rapidApiKey: string) {
+  const enriched: TrackResult[] = [];
 
   for (const track of tracks) {
     const cached = getCachedMp3(track.id);
@@ -106,7 +133,7 @@ async function enrichTracksWithMp3Links(tracks: any[], rapidApiKey: string) {
 }
 
 // Recherche avec l'API Spotify Web publique
-async function searchWithSpotifyPublicAPI(query: string) {
+async function searchWithSpotifyPublicAPI(query: string): Promise<TrackResult[]> {
   try {
     const accessToken = await getSpotifyAccessToken();
     
@@ -125,7 +152,7 @@ async function searchWithSpotifyPublicAPI(query: string) {
 
     const data = await response.json();
     
-    const tracks = data.tracks?.items?.map((item: any) => ({
+    const tracks: TrackResult[] = data.tracks?.items?.map((item: any) => ({
       id: item.id,
       name: item.name,
       artist: item.artists?.map((a: any) => a.name).join(", ") || "Artiste inconnu",
@@ -145,7 +172,7 @@ async function searchWithSpotifyPublicAPI(query: string) {
 }
 
 // Récupérer une chanson par son ID Spotify
-async function getTrackById(trackId: string) {
+async function getTrackById(trackId: string): Promise<TrackResult | null> {
   try {
     const accessToken = await getSpotifyAccessToken();
     
@@ -209,7 +236,7 @@ async function getSpotifyAccessToken(): Promise<string> {
 }
 
 // Fonction pour générer des résultats mockés basés sur la recherche
-function generateMockResults(query: string): any[] {
+function generateMockResults(query: string): TrackResult[] {
   const baseId = Math.random().toString(36).substring(7);
   
   return [
@@ -256,8 +283,63 @@ function getCachedMp3(trackId: string) {
   return cached.url;
 }
 
+async function fetchMp3WithRetry(
+  track: TrackResult,
+  rapidApiKey: string,
+  attempts = 3,
+  skipCache = false
+): Promise<TrackResult> {
+  if (!skipCache) {
+    const cached = getCachedMp3(track.id);
+    if (cached) {
+      return { ...track, mp3Url: cached, downloadUrl: cached };
+    }
+  }
+
+  const downloadUrl = `https://${RAPIDAPI_HOST}/downloadSong?songId=${track.id}`;
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const response = await fetchWithRetry(downloadUrl, {
+        method: "GET",
+        headers: {
+          "x-rapidapi-key": rapidApiKey,
+          "x-rapidapi-host": RAPIDAPI_HOST,
+        },
+      });
+
+      if (response?.ok) {
+        const data = (await response.json()) as {
+          success?: boolean;
+          data?: { downloadLink?: string; releaseDate?: string };
+        };
+
+        if (data.success && data.data?.downloadLink) {
+          const link = data.data.downloadLink;
+          mp3Cache.set(track.id, { url: link, fetchedAt: Date.now() });
+          return {
+            ...track,
+            downloadUrl: link,
+            mp3Url: link,
+            releaseDate: data.data.releaseDate,
+          };
+        }
+      }
+    } catch (error: any) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
+
+  return track;
+}
+
 async function fetchWithRetry(url: string, options: RequestInit, attempts = 3, delayMs = 600) {
-  let lastError: any;
+  let lastError: Error | undefined;
 
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const response = await fetch(url, options);
@@ -279,7 +361,7 @@ async function fetchWithRetry(url: string, options: RequestInit, attempts = 3, d
     break;
   }
 
-  throw lastError;
+  throw lastError || new Error("HTTP request failed");
 }
 
 function wait(ms: number) {

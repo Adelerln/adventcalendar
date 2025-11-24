@@ -365,7 +365,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     <div className="text-6xl mb-4">🎵</div>
                     <h3 className="text-xl font-bold mb-2">Choisissez votre musique</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-6">
-                      Cherchez sur Spotify ou importez un fichier audio.
+                      Cherchez sur Spotify la chanson parfaite pour cette case.
                     </p>
                     <div className="flex flex-col gap-3">
                       <button
@@ -378,15 +378,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                       >
                         🔍 Rechercher sur Spotify
                       </button>
-                      <label className="block">
-                        <span className="block text-sm font-medium mb-2">Ou téléchargez un fichier audio</span>
-                        <input
-                          type="file"
-                          accept="audio/*"
-                          onChange={handleFileUpload("music")}
-                          className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
-                        />
-                      </label>
                     </div>
                   </div>
                 </div>
@@ -459,15 +450,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     >
                       ← Changer de musique
                     </button>
-                    <label className="block">
-                      <span className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Remplacer par un fichier audio</span>
-                      <input
-                        type="file"
-                        accept="audio/*"
-                        onChange={handleFileUpload("music")}
-                        className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-2"
-                      />
-                    </label>
                   </div>
                 </div>
               )}
