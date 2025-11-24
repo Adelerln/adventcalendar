@@ -30,6 +30,33 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const [drawingFileName, setDrawingFileName] = useState(
     initialContent?.type === "drawing" ? "Dessin importé" : ""
   );
+  // --- IA Photo (nano-banana) ---
+  const [aiPhotoFile, setAiPhotoFile] = useState<File | null>(null);
+  const [aiPhotoPrompt, setAiPhotoPrompt] = useState("");
+  const [aiPhotoUrl, setAiPhotoUrl] = useState<string | null>(null);
+  const [aiPhotoLoading, setAiPhotoLoading] = useState(false);
+
+  async function handleGenerateAiPhoto() {
+    setAiPhotoLoading(true);
+    setAiPhotoUrl(null);
+    try {
+      const formData = new FormData();
+      formData.append("prompt", aiPhotoPrompt);
+      if (aiPhotoFile) formData.append("image", aiPhotoFile);
+      const res = await fetch("/api/ai-photo", {
+        method: "POST",
+        body: formData
+      });
+      if (!res.ok) throw new Error("Erreur API: " + (await res.text()));
+      const data = await res.json();
+      if (!data.url) throw new Error("Aucune image générée");
+      setAiPhotoUrl(data.url);
+    } catch (e: any) {
+      alert("Erreur lors de la génération IA: " + (e.message || e));
+    } finally {
+      setAiPhotoLoading(false);
+    }
+  }
   
   // Pour la musique : détecter si c'est un MP3 (fichier encodé, lien .mp3, ou URL de téléchargement)
   const [mp3Url, setMp3Url] = useState(() => {
@@ -520,6 +547,9 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                   onClick={() => {
                     setSelectedType(null);
                     setContent("");
+                    setAiPhotoFile(null);
+                    setAiPhotoUrl(null);
+                    setAiPhotoPrompt("");
                   }}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                 >
@@ -527,20 +557,64 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 </button>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-2">Brief IA</label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Décrivez la scène que l’IA devra générer..."
-                  rows={4}
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none"
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Image de base (optionnel)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={e => {
+                    if (e.target.files && e.target.files[0]) setAiPhotoFile(e.target.files[0]);
+                  }}
+                  className="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100"
                 />
+                {aiPhotoFile && (
+                  <img src={URL.createObjectURL(aiPhotoFile)} alt="Aperçu upload" className="max-h-40 rounded-lg border mt-2" />
+                )}
               </div>
 
-              <div className="rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 min-h-[120px] flex items-center justify-center text-center px-4 text-gray-400 dark:text-gray-500">
-                {content ? `Brief IA : ${content}` : "Votre brief IA apparaîtra ici"}
+              <div className="space-y-2">
+                <label className="block text-sm font-medium">Prompt IA</label>
+                <input
+                  type="text"
+                  value={aiPhotoPrompt}
+                  onChange={e => setAiPhotoPrompt(e.target.value)}
+                  placeholder="Ex: mets la personne sur la photo dans un traîneau de noël dans la neige"
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900"
+                />
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {["mets la personne sur la photo dans un traîneau de noël dans la neige", "transforme la photo en style cartoon de noël", "ajoute un bonnet de noël à la personne"].map(sugg => (
+                    <button key={sugg} type="button" onClick={() => setAiPhotoPrompt(sugg)} className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-xs border border-amber-200 hover:bg-amber-100">{sugg}</button>
+                  ))}
+                </div>
               </div>
+
+              <div>
+                <button
+                  type="button"
+                  onClick={handleGenerateAiPhoto}
+                  disabled={aiPhotoLoading || !aiPhotoPrompt}
+                  className="w-full py-3 rounded-lg font-bold bg-amber-500 hover:bg-yellow-500 text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {aiPhotoLoading ? "Génération en cours..." : "✨ Générer l'image IA"}
+                </button>
+              </div>
+
+              {aiPhotoUrl && (
+                <div className="space-y-2">
+                  <img src={aiPhotoUrl} alt="Aperçu IA" className="max-h-60 rounded-xl border mx-auto" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setContent(aiPhotoUrl);
+                      setAiPhotoFile(null);
+                      setAiPhotoPrompt("");
+                    }}
+                    className="w-full py-3 rounded-lg font-bold bg-green-600 hover:bg-green-700 text-white transition-all"
+                  >
+                    ✅ Utiliser cette image
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

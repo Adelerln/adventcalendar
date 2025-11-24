@@ -1,0 +1,30 @@
+
+> avent@0.1.0 dev
+> next dev
+
+ ⚠ Port 3000 is in use by process 69742, using available port 3002 instead.
+   ▲ Next.js 16.0.1 (Turbopack)
+   - Local:        http://localhost:3002
+   - Network:      http://192.0.0.2:3002
+   - Environments: .env.local
+
+ ✓ Starting...
+ ⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
+ ✓ Ready in 899ms
+Image with src "/enveloppe-logo3.png" is using quality "100" which is not configured in images.qualities [75]. Please update your config to [100, 75].
+Read more: https://nextjs.org/docs/messages/next-image-unconfigured-qualities
+ GET / 200 in 2.4s (compile: 1720ms, proxy.ts: 68ms, render: 595ms)
+ GET /api/session 200 in 379ms (compile: 367ms, proxy.ts: 1635µs, render: 11ms)
+ GET /pricing 200 in 407ms (compile: 358ms, proxy.ts: 3ms, render: 46ms)
+ GET /api/session 200 in 10ms (compile: 2ms, proxy.ts: 3ms, render: 5ms)
+ GET /api/session 200 in 12ms (compile: 5ms, proxy.ts: 2ms, render: 5ms)
+ GET /create-account?plan=plan_premium 200 in 273ms (compile: 254ms, proxy.ts: 4ms, render: 15ms)
+ GET /api/session 200 in 14ms (compile: 3ms, proxy.ts: 9ms, render: 2ms)
+ GET /api/session 200 in 6ms (compile: 2ms, proxy.ts: 1435µs, render: 2ms)
+ GET /api/session 200 in 7ms (compile: 3ms, proxy.ts: 1315µs, render: 3ms)
+ GET /api/session 200 in 7ms (compile: 1782µs, proxy.ts: 3ms, render: 2ms)
+ GET /calendars/new?plan=plan_premium&stage=creation 200 in 279ms (compile: 253ms, proxy.ts: 1700µs, render: 24ms)
+ GET /api/session 200 in 6ms (compile: 1719µs, proxy.ts: 1650µs, render: 2ms)
+ GET /api/session 200 in 7ms (compile: 1447µs, proxy.ts: 1464µs, render: 4ms)
+ GET /api/session 200 in 5ms (compile: 1424µs, proxy.ts: 1431µs, render: 2ms)
+ GET /api/session 200 in 5ms (compile: 1683µs, proxy.ts: 1646µs, render: 1834µs)

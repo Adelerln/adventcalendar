@@ -158,7 +158,7 @@ export default function VoiceRecorder({ onSave, onCancel }: Props) {
             {!isRecording ? (
               <button
                 onClick={startRecording}
-                className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold flex items-center gap-2 transition-all"
+                className="px-6 py-3 bg-amber-500 hover:bg-yellow-500 text-white rounded-full font-semibold flex items-center gap-2 transition-all"
               >
                 🎤 Commencer l'enregistrement
               </button>
