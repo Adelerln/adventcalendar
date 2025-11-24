@@ -100,24 +100,24 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 overflow-y-auto">
-      <div className="container mx-auto px-4 pt-24 pb-8">
+      <div className="container mx-auto px-2 sm:px-4 pt-16 sm:pt-24 pb-8">
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl mx-auto">
-          <div className={`${headerSurface} p-6 rounded-t-2xl border-b border-black/5`}>
+          <div className={`${headerSurface} p-4 sm:p-6 rounded-t-2xl border-b border-black/5`}>
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Jour {day}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">Jour {day}</h2>
               <button
                 onClick={onClose}
-                className={`${closeSurface} w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-colors`}
+                className={`${closeSurface} w-8 h-8 rounded-full flex items-center justify-center font-semibold transition-colors flex-shrink-0`}
               >
                 ✕
               </button>
             </div>
-            <p className="mt-2 opacity-80">Choisissez le type de contenu</p>
+            <p className="mt-2 opacity-80 text-sm sm:text-base">Choisissez le type de contenu</p>
           </div>
 
-          <div className="p-6 space-y-4">
+          <div className="p-4 sm:p-6 space-y-4">
           {!selectedType && (
-            <div className="grid grid-cols-2 gap-4" style={{ gridAutoRows: "1fr" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4" style={{ gridAutoRows: "1fr" }}>
               <SelectionButton
                 type="photo"
                 label="Photo ou Vidéo"
@@ -175,12 +175,25 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "photo" && (
             <div className="space-y-4">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedType(null);
+                    setContent("");
+                    setTitle("");
+                    setUploadedFileName("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               <label className="block cursor-pointer" htmlFor={photoUploadLabelId}>
                 <span className="block text-sm font-medium mb-2">Télécharger une photo</span>
@@ -226,12 +239,23 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "message" && (
             <div className="space-y-4">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedType(null);
+                    setContent("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Votre message</label>
@@ -248,12 +272,24 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "drawing" && (
             <div className="space-y-5">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedType(null);
+                    setContent("");
+                    setDrawingFileName("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               <div className="bg-white/80 dark:bg-gray-900/70 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-4">
                 <h3 className="font-semibold text-lg text-[#4a0808] mb-3">Dessinez comme sur Paint</h3>
@@ -295,20 +331,33 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "music" && (
             <div className="space-y-4">
-              <button
-                onClick={() => {
-                  if (content) {
-                    // Si une musique est déjà sélectionnée, rouvrir le modal Spotify
-                    setShowSpotifySearch(true);
-                  } else {
-                    // Sinon, retour au choix du type de contenu
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => {
+                    if (content) {
+                      // Si une musique est déjà sélectionnée, rouvrir le modal Spotify
+                      setShowSpotifySearch(true);
+                    } else {
+                      // Sinon, retour au choix du type de contenu
+                      setSelectedType(null);
+                    }
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
                     setSelectedType(null);
-                  }
-                }}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+                    setContent("");
+                    setTitle("");
+                    setMp3Url("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               {!content ? (
                 <div className="space-y-6">
@@ -384,6 +433,20 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     </div>
                   </div>
 
+                  {/* Champ de message optionnel */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
+                      Message avec la musique (optionnel) 💌
+                    </label>
+                    <textarea
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Ajoute un petit mot pour accompagner cette chanson..."
+                      rows={4}
+                      className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500"
+                    />
+                  </div>
+
                   <div className="flex flex-col gap-3">
                     <button
                       onClick={() => {
@@ -413,12 +476,23 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "voice" && (
             <div className="space-y-4">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedType(null);
+                    setContent("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               {!content ? (
                 <VoiceRecorder
@@ -453,12 +527,23 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "ai_photo" && (
             <div className="space-y-4">
-              <button
-                onClick={() => setSelectedType(null)}
-                className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
-              >
-                ← Retour
-              </button>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setSelectedType(null)}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                >
+                  ← Retour
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedType(null);
+                    setContent("");
+                  }}
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                >
+                  🔄 Changer de type
+                </button>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium mb-2">Brief IA</label>
@@ -636,14 +721,14 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
 
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {colors.map((color) => (
             <button
               key={color}
               type="button"
               onClick={() => setBrushColor(color)}
-              className={`w-8 h-8 rounded-full border-2 transition ${brushColor === color ? "border-[#4a0808]" : "border-transparent"}`}
+              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 transition ${brushColor === color ? "border-[#4a0808]" : "border-transparent"}`}
               style={{ backgroundColor: color }}
             />
           ))}

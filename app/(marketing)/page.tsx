@@ -222,29 +222,29 @@ export default function MarketingHomePage() {
       <Header />
 
       {/* Hero Section - Titre + Aperçu */}
-      <section className="relative z-10 px-6 lg:px-16 pt-24 pb-12">
-        <div className="max-w-[1600px] mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
+      <section className="relative z-10 px-4 sm:px-6 lg:px-16 pt-16 sm:pt-24 pb-8 sm:pb-12">
+        <div className="max-w-[1600px] mx-auto w-full grid lg:grid-cols-2 gap-8 sm:gap-12 items-center">
           {/* Texte à gauche */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
+            className="space-y-4 sm:space-y-8"
           >
-            <p className="uppercase tracking-[.5em] text-lg text-white/90 drop-shadow-lg">
+            <p className="uppercase tracking-[.3em] sm:tracking-[.5em] text-sm sm:text-lg text-white/90 drop-shadow-lg">
               Noël 2025
             </p>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-2xl">
               CRÉE TON PROPRE<br />
               <span className="text-[#f5e6d3]">CALENDRIER DE L'AVENT</span>
             </h1>
-            <p className="text-base sm:text-lg text-white/90 drop-shadow-lg max-w-xl">
+            <p className="text-sm sm:text-base lg:text-lg text-white/90 drop-shadow-lg max-w-xl">
               Offre 24 jours de surprises personnalisées avec des messages, photos, dessins et musiques
             </p>
 
             <a 
               href="/pricing"
-              className="inline-block px-10 py-4 text-lg font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
+              className="inline-block px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
               style={{
                 background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
               }}
@@ -258,22 +258,22 @@ export default function MarketingHomePage() {
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative pt-8"
+            className="relative pt-4 sm:pt-8"
           >
             <div 
-              className="rounded-3xl p-5 shadow-2xl flex flex-col justify-center overflow-hidden" 
+              className="rounded-2xl sm:rounded-3xl p-3 sm:p-5 shadow-2xl flex flex-col justify-center overflow-hidden" 
               style={{
                 background: 'linear-gradient(to bottom, #a52a2a 0%, #8b0000 50%, #4a0808 100%)',
                 height: 'fit-content',
-                maxHeight: '550px',
+                maxHeight: '450px',
               }}
             >
-              <div className="text-center mb-4">
-                <h3 className="text-2xl font-bold text-white drop-shadow-2xl">
+              <div className="text-center mb-2 sm:mb-4">
+                <h3 className="text-xl sm:text-2xl font-bold text-white drop-shadow-2xl">
                   ESSAIE-LE
                 </h3>
               </div>
-              <div className="scale-90 origin-center flex items-center justify-center">
+              <div className="scale-75 sm:scale-90 origin-center flex items-center justify-center">
                 <GoldenEnvelopeTree 
                   days={mockDays}
                   onDayClick={(day) => console.log(`Jour ${day} cliqué`)}
@@ -286,28 +286,28 @@ export default function MarketingHomePage() {
       </section>
 
       {/* Section des 3 étapes - Sur toute la largeur */}
-      <section className="relative z-10 px-6 lg:px-16 pb-20 pt-16">
+      <section className="relative z-10 px-4 sm:px-6 lg:px-16 pb-12 sm:pb-20 pt-8 sm:pt-16">
         <div className="max-w-[1600px] mx-auto w-full">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8">
             {steps.map((step, index) => (
               <motion.div
                 key={step.title}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-white/10 shadow-xl hover:bg-white/10 transition-all duration-300"
+                className="bg-white/5 backdrop-blur-sm rounded-xl sm:rounded-2xl p-6 sm:p-8 border border-white/10 shadow-xl hover:bg-white/10 transition-all duration-300"
               >
-                <div className="text-center space-y-4">
+                <div className="text-center space-y-3 sm:space-y-4">
                   <div 
-                    className="mx-auto w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-lg"
+                    className="mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white font-bold text-xl sm:text-2xl shadow-lg"
                     style={{
                       background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                     }}
                   >
                     {index + 1}
                   </div>
-                  <h3 className="text-white font-bold text-xl">{step.title}</h3>
-                  <p className="text-white/80 text-base leading-relaxed">{step.description}</p>
+                  <h3 className="text-white font-bold text-lg sm:text-xl">{step.title}</h3>
+                  <p className="text-white/80 text-sm sm:text-base leading-relaxed">{step.description}</p>
                 </div>
               </motion.div>
             ))}
@@ -316,20 +316,20 @@ export default function MarketingHomePage() {
       </section>
 
       {/* Call to Action Final */}
-      <section className="relative z-10 py-20 px-6">
+      <section className="relative z-10 py-12 sm:py-20 px-4 sm:px-6">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="max-w-4xl mx-auto text-center space-y-8"
+          className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8"
         >
-          <h2 className="text-4xl sm:text-6xl font-bold text-white drop-shadow-2xl">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white drop-shadow-2xl">
             Prêt à créer la magie ?
           </h2>
           <a 
             href="/pricing"
-            className="inline-block px-12 py-5 text-xl font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
+            className="inline-block px-10 sm:px-12 py-4 sm:py-5 text-lg sm:text-xl font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
             style={{
               background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
             }}

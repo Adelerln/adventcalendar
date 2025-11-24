@@ -33,6 +33,48 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
 
   // Recommandations pré-configurées avec tracks complets
   const recommendations = {
+    christmas: [
+      { 
+        id: "0SqDX816191UcXGO3yFrep",
+        name: "Rockin' Around The Christmas Tree",
+        artist: "Brenda Lee",
+        spotifyUrl: "https://open.spotify.com/track/0SqDX816191UcXGO3yFrep",
+        uri: "spotify:track:0SqDX816191UcXGO3yFrep",
+        mp3Url: "https://spotify-api.mybackend.in/download/Brenda%20Lee/Merry%20Christmas%20From%20Brenda%20Lee/Rockin%27%20Around%20The%20Christmas%20Tree-2EjXfH91m7f8HiJN1yQg97.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251124%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251124T084413Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=f546d2566d0ec67b2a470001230ca90f120fb3105bd98e4df3a8508fe6e4e933"
+      },
+      { 
+        id: "0bYg9bo50gSsH3LtXe2SQn",
+        name: "All I Want for Christmas Is You",
+        artist: "Mariah Carey",
+        spotifyUrl: "https://open.spotify.com/track/0bYg9bo50gSsH3LtXe2SQn",
+        uri: "spotify:track:0bYg9bo50gSsH3LtXe2SQn",
+        mp3Url: "https://spotify-api.mybackend.in/download/Mariah%20Carey/Merry%20Christmas/All%20I%20Want%20for%20Christmas%20Is%20You-0bYg9bo50gSsH3LtXe2SQn.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251124%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251124T084818Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8295d585d9bef7bb26b7992e2997405f08e90753c663ff8d4269434d33b8bf55"
+      },
+      { 
+        id: "0lizgQ7Qw35od7CYaoMBZb",
+        name: "Santa Tell Me",
+        artist: "Ariana Grande",
+        spotifyUrl: "https://open.spotify.com/track/0lizgQ7Qw35od7CYaoMBZb",
+        uri: "spotify:track:0lizgQ7Qw35od7CYaoMBZb",
+        mp3Url: "https://spotify-api.mybackend.in/download/Ariana%20Grande/Santa%20Tell%20Me/Santa%20Tell%20Me-0lizgQ7Qw35od7CYaoMBZb.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251124%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251124T084858Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=b4f3d809b274c31130ce0fb23a2f056c52e7bf3584396f804c5b962160470b46"
+      },
+      { 
+        id: "1HlQna61KjPPN60LkHmfmb",
+        name: "Let It Snow! Let It Snow! Let It Snow!",
+        artist: "Dean Martin",
+        spotifyUrl: "https://open.spotify.com/track/1HlQna61KjPPN60LkHmfmb",
+        uri: "spotify:track:1HlQna61KjPPN60LkHmfmb",
+        mp3Url: "https://spotify-api.mybackend.in/download/Dean%20Martin%20-%20Let%20It%20Snow%21%20Let%20It%20Snow%21%20Let%20It%20Snow%21.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251124%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251124T085000Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=c12c6966621f19ffeeb995ed226c53895221a86af4c367834ad332d11bbd8b9a"
+      },
+      { 
+        id: "7vQbuQcyTflfCIOu3Uzzya",
+        name: "Jingle Bell Rock",
+        artist: "Bobby Helms",
+        spotifyUrl: "https://open.spotify.com/track/7vQbuQcyTflfCIOu3Uzzya",
+        uri: "spotify:track:7vQbuQcyTflfCIOu3Uzzya",
+        mp3Url: "https://spotify-api.mybackend.in/download/Bobby%20Helms/Jingle%20Bell%20Rock/Captain%20Santa%20Claus%20%28And%20His%20Reindeer%20Space%20Patrol%29/Jingle%20Bell%20Rock-7vQbuQcyTflfCIOu3Uzzya.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251124%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251124T084436Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=63da000fbd144fe796a47d35dca5c3badfc4bc381cf5f4831d09f1416228fef5"
+      }
+    ],
     romantic: [
       { 
         id: "6RKuyWarJu8SMrflntmyXx",
@@ -315,14 +357,14 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
     : "bg-gradient-to-br from-[#f4f6fb] to-white";
   
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className={`${bgGradient} rounded-2xl shadow-2xl max-w-3xl w-full max-h-[80vh] overflow-hidden flex flex-col`}>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className={`${bgGradient} rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] sm:max-h-[80vh] overflow-hidden flex flex-col`}>
         {/* Header */}
-        <div className="p-6 border-b border-black/10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">🎵</span>
-              <h2 className="text-2xl font-bold text-gray-800">Recherche Spotify</h2>
+        <div className="p-4 sm:p-6 border-b border-black/10">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="text-2xl sm:text-3xl">🎵</span>
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-800">Recherche Spotify</h2>
             </div>
             <button
               onClick={onClose}
@@ -339,13 +381,13 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Nom de la chanson, artiste..."
-              className="flex-1 rounded-xl border-2 border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent bg-white text-gray-900 placeholder:text-gray-500"
+              className="flex-1 rounded-xl border-2 border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#d4af37] focus:border-transparent bg-white text-gray-900 placeholder:text-gray-500"
               autoFocus
             />
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
                 background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                 color: '#4a0808'
@@ -357,24 +399,43 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
         </div>
 
         {/* Results */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {/* Recommandations - Maintenant dans la zone scrollable */}
           {!query && tracks.length === 0 && !loading && (
             <div className="space-y-4 mb-6">
+              {/* Noël */}
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  🎄 Suggestions de Noël
+                </p>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {recommendations.christmas.map((rec) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => handleRecommendationClick(rec)}
+                      disabled={loading}
+                      className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {rec.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Romantiques */}
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <p className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
                   💝 Suggestions romantiques
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {recommendations.romantic.map((rec) => (
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
                       disabled={loading}
-                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                      className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
-                      {rec.name} - {rec.artist}
+                      {rec.name}
                     </button>
                   ))}
                 </div>
@@ -382,18 +443,18 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
 
               {/* Amicales */}
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <p className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
                   🤝 Suggestions amicales
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {recommendations.friendly.map((rec) => (
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
                       disabled={loading}
-                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                      className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
-                      {rec.name} - {rec.artist}
+                      {rec.name}
                     </button>
                   ))}
                 </div>
@@ -401,18 +462,18 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
 
               {/* Familiales */}
               <div className="space-y-2">
-                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                <p className="text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
                   👨‍👩‍👧‍👦 Suggestions familiales
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {recommendations.family.map((rec) => (
                     <button
                       key={rec.id}
                       onClick={() => handleRecommendationClick(rec)}
                       disabled={loading}
-                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                      className="px-2 sm:px-3 py-1 sm:py-1.5 text-xs sm:text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50 whitespace-nowrap"
                     >
-                      {rec.name} - {rec.artist}
+                      {rec.name}
                     </button>
                   ))}
                 </div>
@@ -448,38 +509,38 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
           )}
 
           {tracks.length > 0 && (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {tracks.map((track) => (
                 <div
                   key={track.id}
-                  className="bg-white rounded-xl p-4 border-2 border-gray-200 hover:border-[#d4af37] transition-all group"
+                  className="bg-white rounded-xl p-3 sm:p-4 border-2 border-gray-200 hover:border-[#d4af37] transition-all group"
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     {/* Album Art */}
                     {track.albumArt && (
                       <img
                         src={track.albumArt}
                         alt={track.album || "Album"}
-                        className="w-16 h-16 rounded-lg object-cover"
+                        className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover flex-shrink-0"
                       />
                     )}
                     
                     {/* Track Info */}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-bold text-gray-900 truncate">{track.name}</h3>
-                      <p className="text-sm text-gray-800 truncate">{track.artist}</p>
+                      <h3 className="font-bold text-sm sm:text-base text-gray-900 truncate">{track.name}</h3>
+                      <p className="text-xs sm:text-sm text-gray-800 truncate">{track.artist}</p>
                       {track.album && (
-                        <p className="text-xs text-gray-700 truncate">{track.album}</p>
+                        <p className="text-xs text-gray-700 truncate hidden sm:block">{track.album}</p>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                       {/* Preview button */}
                       {track.previewUrl && (
                         <button
                           onClick={() => handlePlayPreview(track.previewUrl!, track.id)}
-                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-sm sm:text-base"
                           title="Écouter un extrait"
                         >
                           {playingPreview === track.id ? "⏸️" : "▶️"}
@@ -489,7 +550,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
                       {/* Select button */}
                       <button
                         onClick={() => handleSelectTrack(track)}
-                        className="px-4 py-2 rounded-full font-bold transition-all hover:scale-105"
+                        className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all hover:scale-105"
                         style={{
                           background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                           color: '#4a0808'

@@ -13,6 +13,7 @@ type SessionUser = {
 
 export default function Header() {
   const [user, setUser] = useState<SessionUser | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -36,16 +37,17 @@ export default function Header() {
     await fetch("/api/session", { method: "DELETE" });
     setUser(null);
     router.refresh();
+    setMobileMenuOpen(false);
   };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-md border-b border-white/20">
-      <div className="w-full px-6 py-4 flex items-center justify-between">
+      <div className="w-full px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <Link
           href="/"
-          className="flex items-center gap-3 text-2xl tracking-[0.3em] uppercase hover:scale-105 transition-transform text-white drop-shadow-lg"
+          className="flex items-center gap-2 sm:gap-3 text-base sm:text-2xl tracking-[0.2em] sm:tracking-[0.3em] uppercase hover:scale-105 transition-transform text-white drop-shadow-lg"
         >
-          <span className="relative inline-flex w-14 h-14 overflow-hidden rounded-full border-2 border-[#d4af37]">
+          <span className="relative inline-flex w-10 h-10 sm:w-14 sm:h-14 overflow-hidden rounded-full border-2 border-[#d4af37] flex-shrink-0">
             <Image
               src="/enveloppe-logo3.png"
               alt="Enveloppe dorée"
@@ -57,9 +59,12 @@ export default function Header() {
               unoptimized
             />
           </span>
-          Advent Calendar
+          <span className="hidden sm:inline">Advent Calendar</span>
+          <span className="sm:hidden">Advent</span>
         </Link>
-        <nav className="flex items-center gap-6 ml-auto text-base font-semibold">
+
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-6 ml-auto text-base font-semibold">
           <Link href="/pricing" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             Tarifs
           </Link>
@@ -70,7 +75,9 @@ export default function Header() {
             Essaie-le
           </Link>
         </nav>
-        <div className="ml-6 flex items-center gap-3">
+
+        {/* Desktop Auth Buttons */}
+        <div className="hidden lg:flex ml-6 items-center gap-3">
           {user ? (
             <>
               <span className="text-sm font-semibold text-white drop-shadow-md">
@@ -106,7 +113,85 @@ export default function Header() {
             </>
           )}
         </div>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden ml-auto w-10 h-10 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+        >
+          {mobileMenuOpen ? (
+            <span className="text-white text-xl">✕</span>
+          ) : (
+            <span className="text-white text-xl">☰</span>
+          )}
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-white/10 backdrop-blur-md border-t border-white/20">
+          <nav className="flex flex-col px-4 py-3 space-y-3">
+            <Link 
+              href="/pricing" 
+              className="text-white/90 hover:text-white py-2 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Tarifs
+            </Link>
+            <Link 
+              href="/faq" 
+              className="text-white/90 hover:text-white py-2 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              FAQ
+            </Link>
+            <Link 
+              href="/dashboard" 
+              className="text-white/90 hover:text-white py-2 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Essaie-le
+            </Link>
+            
+            <div className="pt-3 border-t border-white/20 space-y-3">
+              {user ? (
+                <>
+                  <div className="text-white/90 py-2">{user.name}</div>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full text-center border-2 border-white/30 px-4 py-2 rounded-full text-white hover:bg-white/20 transition-colors"
+                  >
+                    Se déconnecter
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block text-center border-2 border-white/30 px-4 py-2 rounded-full text-white hover:bg-white/20 transition-colors"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Se connecter
+                  </Link>
+                  <Link
+                    href="/create-account"
+                    className="block text-center px-4 py-2 rounded-full text-white"
+                    style={{
+                      background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                      border: '2px solid #4a0808',
+                      color: '#4a0808',
+                    }}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    Créer un compte
+                  </Link>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
