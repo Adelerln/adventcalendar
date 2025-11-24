@@ -31,6 +31,219 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
   const [playingPreview, setPlayingPreview] = useState<string | null>(null);
   const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
 
+  // Recommandations pré-configurées avec tracks complets
+  const recommendations = {
+    romantic: [
+      { 
+        id: "6RKuyWarJu8SMrflntmyXx",
+        name: "La Vie en rose",
+        artist: "Édith Piaf",
+        spotifyUrl: "https://open.spotify.com/track/6RKuyWarJu8SMrflntmyXx",
+        uri: "spotify:track:6RKuyWarJu8SMrflntmyXx",
+        mp3Url: "https://spotify-api.mybackend.in/download/%C3%89dith%20Piaf/Eternelle/La%20Vie%20en%20rose-6RKuyWarJu8SMrflntmyXx.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T224743Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0e8ecdbb578294cbdcf16ced4d33877a98e92db0b22daa01a476d018a614c70d"
+      },
+      { 
+        id: "0tgVpDi06FyKpA1z0VMD4v", 
+        name: "Perfect", 
+        artist: "Ed Sheeran",
+        spotifyUrl: "https://open.spotify.com/track/0tgVpDi06FyKpA1z0VMD4v",
+        uri: "spotify:track:0tgVpDi06FyKpA1z0VMD4v",
+        mp3Url: "https://spotify-api.mybackend.in/download/Ed%20Sheeran/%C3%B7%20%28Deluxe%29/Perfect-0tgVpDi06FyKpA1z0VMD4v.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T224834Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=8e579a011886fb4acf5c2b197eaccf3f515f3a1c4bcef67db16e0f011c302d7c"
+      },
+      { 
+        id: "3U4isOIWM3VvDubwSI3y7a", 
+        name: "All of Me", 
+        artist: "John Legend",
+        spotifyUrl: "https://open.spotify.com/track/3U4isOIWM3VvDubwSI3y7a",
+        uri: "spotify:track:3U4isOIWM3VvDubwSI3y7a",
+        mp3Url: "https://spotify-api.mybackend.in/download/John%20Legend/Love%20In%20The%20Future%20%28Expanded%20Edition%29/All%20of%20Me-3U4isOIWM3VvDubwSI3y7a.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T230659Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=594342d4044f913b2ca9baa2291cf6a62636a33c78b01d2e65a6610a41bd8529"
+      },
+      { 
+        id: "03H03k1F6t3VqCSPRBtuHk", 
+        name: "a thousand years", 
+        artist: "Christina Perri",
+        spotifyUrl: "https://open.spotify.com/track/03H03k1F6t3VqCSPRBtuHk",
+        uri: "spotify:track:03H03k1F6t3VqCSPRBtuHk",
+        mp3Url: "https://spotify-api.mybackend.in/download/Christina%20Perri/The%20Twilight%20Saga%3A%20Breaking%20Dawn%20-%20Part%201%20%28Original%20Motion%20Picture%20Soundtrack%29/a%20thousand%20years-03H03k1F6t3VqCSPRBtuHk.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T224924Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=363e898b42d20715ce825740f49e06ce083bf1021cfdd6520f97be1c4625cdb4"
+      },
+      { 
+        id: "28mwuJqKOjRpqo14GuKSkj", 
+        name: "Je T'aime", 
+        artist: "Lara Fabian",
+        spotifyUrl: "https://open.spotify.com/track/28mwuJqKOjRpqo14GuKSkj",
+        uri: "spotify:track:28mwuJqKOjRpqo14GuKSkj",
+        mp3Url: "https://spotify-api.mybackend.in/download/Lara%20Fabian/Pure/Je%20T%E2%80%99aime-28mwuJqKOjRpqo14GuKSkj.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T224945Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e6f6960278b54bd710ea9dc43241fb3978ce579817c013f6d352284cbcd52735"
+      },
+      { 
+        id: "34gCuhDGsG4bRPIf9bb02f", 
+        name: "Thinking out Loud", 
+        artist: "Ed Sheeran",
+        spotifyUrl: "https://open.spotify.com/track/34gCuhDGsG4bRPIf9bb02f",
+        uri: "spotify:track:34gCuhDGsG4bRPIf9bb02f",
+        mp3Url: "https://spotify-api.mybackend.in/download/Ed%20Sheeran/x%20%28Deluxe%20Edition%29/Thinking%20out%20Loud-34gCuhDGsG4bRPIf9bb02f.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T230507Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=3ab8ebad25274b43558541368126606da08967e647f4b9862a3cb94be64cbd7f"
+      }
+    ],
+    friendly: [
+      { 
+        id: "3B5UbSndRz907IZhhmUfLi", 
+        name: "Count on Me", 
+        artist: "Bruno Mars",
+        spotifyUrl: "https://open.spotify.com/track/3B5UbSndRz907IZhhmUfLi",
+        uri: "spotify:track:3B5UbSndRz907IZhhmUfLi",
+        mp3Url: "https://spotify-api.mybackend.in/download/Bruno%20Mars%20-%20Count%20on%20Me.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232517Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=e067e8e25c18054185956add85f156c24606556b7fd470f66fd9e29bae836272"
+      },
+      { 
+        id: "5zCJvrT3C7cIfHsR5iG95l", 
+        name: "Lean on Me", 
+        artist: "Bill Withers",
+        spotifyUrl: "https://open.spotify.com/track/5zCJvrT3C7cIfHsR5iG95l",
+        uri: "spotify:track:5zCJvrT3C7cIfHsR5iG95l",
+        mp3Url: "https://spotify-api.mybackend.in/download/Bill%20Withers/Lean%20on%20Me%3A%20The%20Best%20of%20Bill%20Withers/Lean%20on%20Me-5zCJvrT3C7cIfHsR5iG95l.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T233245Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=678a1df1f4dc1f3205b7b87637d51fcf18a95a837ebc99782271456ece72a54b"
+      },
+      { 
+        id: "3SdTKo2uVsxFblQjpScoHy", 
+        name: "Stand By Me", 
+        artist: "Ben E. King",
+        spotifyUrl: "https://open.spotify.com/track/3SdTKo2uVsxFblQjpScoHy",
+        uri: "spotify:track:3SdTKo2uVsxFblQjpScoHy",
+        mp3Url: "https://spotify-api.mybackend.in/download/Ben%20E.%20King/Don%27t%20Play%20That%20Song%20%28Mono%29/Stand%20By%20Me-3SdTKo2uVsxFblQjpScoHy.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232543Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=348f01327c157c1b4ad3927757f596a09e9b91eefdd708319c99fec9b44921ec"
+      },
+      { 
+        id: "5ONuwMIXAukbMNQCCSjjm0", 
+        name: "You've Got a Friend", 
+        artist: "James Taylor",
+        spotifyUrl: "https://open.spotify.com/track/5ONuwMIXAukbMNQCCSjjm0",
+        uri: "spotify:track:5ONuwMIXAukbMNQCCSjjm0",
+        mp3Url: "https://spotify-api.mybackend.in/download/James%20Taylor/Greatest%20Hits/You%27ve%20Got%20a%20Friend-5ONuwMIXAukbMNQCCSjjm0.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232552Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=140399e9160cb4e9a98ee448b0de860698662040fa915c18b3dd5ceaa796dc12"
+      },
+      { 
+        id: "2RnPATK99oGOZygnD2GTO6", 
+        name: "With A Little Help From My Friends - Remastered 2009", 
+        artist: "The Beatles",
+        spotifyUrl: "https://open.spotify.com/track/2RnPATK99oGOZygnD2GTO6",
+        uri: "spotify:track:2RnPATK99oGOZygnD2GTO6",
+        mp3Url: "https://spotify-api.mybackend.in/download/The%20Beatles/Sgt.%20Pepper%27s%20Lonely%20Hearts%20Club%20Band%20%28Remastered%29/With%20A%20Little%20Help%20From%20My%20Friends%20-%20Remastered%202009-2RnPATK99oGOZygnD2GTO6.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232626Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1e14300425c4d556f8c2ad16c55cb6bea11302d315e159ed1b11fffc0ebdca9e"
+      },
+      { 
+        id: "2etHQJxIbV0soyPhelVs9Y", 
+        name: "Best Friend (feat. Doja Cat)", 
+        artist: "Saweetie, Doja Cat",
+        spotifyUrl: "https://open.spotify.com/track/2etHQJxIbV0soyPhelVs9Y",
+        uri: "spotify:track:2etHQJxIbV0soyPhelVs9Y",
+        mp3Url: "https://spotify-api.mybackend.in/download/Saweetie%2C%20Doja%20Cat/Best%20Friend%20%28feat.%20Doja%20Cat%29/Best%20Friend%20%28feat.%20Doja%20Cat%29-2etHQJxIbV0soyPhelVs9Y.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232639Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=d6f68054ec0368b255a1306e46b3e3955d782e7e785443541ba8784f45e75a87"
+      }
+    ],
+    family: [
+      { 
+        id: "29U7stRjqHU6rMiS8BfaI9", 
+        name: "What A Wonderful World", 
+        artist: "Louis Armstrong",
+        spotifyUrl: "https://open.spotify.com/track/29U7stRjqHU6rMiS8BfaI9",
+        uri: "spotify:track:29U7stRjqHU6rMiS8BfaI9",
+        mp3Url: "https://spotify-api.mybackend.in/download/Louis%20Armstrong%20-%20What%20A%20Wonderful%20World.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T230057Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=91722924f215af47f9282cec91daf0ec866b14c5eb55bf7824f4342c5a583c03"
+      },
+      { 
+        id: "4yDjzVhXig9tfO7Zv46FE8", 
+        name: "Over the Rainbow", 
+        artist: "Israel Kamakawiwo'ole",
+        spotifyUrl: "https://open.spotify.com/track/4yDjzVhXig9tfO7Zv46FE8",
+        uri: "spotify:track:4yDjzVhXig9tfO7Zv46FE8",
+        mp3Url: "https://spotify-api.mybackend.in/download/Israel%20Kamakawiwo%27ole/Somewhere%20Over%20the%20Rainbow%20The%20Best%20of%20Israel%20Kamakawiwo%60ole/Over%20the%20Rainbow-4yDjzVhXig9tfO7Zv46FE8.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232649Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=4eb81e3aec48a697b20ce097dd8f399d1dbfe182207ce3667ea526d0a12221f2"
+      },
+      { 
+        id: "0n2pjCIMKwHSXoYfEbYMfX", 
+        name: "You Are The Sunshine Of My Life", 
+        artist: "Stevie Wonder",
+        spotifyUrl: "https://open.spotify.com/track/0n2pjCIMKwHSXoYfEbYMfX",
+        uri: "spotify:track:0n2pjCIMKwHSXoYfEbYMfX",
+        mp3Url: "https://spotify-api.mybackend.in/download/Stevie%20Wonder/Talking%20Book/You%20Are%20The%20Sunshine%20Of%20My%20Life-0n2pjCIMKwHSXoYfEbYMfX.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232703Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=7f77cce30ae6762cf041c476ee1ddcfaa8011d6f81ff4b18970c6343eacd2ac4"
+      },
+      { 
+        id: "3ySeIhBjPR5oMSRfhQTP0W", 
+        name: "Mama - English Version", 
+        artist: "Il Divo",
+        spotifyUrl: "https://open.spotify.com/track/3ySeIhBjPR5oMSRfhQTP0W",
+        uri: "spotify:track:3ySeIhBjPR5oMSRfhQTP0W",
+        mp3Url: "https://spotify-api.mybackend.in/download/Il%20Divo/Il%20Divo/Mama%20-%20English%20Version-3ySeIhBjPR5oMSRfhQTP0W.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232723Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=1cd229dbf5052ae0d2b498fed5c0ab9ca17c7da558187aa16be8b95cd7299c98"
+      },
+      { 
+        id: "6ON9UuIq49xXY9GPmHIYRp", 
+        name: "The Best Day (Taylor's Version)", 
+        artist: "Taylor Swift",
+        spotifyUrl: "https://open.spotify.com/track/6ON9UuIq49xXY9GPmHIYRp",
+        uri: "spotify:track:6ON9UuIq49xXY9GPmHIYRp",
+        mp3Url: "https://spotify-api.mybackend.in/download/Taylor%20Swift/Fearless%20%28Taylor%27s%20Version%29/The%20Best%20Day%20%28Taylor%E2%80%99s%20Version%29-6ON9UuIq49xXY9GPmHIYRp.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232730Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=908c5b59bf847ac453360733cdce1236d997c4ee19b8dc8e8a36a57cedc47588"
+      },
+      { 
+        id: "4S1VYqwfkLit9mKVY3MXoo", 
+        name: "Forever Young", 
+        artist: "Alphaville",
+        spotifyUrl: "https://open.spotify.com/track/4S1VYqwfkLit9mKVY3MXoo",
+        uri: "spotify:track:4S1VYqwfkLit9mKVY3MXoo",
+        mp3Url: "https://spotify-api.mybackend.in/download/Alphaville/Forever%20Young/Forever%20Young-4S1VYqwfkLit9mKVY3MXoo.mp3?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=fb1f22f7dff2534061496f49%2F20251123%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20251123T232742Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=0b2fc2b7f9a62ecd367159c335682a711ba8b09b63d811689611ec32aa689b23"
+      }
+    ]
+  };
+
+  const handleRecommendationClick = async (rec: { id: string; name: string; artist: string; mp3Url?: string; spotifyUrl?: string; uri?: string }) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Si on a déjà le MP3, sélection directe sans recherche
+      if (rec.mp3Url) {
+        console.log(`✅ MP3 pré-configuré pour: ${rec.name}, sélection directe...`);
+        handleSelectTrack({
+          id: rec.id,
+          name: rec.name,
+          artist: rec.artist,
+          spotifyUrl: rec.spotifyUrl || `https://open.spotify.com/track/${rec.id}`,
+          uri: rec.uri || `spotify:track:${rec.id}`,
+          mp3Url: rec.mp3Url
+        });
+        setLoading(false);
+        return;
+      }
+
+      console.log(`🎵 Recherche de la recommandation: ${rec.name}`);
+      
+      // Chercher juste par titre (sans l'artiste) pour de meilleurs résultats
+      const response = await fetch("/api/spotify/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: rec.name })
+      });
+
+      console.log(`📡 Réponse API status: ${response.status}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ Erreur API:", errorData);
+        throw new Error(`Erreur API: ${errorData.error || 'Inconnue'}`);
+      }
+
+      const data = await response.json();
+      console.log("✅ Données reçues:", data);
+      
+      // Prendre le premier résultat (c'est généralement la bonne version)
+      const track = data.tracks?.[0];
+      
+      if (track) {
+        console.log("🎵 Chanson trouvée, sélection automatique...", track);
+        // Sélectionner directement sans afficher les résultats
+        handleSelectTrack(track);
+      } else {
+        console.error("❌ Aucune chanson dans la réponse");
+        throw new Error("Chanson non trouvée");
+      }
+    } catch (err: any) {
+      console.error("💥 Erreur complète:", err);
+      setError(`Impossible de charger cette chanson: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -145,6 +358,68 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
 
         {/* Results */}
         <div className="flex-1 overflow-y-auto p-6">
+          {/* Recommandations - Maintenant dans la zone scrollable */}
+          {!query && tracks.length === 0 && !loading && (
+            <div className="space-y-4 mb-6">
+              {/* Romantiques */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  💝 Suggestions romantiques
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {recommendations.romantic.map((rec) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => handleRecommendationClick(rec)}
+                      disabled={loading}
+                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                    >
+                      {rec.name} - {rec.artist}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amicales */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  🤝 Suggestions amicales
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {recommendations.friendly.map((rec) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => handleRecommendationClick(rec)}
+                      disabled={loading}
+                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                    >
+                      {rec.name} - {rec.artist}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Familiales */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                  👨‍👩‍👧‍👦 Suggestions familiales
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {recommendations.family.map((rec) => (
+                    <button
+                      key={rec.id}
+                      onClick={() => handleRecommendationClick(rec)}
+                      disabled={loading}
+                      className="px-3 py-1.5 text-sm rounded-full bg-white border-2 border-gray-200 text-gray-800 hover:border-[#d4af37] hover:bg-[#fff7ee] transition-all disabled:opacity-50"
+                    >
+                      {rec.name} - {rec.artist}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+          
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
               {error}
