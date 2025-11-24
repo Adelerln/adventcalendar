@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { type PlanKey } from "@/lib/plan-theme";
 
 type SpotifyTrack = {
@@ -287,11 +287,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
     }
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!query.trim()) return;
-
+  const runSearch = async (q: string, signal?: AbortSignal) => {
     setSearching(true);
     setError(null);
 
@@ -299,8 +295,9 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
       const response = await fetch("/api/spotify/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: query.trim() }),
-        cache: "no-store"
+        body: JSON.stringify({ query: q }),
+        cache: "no-store",
+        signal
       });
 
       const data = await response.json();
@@ -315,6 +312,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
         setError(data.error);
       }
     } catch (err: any) {
+      if (err?.name === "AbortError") return;
       console.error("Recherche Spotify échouée:", err);
       setError(err?.message || "Impossible de rechercher sur Spotify. Réessayez.");
       // Afficher quand même des suggestions pour ne pas bloquer l'utilisateur
@@ -326,6 +324,26 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
       setSearching(false);
     }
   };
+
+  // Lancer la recherche automatiquement lors de la saisie (debounce)
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setTracks([]);
+      setError(null);
+      return;
+    }
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      runSearch(q, controller.signal);
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
 
   const handlePlayPreview = (previewUrl: string, trackId: string) => {
     // Arrêter la lecture en cours
@@ -418,8 +436,8 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
             </button>
           </div>
 
-          {/* Search form */}
-          <form onSubmit={handleSearch} className="flex gap-2">
+          {/* Search form (auto-search on typing, button for relancer) */}
+          <div className="flex gap-2">
             <input
               type="text"
               value={query}
@@ -429,7 +447,11 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
               autoFocus
             />
             <button
-              type="submit"
+              type="button"
+              onClick={() => {
+                const q = query.trim();
+                if (q) runSearch(q);
+              }}
               disabled={searching || !query.trim()}
               className="px-4 sm:px-6 py-2 sm:py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
@@ -439,7 +461,7 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
             >
               {searching ? "..." : "🔍"}
             </button>
-          </form>
+          </div>
         </div>
 
         {/* Results */}

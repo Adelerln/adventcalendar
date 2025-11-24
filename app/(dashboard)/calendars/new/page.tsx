@@ -150,6 +150,30 @@ function NewCalendarPageContent() {
     ? "Sélectionnez l'offre qui correspond à votre surprise."
     : "Complétez vos 24 attentions avant d'aller vers le bénéficiaire.";
 
+  // Styles de paillettes pré-calculés (décimales arrondies pour éviter les mismatches d'hydratation)
+  const sparkles = useMemo(() => {
+    return Array.from({ length: 150 }, (_, i) => {
+      const top = `${(sparkleRandom(i, 1) * 100).toFixed(4)}%`;
+      const left = `${(sparkleRandom(i, 2) * 100).toFixed(4)}%`;
+      const width = `${(sparkleRandom(i, 3) * 3 + 1).toFixed(4)}px`;
+      const height = `${(sparkleRandom(i, 4) * 3 + 1).toFixed(4)}px`;
+      const opacity = (sparkleRandom(i, 5) * 0.7 + 0.3).toFixed(6);
+      const animationDelay = `${(sparkleRandom(i, 6) * 2).toFixed(4)}s`;
+      const animationDuration = `${(sparkleRandom(i, 7) * 3 + 2).toFixed(4)}s`;
+
+      return {
+        top,
+        left,
+        width,
+        height,
+        opacity,
+        animationDelay,
+        animationDuration,
+        background: i % 2 === 0 ? "#fbbf24" : "#ffffff",
+      };
+    });
+  }, []);
+
   return (
     <>
       <Header />
@@ -172,20 +196,11 @@ function NewCalendarPageContent() {
           
           {/* Paillettes scintillantes */}
           <div className="absolute inset-0">
-            {[...Array(150)].map((_, i) => (
+            {sparkles.map((sparkle, i) => (
               <div
                 key={i}
                 className="absolute rounded-full animate-pulse"
-                style={{
-                  top: `${sparkleRandom(i, 1) * 100}%`,
-                  left: `${sparkleRandom(i, 2) * 100}%`,
-                  width: sparkleRandom(i, 3) * 3 + 1,
-                  height: sparkleRandom(i, 4) * 3 + 1,
-                  background: i % 2 === 0 ? '#fbbf24' : '#ffffff',
-                  opacity: sparkleRandom(i, 5) * 0.7 + 0.3,
-                  animationDelay: `${sparkleRandom(i, 6) * 2}s`,
-                  animationDuration: `${sparkleRandom(i, 7) * 3 + 2}s`,
-                }}
+                style={sparkle}
               />
             ))}
           </div>
