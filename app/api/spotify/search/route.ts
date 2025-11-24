@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 const mp3Cache = new Map<string, { url: string; fetchedAt: number }>();
 const CACHE_TTL_MS = 1000 * 60 * 60; // 1 hour
 const RAPIDAPI_HOST = "spotify-downloader9.p.rapidapi.com";
+const SEARCH_LIMIT = 6; // reduce payload for faster responses
 
 export async function POST(req: Request) {
   try {
@@ -96,7 +97,7 @@ async function searchWithSpotifyPublicAPI(query: string) {
     const accessToken = await getSpotifyAccessToken();
     
     const response = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=10`,
+      `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=track&limit=${SEARCH_LIMIT}`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
