@@ -1,23 +1,28 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
-import GoldenEnvelopeTree from "@/components/GoldenEnvelopeTree";
 
-// Flocons de neige qui tombent
+const GoldenEnvelopeTree = dynamic(() => import("@/components/GoldenEnvelopeTree"), { ssr: false });
+
+// Flocons de neige qui tombent (version allégée)
 function Snowfall() {
-  const [snowflakes, setSnowflakes] = useState<Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number; drift: number }>>([]);
+  const [snowflakes, setSnowflakes] = useState<
+    Array<{ id: number; x: number; delay: number; duration: number; size: number; rotation: number; drift: number }>
+  >([]);
 
   useEffect(() => {
-    const flakes = Array.from({ length: 50 }, (_, i) => ({
+    // Moins de particules pour limiter le coût initial
+    const flakes = Array.from({ length: 30 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
-      delay: Math.random() * 5,
-      duration: 10 + Math.random() * 10,
-      size: 8 + Math.random() * 8,
+      delay: Math.random() * 3,
+      duration: 8 + Math.random() * 8,
+      size: 6 + Math.random() * 6,
       rotation: Math.random() * 360,
-      drift: Math.random() * 100 - 50,
+      drift: Math.random() * 60 - 30
     }));
     setSnowflakes(flakes);
   }, []);
@@ -30,54 +35,46 @@ function Snowfall() {
           className="absolute"
           style={{
             left: `${flake.x}%`,
-            top: -20,
+            top: -20
           }}
           animate={{
-            y: ['0vh', '110vh'],
+            y: ["0vh", "110vh"],
             x: [0, flake.drift, 0],
             rotate: [flake.rotation, flake.rotation + 360],
-            opacity: [0, 1, 1, 0],
+            opacity: [0, 1, 1, 0]
           }}
           transition={{
             duration: flake.duration,
             delay: flake.delay,
             repeat: Infinity,
-            ease: "linear",
+            ease: "linear"
           }}
         >
-          {/* Flocon SVG avec 6 branches */}
-          <svg 
-            width={flake.size} 
-            height={flake.size} 
-            viewBox="0 0 24 24" 
+          <svg
+            width={flake.size}
+            height={flake.size}
+            viewBox="0 0 24 24"
             fill="none"
             style={{
-              filter: 'drop-shadow(0 0 2px rgba(255,255,255,0.8))',
+              filter: "drop-shadow(0 0 2px rgba(255,255,255,0.8))"
             }}
           >
-            {/* Branches principales */}
-            <line x1="12" y1="2" x2="12" y2="22" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="4.93" y1="6.5" x2="19.07" y2="17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            <line x1="4.93" y1="17.5" x2="19.07" y2="6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-            
-            {/* Petites branches décoratives */}
-            <line x1="12" y1="5" x2="10" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="12" y1="5" x2="14" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="12" y1="19" x2="10" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="12" y1="19" x2="14" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            
-            <line x1="6.5" y1="8.2" x2="8.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="6.5" y1="8.2" x2="7.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="17.5" y1="15.8" x2="15.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="17.5" y1="15.8" x2="16.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            
-            <line x1="6.5" y1="15.8" x2="8.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="6.5" y1="15.8" x2="7.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="17.5" y1="8.2" x2="15.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            <line x1="17.5" y1="8.2" x2="16.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round"/>
-            
-            {/* Centre */}
-            <circle cx="12" cy="12" r="1.5" fill="white"/>
+            <line x1="12" y1="2" x2="12" y2="22" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="4.93" y1="6.5" x2="19.07" y2="17.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="4.93" y1="17.5" x2="19.07" y2="6.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+            <line x1="12" y1="5" x2="10" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="12" y1="5" x2="14" y2="7" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="12" y1="19" x2="10" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="12" y1="19" x2="14" y2="17" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="6.5" y1="8.2" x2="8.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="6.5" y1="8.2" x2="7.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="17.5" y1="15.8" x2="15.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="17.5" y1="15.8" x2="16.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="6.5" y1="15.8" x2="8.5" y2="14.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="6.5" y1="15.8" x2="7.5" y2="17.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="17.5" y1="8.2" x2="15.5" y2="9.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <line x1="17.5" y1="8.2" x2="16.5" y2="6.5" stroke="white" strokeWidth="1" strokeLinecap="round" />
+            <circle cx="12" cy="12" r="1.5" fill="white" />
           </svg>
         </motion.div>
       ))}
@@ -146,9 +143,15 @@ export default function MarketingHomePage() {
     };
   }, []);
 
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const sparkles = useMemo(() => {
     const rand = createDeterministicRandom(2025);
-    return Array.from({ length: 150 }, (_, i) => ({
+    // Moins de paillettes pour alléger le rendu initial
+    return Array.from({ length: 80 }, (_, i) => ({
       id: i,
       top: rand() * 100,
       left: rand() * 100,
@@ -179,36 +182,38 @@ export default function MarketingHomePage() {
         />
         
         {/* Flocons de neige */}
-        <Snowfall />
+        {isClient && <Snowfall />}
         
         {/* Paillettes scintillantes */}
-        <div className="absolute inset-0">
-          {sparkles.map((sparkle) => (
-            <motion.div
-              key={sparkle.id}
-              className="absolute rounded-full"
-              style={{
-                top: `${sparkle.top}%`,
-                left: `${sparkle.left}%`,
-                width: sparkle.width,
-                height: sparkle.height,
-                background: sparkle.colorIndex === 0 ? '#fbbf24' : sparkle.colorIndex === 1 ? '#fcd34d' : '#ffffff',
-                boxShadow: '0 0 20px currentColor',
-              }}
-              animate={{
-                opacity: [0.1, 1, 0.1],
-                scale: [0.8, 2, 0.8],
-                rotate: [0, 180, 360],
-              }}
-              transition={{
-                duration: sparkle.duration,
-                repeat: Infinity,
-                delay: sparkle.delay,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-        </div>
+        {isClient && (
+          <div className="absolute inset-0">
+            {sparkles.map((sparkle) => (
+              <motion.div
+                key={sparkle.id}
+                className="absolute rounded-full"
+                style={{
+                  top: `${sparkle.top}%`,
+                  left: `${sparkle.left}%`,
+                  width: sparkle.width,
+                  height: sparkle.height,
+                  background: sparkle.colorIndex === 0 ? '#fbbf24' : sparkle.colorIndex === 1 ? '#fcd34d' : '#ffffff',
+                  boxShadow: '0 0 20px currentColor',
+                }}
+                animate={{
+                  opacity: [0.1, 1, 0.1],
+                  scale: [0.8, 2, 0.8],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: sparkle.duration,
+                  repeat: Infinity,
+                  delay: sparkle.delay,
+                  ease: "easeInOut",
+                }}
+              />
+            ))}
+          </div>
+        )}
         
         {/* Effet de vignette */}
         <div 
