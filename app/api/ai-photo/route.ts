@@ -1,131 +1,140 @@
 import { NextRequest, NextResponse } from "next/server";
 import Replicate from "replicate";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const replicate = new Replicate({ auth: process.env.REPLICATE_API_TOKEN });
-const model = process.env.REPLICATE_MODEL || "google/nano-banana";
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-let supabase: ReturnType<typeof createClient> | null = null;
-if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-  supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-  );
-} else {
-  console.warn("[api/ai-photo] Supabase not configured (NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY missing). Skipping uploads.");
+const DEFAULT_MODEL = "google/nano-banana";
+
+function getSupabase(): SupabaseClient | null {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    console.warn("[api/ai-photo] Supabase credentials missing, storage disabled");
+    return null;
+  }
+
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
+
+function getReplicate(): Replicate | null {
+  const token = process.env.REPLICATE_API_TOKEN;
+  if (!token) {
+    console.warn("[api/ai-photo] REPLICATE_API_TOKEN missing");
+    return null;
+  }
+  return new Replicate({ auth: token });
 }
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("[api/ai-photo] POST called");
+    const supabase = getSupabase();
+    const replicate = getReplicate();
+
+    if (!replicate) {
+      return NextResponse.json({ error: "Replicate API token missing" }, { status: 500 });
+    }
+
     const data = await req.formData();
     const prompt = data.get("prompt") as string;
     const imageFile = data.get("image") as File | null;
-    console.log("[api/ai-photo] prompt length:", prompt?.length, "hasImage:", !!imageFile);
-    let imageUrl: string | undefined = undefined;
+    let imageUrl: string | undefined;
 
-    // Si image uploadée, on l'upload d'abord sur Supabase pour avoir une URL accessible
+    // Upload l'image d'entrée si fournie
     if (imageFile && imageFile.size > 0) {
-      if (supabase) {
+      if (!supabase) {
+        console.warn("[api/ai-photo] Image fournie mais Supabase non configuré, on ignore l'upload.");
+      } else {
         const arrayBuffer = await imageFile.arrayBuffer();
         const fileName = `ai-photo-input-${Date.now()}.png`;
-        const { data: uploadData, error } = await supabase.storage
+        const { error } = await supabase.storage
           .from("ai-photos")
           .upload(fileName, arrayBuffer, { contentType: imageFile.type });
         if (error) return NextResponse.json({ error: error.message }, { status: 500 });
         imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ai-photos/${fileName}`;
-      } else {
-        // Supabase not configured: cannot upload input image. Continue without image.
-        console.warn("[api/ai-photo] Received image but Supabase not configured; skipping input upload.");
-        imageUrl = undefined;
       }
     }
 
-  // Appel Replicate
-    const input: any = { prompt };
+    // Appel Replicate
+    const input: Record<string, unknown> = { prompt };
     if (imageUrl) input.image_input = [imageUrl];
-  console.log("[api/ai-photo] calling replicate model", model);
-  const output = await replicate.run(model as any, { input });
-  console.log("[api/ai-photo] replicate output:", output);
+    const modelId = (process.env.REPLICATE_MODEL || DEFAULT_MODEL) as `${string}/${string}` | `${string}/${string}:${string}`;
+    const output = await replicate.run(modelId, { input });
 
-  // Normalize different possible outputs from replicate.run
-  let resultUrl: string | null = null;
-  let resultBuffer: ArrayBuffer | Buffer | null = null;
-
-  const tryExtractUrl = (val: any): string | null => {
-    try {
+    // Extraire l'URL ou le buffer
+    const tryExtractUrl = (val: unknown): string | null => {
       if (!val) return null;
       if (typeof val === "string") return val;
-      if (typeof val.url === "function") return val.url();
-      if (val.url && typeof val.url === "string") return val.url;
+      if (typeof val === "object" && "url" in (val as any)) {
+        const u = (val as any).url;
+        if (typeof u === "function") return u();
+        if (typeof u === "string") return u;
+      }
       return null;
-    } catch (err) {
-      return null;
-    }
-  };
+    };
 
-  if (Array.isArray(output)) {
-    // prefer first extractable URL
-    for (const item of output) {
-      const u = tryExtractUrl(item);
-      if (u) {
-        resultUrl = u;
-        break;
+    let resultUrl: string | null = null;
+    let resultBuffer: ArrayBuffer | Buffer | null = null;
+
+    if (Array.isArray(output)) {
+      for (const item of output) {
+        const url = tryExtractUrl(item);
+        if (url) {
+          resultUrl = url;
+          break;
+        }
+        if (item && (item instanceof Uint8Array || (typeof Buffer !== "undefined" && Buffer.isBuffer(item)))) {
+          resultBuffer = item as any;
+          break;
+        }
       }
-      // check buffer-like
-      if (item && (item instanceof Uint8Array || (typeof Buffer !== 'undefined' && Buffer.isBuffer(item)))) {
-        resultBuffer = item as any;
-        break;
-      }
-    }
-  } else {
-    resultUrl = tryExtractUrl(output);
-    if (!resultUrl) {
-      // maybe binary
-      if (output && (output instanceof Uint8Array || (typeof Buffer !== 'undefined' && Buffer.isBuffer(output)))) {
+    } else {
+      resultUrl = tryExtractUrl(output);
+      if (!resultUrl && output && (output instanceof Uint8Array || (typeof Buffer !== "undefined" && Buffer.isBuffer(output)))) {
         resultBuffer = output as any;
       }
     }
-  }
 
-  if (!resultUrl && !resultBuffer) {
-    return NextResponse.json({ error: "No usable output from Replicate (no url() or binary returned)" }, { status: 500 });
-  }
+    if (!resultUrl && !resultBuffer) {
+      return NextResponse.json({ error: "No usable output from Replicate" }, { status: 500 });
+    }
 
-  // If we have a URL, fetch it to get the bytes; otherwise use the buffer directly
-  let finalBuffer: ArrayBuffer | Buffer | null = null;
-  let contentType = "image/jpeg";
+    // Récupère les octets finaux
+    let finalBuffer: ArrayBuffer | Buffer | null = null;
+    let contentType = "image/jpeg";
 
-  if (resultUrl) {
-    const res = await fetch(resultUrl);
-    if (!res.ok) return NextResponse.json({ error: `Failed to fetch result URL: ${res.status}` }, { status: 500 });
-    contentType = res.headers.get("content-type") || contentType;
-    finalBuffer = await res.arrayBuffer();
-  } else if (resultBuffer) {
-    finalBuffer = resultBuffer as any;
-  }
+    if (resultUrl) {
+      const res = await fetch(resultUrl);
+      if (!res.ok) return NextResponse.json({ error: `Failed to fetch result URL: ${res.status}` }, { status: 500 });
+      contentType = res.headers.get("content-type") || contentType;
+      finalBuffer = await res.arrayBuffer();
+    } else if (resultBuffer) {
+      finalBuffer = resultBuffer;
+    }
 
-  if (!finalBuffer) return NextResponse.json({ error: "Unable to obtain output bytes" }, { status: 500 });
+    if (!finalBuffer) {
+      return NextResponse.json({ error: "Unable to obtain output bytes" }, { status: 500 });
+    }
 
-  // Upload to Supabase if available, else return a message or the original resultUrl if present
-  if (supabase) {
-    const outName = `ai-photo-output-${Date.now()}.jpg`;
-    // Ensure we pass an ArrayBuffer or Buffer
-    const uploadData = finalBuffer instanceof ArrayBuffer ? finalBuffer : (finalBuffer as Buffer).buffer;
-    const { data: outUpload, error: outError } = await supabase.storage
-      .from("ai-photos")
-      .upload(outName, uploadData as any, { contentType });
-    if (outError) return NextResponse.json({ error: outError.message }, { status: 500 });
-    const finalUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ai-photos/${outName}`;
-    return NextResponse.json({ url: finalUrl });
-  }
+    // Stockage ou retour direct
+    if (supabase) {
+      const outName = `ai-photo-output-${Date.now()}.jpg`;
+      const uploadData = finalBuffer instanceof ArrayBuffer ? finalBuffer : (finalBuffer as Buffer).buffer;
+      const { error: outError } = await supabase.storage
+        .from("ai-photos")
+        .upload(outName, uploadData as any, { contentType });
+      if (outError) return NextResponse.json({ error: outError.message }, { status: 500 });
+      const finalUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ai-photos/${outName}`;
+      return NextResponse.json({ url: finalUrl });
+    }
 
-  // Supabase not configured: if we had an original accessible URL, return it; otherwise, return an error
-  if (resultUrl) {
-    return NextResponse.json({ url: resultUrl });
-  }
+    if (resultUrl) {
+      return NextResponse.json({ url: resultUrl });
+    }
 
-  return NextResponse.json({ error: "Model returned binary data but Supabase is not configured to store it." }, { status: 500 });
+    return NextResponse.json({ error: "Model returned binary data but Supabase is not configured to store it." }, { status: 500 });
   } catch (e: any) {
     console.error("[api/ai-photo] error:", e);
     return NextResponse.json({ error: e.message || "Erreur serveur" }, { status: 500 });
