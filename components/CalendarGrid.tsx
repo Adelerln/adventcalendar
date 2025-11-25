@@ -6,10 +6,9 @@ import { PLAN_APPEARANCE, DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 type PropsDay = {
   day: number;
-  photo?: string | null;
-  message?: string | null;
-  drawing?: string | null;
-  music?: string | null;
+  type?: string | null;
+  content?: string | null;
+  title?: string | null;
   isUnlocked: boolean;
   isToday: boolean;
 };
@@ -71,6 +70,7 @@ const DAY_STYLES: Record<PlanKey, {
 
 export default function CalendarGrid({ days, onDayClick, plan }: CalendarGridProps) {
   const [recipientDays, setRecipientDays] = useState<RecipientDay[]>([]);
+  const [contentDays, setContentDays] = useState<PropsDay[] | null>(null);
   const [loading, setLoading] = useState(!days);
   const [error, setError] = useState<string | null>(null);
   const planKey: PlanKey = plan ?? DEFAULT_PLAN;
@@ -89,6 +89,18 @@ export default function CalendarGrid({ days, onDayClick, plan }: CalendarGridPro
       if (!response.ok) throw new Error("Unauthorized");
       const data = await response.json();
       setRecipientDays(data.days || []);
+      // Si l'API renvoie déjà des jours avec contenu, stocker pour l'affichage
+      if (Array.isArray(data.days) && data.days.length && typeof data.days[0].content !== "undefined") {
+        const mapped: PropsDay[] = (data.days as any[]).map((d) => ({
+          day: d.day,
+          type: d.type ?? null,
+          content: d.content ?? null,
+          title: d.title ?? null,
+          isUnlocked: d.isUnlocked,
+          isToday: d.isToday
+        }));
+        setContentDays(mapped);
+      }
       setError(null);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Erreur";
@@ -105,16 +117,23 @@ export default function CalendarGrid({ days, onDayClick, plan }: CalendarGridPro
       return;
     }
 
-    await fetch("/api/advent/recipient/open", {
+    const res = await fetch("/api/advent/recipient/open", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ day_number: dayNumber })
     });
+    if (res.ok) {
+      const data = await res.json().catch(() => null);
+      if (data?.content) {
+        alert(data.content.content || data.content.title || "Contenu ouvert !");
+      }
+    }
     refresh();
   }
 
   const computedDays: PropsDay[] = useMemo(() => {
     if (days) return days;
+    if (contentDays) return contentDays;
 
     const openedSet = new Set(recipientDays.map((d) => d.dayNumber));
     const lastOpened = openedSet.size ? Math.max(...openedSet) : 0;
@@ -127,13 +146,12 @@ export default function CalendarGrid({ days, onDayClick, plan }: CalendarGridPro
         day: dayNumber,
         isUnlocked,
         isToday: !isUnlocked && dayNumber === currentDay,
-        photo: null,
-        message: null,
-        drawing: null,
-        music: null
+        type: null,
+        content: null,
+        title: null
       };
     });
-  }, [days, recipientDays]);
+  }, [days, contentDays, recipientDays]);
 
   if (!days && loading) {
     return <div className="p-8">Chargement…</div>;

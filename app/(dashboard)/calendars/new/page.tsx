@@ -200,9 +200,11 @@ function NewCalendarPageContent() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         console.warn("save calendar content failed", body);
+        alert(body.error || "Enregistrement du jour échoué.");
       }
     } catch (err) {
       console.warn("save calendar content failed", err);
+      alert("Enregistrement du jour échoué.");
     }
   };
 
