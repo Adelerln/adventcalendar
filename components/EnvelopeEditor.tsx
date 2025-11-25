@@ -202,23 +202,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "photo" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedType(null)}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                    setTitle("");
-                    setUploadedFileName("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
                 </button>
               </div>
 
@@ -266,21 +255,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "message" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedType(null)}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
                 </button>
               </div>
 
@@ -299,27 +279,17 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "drawing" && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedType(null)}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
                 </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                    setDrawingFileName("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
-                </button>
               </div>
 
               <div className="bg-white/80 dark:bg-gray-900/70 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-4">
-                <h3 className="font-semibold text-lg text-[#4a0808] mb-3">Dessinez comme sur Paint</h3>
+                <h3 className="font-semibold text-lg text-[#4a0808] mb-3">Dessin</h3>
                 <DrawingPad
                   initialImage={content}
                   onSave={(data) => {
@@ -358,7 +328,7 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "music" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => {
                     if (content) {
@@ -372,17 +342,6 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                    setTitle("");
-                    setMp3Url("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
                 </button>
               </div>
 
@@ -485,21 +444,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "voice" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedType(null)}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
                 </button>
               </div>
 
@@ -536,24 +486,12 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
           {selectedType === "ai_photo" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedType(null)}
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
                 >
                   ← Retour
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedType(null);
-                    setContent("");
-                    setAiPhotoFile(null);
-                    setAiPhotoUrl(null);
-                    setAiPhotoPrompt("");
-                  }}
-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors"
-                >
-                  🔄 Changer de type
                 </button>
               </div>
 
@@ -573,14 +511,14 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </div>
 
               <div className="space-y-2">
-                <label className="block text-sm font-medium">Prompt IA</label>
+                <label className="block text-sm font-medium text-gray-800">Prompt IA</label>
                 <input
                   type="text"
                   value={aiPhotoPrompt}
                   onChange={e => setAiPhotoPrompt(e.target.value)}
                   placeholder="Ex: mets la personne sur la photo dans un traîneau de noël dans la neige"
-                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900"
-                />
+                  className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white text-gray-900"
+                  />
                 <div className="flex flex-wrap gap-2 mt-1">
                   {["mets la personne sur la photo dans un traîneau de noël dans la neige", "transforme la photo en style cartoon de noël", "ajoute un bonnet de noël à la personne"].map(sugg => (
                     <button key={sugg} type="button" onClick={() => setAiPhotoPrompt(sugg)} className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 text-xs border border-amber-200 hover:bg-amber-100">{sugg}</button>
@@ -601,7 +539,17 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
               {aiPhotoUrl && (
                 <div className="space-y-2">
-                  <img src={aiPhotoUrl} alt="Aperçu IA" className="max-h-60 rounded-xl border mx-auto" />
+                  <div className="relative max-h-60 rounded-xl border mx-auto overflow-hidden group">
+                    <img src={aiPhotoUrl} alt="Aperçu IA" className="w-full h-full object-contain" />
+                    <a
+                      href={aiPhotoUrl}
+                      download="ai-photo.jpg"
+                      className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/30 text-white text-3xl font-bold transition-opacity"
+                      aria-label="Télécharger l'image"
+                    >
+                      ⬇️
+                    </a>
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -649,7 +597,10 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
             setTitle(`${track.name} - ${track.artist}`);
             setShowSpotifySearch(false);
           }}
-          onClose={() => setShowSpotifySearch(false)}
+          onClose={() => {
+            setShowSpotifySearch(false);
+            setSelectedType(null);
+          }}
         />
       )}
     </div>

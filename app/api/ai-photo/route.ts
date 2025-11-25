@@ -42,10 +42,13 @@ export async function POST(req: NextRequest) {
     const imageFile = data.get("image") as File | null;
     let imageUrl: string | undefined;
 
-    // Upload l'image d'entrée si fournie
+    // Upload l'image d'entrée si fournie (ou l'encoder en data URL si pas de Supabase)
     if (imageFile && imageFile.size > 0) {
       if (!supabase) {
-        console.warn("[api/ai-photo] Image fournie mais Supabase non configuré, on ignore l'upload.");
+        console.warn("[api/ai-photo] Image fournie mais Supabase non configuré, on encode en data URL.");
+        const arrayBuffer = await imageFile.arrayBuffer();
+        const base64 = Buffer.from(arrayBuffer).toString("base64");
+        imageUrl = `data:${imageFile.type};base64,${base64}`;
       } else {
         const arrayBuffer = await imageFile.arrayBuffer();
         const fileName = `ai-photo-input-${Date.now()}.png`;
