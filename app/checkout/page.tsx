@@ -209,11 +209,11 @@ function CheckoutPageContent() {
                   <input
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value)}
-                    placeholder="X-HEC-2026"
+                    placeholder="Code promo (si vous en avez un)"
                     className="mt-2 w-full rounded-xl border-2 border-white/20 bg-white/5 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
                   />
                 </label>
-                <p className="text-xs text-white/70">Le code X-HEC-2026 met le total à 0€.</p>
+                <p className="text-xs text-white/70">Optionnel : si un code valide est saisi, le total sera ajusté.</p>
               </div>
               {error && <p className="text-sm text-[#4a0808]">{error}</p>}
               <div className="bg-[#4a0808]/20 backdrop-blur rounded-2xl p-4 border border-[#4a0808]/30">

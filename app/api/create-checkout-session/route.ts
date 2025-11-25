@@ -4,7 +4,7 @@ import { z } from "zod";
 import { readBuyerSession } from "@/lib/server-session";
 import { getPlanPricing } from "@/lib/plan-pricing";
 import { createCheckoutSession, resolveAppHost } from "@/lib/stripe";
-import { markBuyerPaymentPending, markBuyerPaymentAsPaid } from "@/lib/buyer-payment";
+import { markBuyerPaymentPending, markBuyerPaymentAsPaid, markBuyerPaymentAsPaidWithCode } from "@/lib/buyer-payment";
 import {
   createProjectRecord,
   findProjectById,
@@ -81,11 +81,9 @@ export async function POST(req: NextRequest) {
         stripe_checkout_session_id: null
       });
 
-      await markBuyerPaymentAsPaid({
-        buyerId: session.id,
-        stripeSessionId: "promo-code",
-        paymentIntentId: null
-      }).catch((error) => console.error("[create-checkout-session] markBuyerPaymentAsPaid failed", error));
+      await markBuyerPaymentAsPaidWithCode({
+        buyerId: session.id
+      }).catch((error) => console.error("[create-checkout-session] markBuyerPaymentAsPaidWithCode failed", error));
 
       return NextResponse.json({
         checkoutUrl: `${host}/dashboard?payment=success&promo=1`,

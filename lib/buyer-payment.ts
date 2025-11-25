@@ -6,7 +6,7 @@ export type BuyerPaymentInfo = {
   id: string;
   plan: PlanKey;
   full_name: string;
-  payment_status: "pending" | "paid";
+  payment_status: "pending" | "paid" | "paid_with_code";
   payment_amount: number;
   stripe_checkout_session_id: string | null;
   stripe_payment_intent_id: string | null;
@@ -104,6 +104,35 @@ export async function markBuyerPaymentAsPaid(params: {
   return updated ? mapStoreBuyer(updated) : null;
 }
 
+export async function markBuyerPaymentAsPaidWithCode(params: { buyerId: string }) {
+  if (hasSupabase) {
+    try {
+      const supabase = supabaseServer();
+      const { data, error } = await supabase
+        .from("buyers")
+        .update({
+          payment_status: "paid_with_code",
+          stripe_checkout_session_id: "promo-code",
+          stripe_payment_intent_id: null
+        })
+        .eq("id", params.buyerId)
+        .select(PAYMENT_FIELDS)
+        .maybeSingle();
+      if (error) throw error;
+      return data ? mapSupabaseBuyer(data) : null;
+    } catch (error) {
+      console.error("[buyer-payment] markBuyerPaymentAsPaidWithCode supabase failed, fallback to store", error);
+    }
+  }
+
+  const updated = updateBuyerPayment(params.buyerId, {
+    payment_status: "paid_with_code",
+    stripe_checkout_session_id: "promo-code",
+    stripe_payment_intent_id: null
+  });
+  return updated ? mapStoreBuyer(updated) : null;
+}
+
 type SupabaseBuyerRow = {
   id: string;
   plan?: string | null;
@@ -120,7 +149,12 @@ function mapSupabaseBuyer(row: SupabaseBuyerRow): BuyerPaymentInfo {
     id: row.id,
     plan,
     full_name: row.full_name ?? "Client",
-    payment_status: row.payment_status === "paid" ? "paid" : "pending",
+    payment_status:
+      row.payment_status === "paid_with_code"
+        ? "paid_with_code"
+        : row.payment_status === "paid"
+        ? "paid"
+        : "pending",
     payment_amount: typeof row.payment_amount === "number" ? row.payment_amount : Number(row.payment_amount ?? 0),
     stripe_checkout_session_id: row.stripe_checkout_session_id ?? null,
     stripe_payment_intent_id: row.stripe_payment_intent_id ?? null
@@ -135,7 +169,7 @@ function mapStoreBuyer(buyer: NonNullable<StoreBuyer>): BuyerPaymentInfo {
     id: buyer.id,
     plan,
     full_name: buyer.full_name,
-    payment_status: buyer.payment_status,
+    payment_status: buyer.payment_status === "paid_with_code" ? "paid_with_code" : buyer.payment_status,
     payment_amount: buyer.payment_amount,
     stripe_checkout_session_id: buyer.stripe_checkout_session_id,
     stripe_payment_intent_id: buyer.stripe_payment_intent_id
