@@ -539,11 +539,17 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
 
               {aiPhotoUrl && (
                 <div className="space-y-2">
-                  <div className="relative max-h-60 rounded-xl border mx-auto overflow-hidden group">
-                    <img src={aiPhotoUrl} alt="Aperçu IA" className="w-full h-full object-contain" />
+                  <div className="relative rounded-xl border mx-auto overflow-hidden group inline-block max-w-full">
+                    <img
+                      src={aiPhotoUrl}
+                      alt="Aperçu IA"
+                      className="block w-full h-auto max-h-[420px] object-contain mx-auto"
+                    />
                     <a
                       href={aiPhotoUrl}
                       download="ai-photo.jpg"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="absolute inset-0 hidden group-hover:flex items-center justify-center bg-black/30 text-white text-3xl font-bold transition-opacity"
                       aria-label="Télécharger l'image"
                     >
