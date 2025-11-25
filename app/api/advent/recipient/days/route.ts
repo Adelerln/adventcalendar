@@ -8,7 +8,11 @@ export async function GET(req: NextRequest) {
   await db.bootstrap();
   // Priorité : session acheteur pour récupérer ses contenus
   const buyerSession = readBuyerSession(req as any);
-  if (!buyerSession) {
+  const recipientCookie = req.cookies.get("recipient_session");
+  const recipientSession = recipientCookie ? JSON.parse(recipientCookie.value) : null;
+  const buyerId = buyerSession?.id ?? recipientSession?.buyer_id ?? recipientSession?.buyerId ?? null;
+
+  if (!buyerId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -21,7 +25,7 @@ export async function GET(req: NextRequest) {
     const { data, error } = await supabase
       .from("calendar_contents")
       .select("day,type,content,title")
-      .eq("buyer_id", buyerSession.id)
+      .eq("buyer_id", buyerId)
       .order("day", { ascending: true });
 
     if (error) {
@@ -43,7 +47,7 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    return NextResponse.json({ days, plan: (buyerSession.plan as PlanKey) ?? DEFAULT_PLAN });
+    return NextResponse.json({ days, plan: (buyerSession?.plan as PlanKey) ?? DEFAULT_PLAN });
   }
 
   // Fallback mémoire : données de dev

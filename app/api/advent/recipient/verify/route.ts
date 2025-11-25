@@ -33,12 +33,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Créer une session receveur sécurisée
+    // Simplification : on utilise le token comme buyer_id (attendu dans le lien partagé)
     const recipientSession = {
       type: "recipient",
       token,
-      calendarId: "mock-calendar-id", // TODO: récupérer depuis la DB
-      recipientId: "mock-recipient-id",
-      recipientName: "Destinataire", // TODO: récupérer depuis la DB
+      buyer_id: token,
+      calendarId: token,
+      recipientId: "recipient",
+      recipientName: "Destinataire",
       verifiedAt: new Date().toISOString()
     };
 
@@ -56,7 +58,8 @@ export async function POST(request: NextRequest) {
       success: true,
       recipient: {
         name: recipientSession.recipientName,
-        calendarId: recipientSession.calendarId
+        calendarId: recipientSession.calendarId,
+        buyerId: recipientSession.buyer_id
       }
     });
 

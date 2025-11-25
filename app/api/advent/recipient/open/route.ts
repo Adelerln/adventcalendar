@@ -6,7 +6,10 @@ import { db } from "@/advent/adapters/db/db-memory";
 export async function POST(req: NextRequest) {
   await db.bootstrap();
   const buyerSession = readBuyerSession(req as any);
-  if (!buyerSession) {
+  const recipientCookie = req.cookies.get("recipient_session");
+  const recipientSession = recipientCookie ? JSON.parse(recipientCookie.value) : null;
+  const buyerId = buyerSession?.id ?? recipientSession?.buyer_id ?? recipientSession?.buyerId ?? null;
+  if (!buyerId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
@@ -20,7 +23,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await supabase
       .from("calendar_contents")
       .select("type,content,title")
-      .eq("buyer_id", buyerSession.id)
+      .eq("buyer_id", buyerId)
       .eq("day", finalDayNumber)
       .maybeSingle();
 
