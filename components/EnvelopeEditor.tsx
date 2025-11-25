@@ -229,8 +229,14 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </label>
 
               {content && (
-                <div className="relative rounded-lg overflow-hidden max-h-64">
-                  <img src={content} alt="Preview" className="w-full h-full object-cover" />
+                <div className="relative rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 p-3">
+                  <div className="max-h-[320px] flex justify-center">
+                    <img
+                      src={content}
+                      alt="Preview"
+                      className="max-h-[320px] w-auto h-auto object-contain rounded-md"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -606,6 +612,10 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
           onClose={() => {
             setShowSpotifySearch(false);
             setSelectedType(null);
+          }}
+          onDone={() => {
+            setShowSpotifySearch(false);
+            setSelectedType("music");
           }}
         />
       )}

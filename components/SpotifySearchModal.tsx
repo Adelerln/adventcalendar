@@ -21,9 +21,10 @@ type Props = {
   plan: PlanKey;
   onSelect: (track: SpotifyTrack) => void;
   onClose: () => void;
+  onDone?: () => void; // optionnel: utilisé quand une piste est choisie
 };
 
-export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
+export default function SpotifySearchModal({ plan, onSelect, onClose, onDone }: Props) {
   const [query, setQuery] = useState("");
   const [tracks, setTracks] = useState<SpotifyTrack[]>([]);
   const [searching, setSearching] = useState(false);
@@ -401,13 +402,13 @@ export default function SpotifySearchModal({ plan, onSelect, onClose }: Props) {
       } else {
         onSelect(track);
       }
-      onClose();
+      (onDone || onClose)();
     } catch (err: any) {
       console.error("Sélection de piste échouée:", err);
       setError(err?.message || "Impossible de charger cette chanson.");
       // Utiliser la piste de base si l'enrichissement échoue
       onSelect(track);
-      onClose();
+      (onDone || onClose)();
     } finally {
       setSelectingTrackId(null);
     }

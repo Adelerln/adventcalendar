@@ -2,7 +2,7 @@
 
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import EmptyEnvelope from "@/components/EmptyEnvelope";
@@ -47,6 +47,10 @@ function NewCalendarPageContent() {
   const [calendarData, setCalendarData] = useState<Record<number, DayContent>>({});
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const [session, setSession] = useState<{ id: string; name: string; plan: PlanKey } | null>(null);
+  const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const draftLoadedRef = useRef(false);
+  const draftToastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -94,6 +98,33 @@ function NewCalendarPageContent() {
     }
   }, [selectedPlan, planFromQuery, session]);
 
+  const draftKey = useMemo(() => `calendar_draft_${session?.id || "guest"}`, [session?.id]);
+
+  // Charger un brouillon local si disponible
+  useEffect(() => {
+    if (draftLoadedRef.current) return;
+    if (typeof window === "undefined") return;
+    const raw = localStorage.getItem(draftKey);
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed?.calendarData) setCalendarData(parsed.calendarData);
+        if (parsed?.selectedPlan) setSelectedPlan(parsed.selectedPlan);
+        if (parsed?.step) setStep(parsed.step);
+      } catch (err) {
+        console.warn("Impossible de charger le brouillon du calendrier:", err);
+      }
+    }
+    draftLoadedRef.current = true;
+  }, [draftKey]);
+
+  useEffect(() => {
+    return () => {
+      if (draftToastRef.current) clearTimeout(draftToastRef.current);
+      if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+    };
+  }, []);
+
   const handlePlanSelection = (plan: Plan) => {
     if (!plan) return;
     setSelectedPlan(plan);
@@ -136,6 +167,39 @@ function NewCalendarPageContent() {
 
     router.push(`/recipient?${params.toString()}`);
   };
+
+  const handleSaveDraft = () => {
+    if (typeof window === "undefined") return;
+    const payload = {
+      calendarData,
+      selectedPlan,
+      step,
+      updatedAt: Date.now()
+    };
+    localStorage.setItem(draftKey, JSON.stringify(payload));
+    setSaveFeedback("Brouillon sauvegardé");
+    if (draftToastRef.current) clearTimeout(draftToastRef.current);
+    draftToastRef.current = setTimeout(() => setSaveFeedback(null), 3000);
+  };
+
+  // Sauvegarde automatique dès qu'il y a une modification
+  useEffect(() => {
+    if (!draftLoadedRef.current) return;
+    if (typeof window === "undefined") return;
+    if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
+    autoSaveRef.current = setTimeout(() => {
+      const payload = {
+        calendarData,
+        selectedPlan,
+        step,
+        updatedAt: Date.now()
+      };
+      localStorage.setItem(draftKey, JSON.stringify(payload));
+      setSaveFeedback("Brouillon sauvegardé");
+      if (draftToastRef.current) clearTimeout(draftToastRef.current);
+      draftToastRef.current = setTimeout(() => setSaveFeedback(null), 2000);
+    }, 800);
+  }, [calendarData, selectedPlan, step, draftKey]);
 
   const activePlan = (selectedPlan ?? planFromQuery ?? DEFAULT_PLAN) as PlanKey;
   const planTheme = PLAN_APPEARANCE[activePlan];
@@ -389,8 +453,8 @@ function NewCalendarPageContent() {
               })}
             </div>
 
-            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 border-2 border-white/20">
-              <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="bg-gradient-to-br from-[#782525]/80 to-[#551313]/80 backdrop-blur-md rounded-2xl shadow-lg p-6 border-2 border-white/20">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                 <div>
                   <p className="text-sm text-white mb-1">
                     {filledCount === 24
@@ -400,10 +464,14 @@ function NewCalendarPageContent() {
                   <p className="text-xs text-white/70">
                     Étape suivante : renseigner les informations du receveur
                   </p>
+                  {saveFeedback && (
+                    <p className="text-xs text-white/80 mt-2">{saveFeedback}</p>
+                  )}
                 </div>
+
                 <button
                   onClick={handleContinue}
-                  className="px-8 py-4 rounded-full font-bold text-lg transition-all disabled:opacity-50 border-2 border-[#4a0808]"
+                  className="w-full lg:w-auto px-8 py-4 rounded-full font-bold text-lg transition-all disabled:opacity-50 border-2 border-[#4a0808] shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
                   style={{
                     background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                     color: '#4a0808'
