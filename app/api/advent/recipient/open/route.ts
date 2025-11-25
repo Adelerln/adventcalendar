@@ -25,18 +25,19 @@ export async function POST(req: NextRequest) {
       .select("type,content,title")
       .eq("buyer_id", buyerId)
       .eq("day", finalDayNumber)
-      .maybeSingle();
+      .order("updated_at", { ascending: true });
 
     if (error) {
       console.error("[recipient/open] supabase fetch failed", error);
       return NextResponse.json({ error: "Erreur récupération" }, { status: 500 });
     }
 
-    if (!data) {
+    const rows = data ?? [];
+    if (!rows.length) {
       return NextResponse.json({ error: "No content for this day" }, { status: 404 });
     }
 
-    const payload = mapContentToDayPayload(finalDayNumber, data.type, data.content, data.title);
+    const payload = mergeContents(finalDayNumber, rows);
     return NextResponse.json({ ok: true, content: payload });
   }
 
@@ -78,4 +79,32 @@ function mapContentToDayPayload(day: number, type?: string | null, content?: str
     default:
       return { ...base, photo: null, message: c || null, drawing: null, music: null, musicTitle: null };
   }
+}
+
+function mergeContents(
+  day: number,
+  rows: Array<{ type?: string | null; content?: string | null; title?: string | null }>
+) {
+  let photo: string | null = null;
+  let message: string | null = null;
+  let drawing: string | null = null;
+  let music: string | null = null;
+  let musicTitle: string | null = null;
+
+  for (const row of rows) {
+    const type = row.type;
+    const c = row.content ?? "";
+    if (type === "photo" || type === "ai_photo") {
+      photo = c;
+    } else if (type === "message") {
+      message = c;
+    } else if (type === "drawing") {
+      drawing = c;
+    } else if (type === "music" || type === "voice") {
+      music = c;
+      musicTitle = row.title ?? musicTitle;
+    }
+  }
+
+  return { day, photo, message, drawing, music, musicTitle };
 }

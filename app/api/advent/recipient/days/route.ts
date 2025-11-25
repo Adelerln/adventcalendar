@@ -35,15 +35,18 @@ export async function GET(req: NextRequest) {
 
     const days = Array.from({ length: 24 }, (_, idx) => {
       const dayNumber = idx + 1;
-      const row = data?.find((r) => r.day === dayNumber);
+      const rows = (data ?? []).filter((r) => r.day === dayNumber);
+      const hasContent = rows.length > 0;
+      // Fusionner les types pour signaler la présence
       return {
         day: dayNumber,
         dayNumber,
-        isUnlocked: Boolean(row),
+        isUnlocked: hasContent,
         isToday: false,
-        type: row?.type ?? null,
-        content: row?.content ?? null,
-        title: row?.title ?? null
+        hasPhoto: rows.some((r) => r.type === "photo" || r.type === "ai_photo"),
+        hasMessage: rows.some((r) => r.type === "message"),
+        hasDrawing: rows.some((r) => r.type === "drawing"),
+        hasMusic: rows.some((r) => r.type === "music" || r.type === "voice")
       };
     });
 

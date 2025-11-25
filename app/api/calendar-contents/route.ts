@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
           ...data,
           updated_at: new Date().toISOString()
         },
-        { onConflict: "buyer_id,day" }
+        { onConflict: "buyer_id,day,type" }
       );
 
     if (error) {
