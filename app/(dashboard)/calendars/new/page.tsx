@@ -47,6 +47,7 @@ function NewCalendarPageContent() {
   const [calendarData, setCalendarData] = useState<Record<number, DayContent>>({});
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const [session, setSession] = useState<{ id: string; name: string; plan: PlanKey } | null>(null);
+  const [sessionLoaded, setSessionLoaded] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
   const draftLoadedRef = useRef(false);
   const draftLoadedKeyRef = useRef<string | null>(null);
@@ -108,9 +109,11 @@ function NewCalendarPageContent() {
         if (ignore) return;
         const user = data.user as { id: string; name: string; plan: PlanKey } | null;
         setSession(user ?? null);
+        setSessionLoaded(true);
       })
       .catch(() => {
         setSession(null);
+        setSessionLoaded(true);
       });
     return () => {
       ignore = true;
@@ -126,6 +129,11 @@ function NewCalendarPageContent() {
   }, [selectedPlan, planFromQuery, session]);
 
   const draftKey = useMemo(() => `calendar_draft_${session?.id || "guest"}`, [session?.id]);
+  useEffect(() => {
+    if (sessionLoaded && !session) {
+      router.replace("/");
+    }
+  }, [sessionLoaded, session, router]);
 
   // Charger un brouillon local si disponible
   useEffect(() => {

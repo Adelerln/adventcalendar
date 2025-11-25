@@ -36,6 +36,7 @@ export default function Header() {
   const handleLogout = async () => {
     await fetch("/api/session", { method: "DELETE" });
     setUser(null);
+    router.push("/");
     router.refresh();
     setMobileMenuOpen(false);
   };
