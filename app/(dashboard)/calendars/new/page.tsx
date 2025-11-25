@@ -48,6 +48,7 @@ function NewCalendarPageContent() {
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const [session, setSession] = useState<{ id: string; name: string; plan: PlanKey } | null>(null);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const draftLoadedRef = useRef(false);
   const draftLoadedKeyRef = useRef<string | null>(null);
   const draftToastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,6 +123,7 @@ function NewCalendarPageContent() {
         if (parsed?.step) setStep(parsed.step);
       }
       draftLoadedKeyRef.current = nextKeyToLoad;
+      draftLoadedRef.current = true;
     } catch (err) {
       console.warn("Impossible de charger le brouillon du calendrier:", err);
     }
@@ -197,8 +199,8 @@ function NewCalendarPageContent() {
 
   // Sauvegarde automatique dès qu'il y a une modification
   useEffect(() => {
-    if (!draftLoadedRef.current) return;
     if (typeof window === "undefined") return;
+    if (!draftLoadedRef.current && !draftLoadedKeyRef.current) return;
     if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
     autoSaveRef.current = setTimeout(() => {
       const candidateKeys = [draftKey, "calendar_draft_guest"].filter(
