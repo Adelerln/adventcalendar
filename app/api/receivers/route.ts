@@ -47,11 +47,12 @@ export async function POST(req: NextRequest) {
 
       if (error || !data) {
         console.error("Erreur Supabase receivers", error);
-      } else {
-        return NextResponse.json({ receiverId: data.id });
+        return NextResponse.json({ error: "Erreur enregistrement receveur" }, { status: 500 });
       }
+      return NextResponse.json({ receiverId: data.id });
     } catch (error) {
       console.error("Exception Supabase receivers", error);
+      return NextResponse.json({ error: "Erreur enregistrement receveur" }, { status: 500 });
     }
   }
 

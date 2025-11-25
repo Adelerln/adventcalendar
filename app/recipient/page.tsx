@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Header from "@/components/Header";
 import ParcoursBanner from "@/components/ParcoursBanner";
@@ -20,6 +20,48 @@ function RecipientPageContent() {
   const planKey: PlanKey = planParam === "plan_premium" ? "plan_premium" : "plan_essentiel";
   const plan = PLAN_DETAILS[planKey];
   const filled = Number(searchParams?.get("filled") ?? "0");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [relationship, setRelationship] = useState("");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/receivers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName,
+          email,
+          phone: null,
+          relationship
+        })
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || "Impossible d'enregistrer le receveur");
+      }
+      const params = new URLSearchParams({
+        plan: planKey,
+        filled: String(filled),
+        recipient_name: fullName,
+        recipient_email: email,
+        relationship,
+        notes
+      });
+      router.push(`/checkout?${params.toString()}`);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Erreur inconnue";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -74,11 +116,9 @@ function RecipientPageContent() {
 
         <div className="grid gap-8 md:grid-cols-[3fr_2fr] items-stretch">
           <form
-            action="/checkout"
-            method="GET"
+            onSubmit={handleSubmit}
             className="bg-white/10 backdrop-blur-md rounded-3xl shadow-2xl border-2 border-white/20 p-10 flex flex-col"
           >
-            <input type="hidden" name="plan" value={planKey} />
             <div className="space-y-6 flex-1">
               <div className="grid md:grid-cols-2 gap-6">
                 <label className="text-sm font-semibold text-white">
@@ -88,6 +128,8 @@ function RecipientPageContent() {
                     required
                     placeholder="Prénom Nom"
                     className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
                   />
                 </label>
                 <label className="text-sm font-semibold text-white">
@@ -98,6 +140,8 @@ function RecipientPageContent() {
                     required
                     placeholder="ami@example.com"
                     className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                   />
                 </label>
               </div>
@@ -110,6 +154,8 @@ function RecipientPageContent() {
                     required
                     placeholder="Partenaire, ami(e), famille..."
                     className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                    value={relationship}
+                    onChange={(e) => setRelationship(e.target.value)}
                   />
                 </label>
               </div>
@@ -121,8 +167,11 @@ function RecipientPageContent() {
                   rows={4}
                   placeholder="Message spécial, contraintes de dates, prononciation du prénom..."
                   className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
                 />
               </label>
+              {error && <p className="text-sm text-red-200">{error}</p>}
             </div>
 
             <div className="mt-8 space-y-3">
@@ -133,8 +182,9 @@ function RecipientPageContent() {
                   background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
                   color: '#4a0808'
                 }}
+                disabled={loading}
               >
-                Continuer vers le paiement Stripe
+                {loading ? "Enregistrement..." : "Continuer vers le paiement Stripe"}
               </button>
               <p className="text-center text-xs uppercase tracking-wide text-white/70">
                 Étape suivante : paiement sécurisé
