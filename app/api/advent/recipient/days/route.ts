@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
       const row = data?.find((r) => r.day === dayNumber);
       return {
         day: dayNumber,
+        dayNumber,
         isUnlocked: Boolean(row),
         isToday: false,
         type: row?.type ?? null,
@@ -56,6 +57,7 @@ export async function GET(req: NextRequest) {
     const isUnlocked = openedSet.has(dayNumber);
     return {
       day: dayNumber,
+      dayNumber,
       isUnlocked,
       isToday: false,
       type: null,

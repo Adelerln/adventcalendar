@@ -33,13 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "No content for this day" }, { status: 404 });
     }
 
-    const payload: Record<string, unknown> = {
-      day: finalDayNumber,
-      type: data.type,
-      content: data.content,
-      title: data.title ?? null
-    };
-
+    const payload = mapContentToDayPayload(finalDayNumber, data.type, data.content, data.title);
     return NextResponse.json({ ok: true, content: payload });
   }
 
@@ -62,4 +56,23 @@ export async function POST(req: NextRequest) {
     ok: true,
     content: mockContent
   });
+}
+
+function mapContentToDayPayload(day: number, type?: string | null, content?: string | null, title?: string | null) {
+  const base = { day };
+  const c = content ?? "";
+  switch (type) {
+    case "photo":
+    case "ai_photo":
+      return { ...base, photo: c, message: null, drawing: null, music: null, musicTitle: title ?? null };
+    case "message":
+      return { ...base, photo: null, message: c, drawing: null, music: null, musicTitle: null };
+    case "drawing":
+      return { ...base, photo: null, message: null, drawing: c, music: null, musicTitle: null };
+    case "music":
+    case "voice":
+      return { ...base, photo: null, message: null, drawing: null, music: c, musicTitle: title ?? null };
+    default:
+      return { ...base, photo: null, message: c || null, drawing: null, music: null, musicTitle: null };
+  }
 }
