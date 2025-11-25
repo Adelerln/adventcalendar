@@ -146,11 +146,30 @@ function NewCalendarPageContent() {
     router.replace(`/calendars/new?${params.toString()}`, { scroll: false });
   };
 
-  const handleSaveDay = (day: number, content: DayContent) => {
+  const handleSaveDay = async (day: number, content: DayContent) => {
     setCalendarData(prev => ({
       ...prev,
       [day]: content
     }));
+    try {
+      const res = await fetch("/api/calendar-contents", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          day,
+          type: content.type,
+          content: content.content,
+          title: content.title,
+          plan: selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN
+        })
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        console.warn("save calendar content failed", body);
+      }
+    } catch (err) {
+      console.warn("save calendar content failed", err);
+    }
   };
 
   const handleContinue = () => {
