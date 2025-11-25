@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 const payloadSchema = z.object({
   fullName: z.string().min(2),
   email: z.string().email(),
-  phone: z.string().max(32).optional().or(z.literal("")),
+  phone: z.string().max(32).optional().or(z.literal("")).or(z.null()),
   relationship: z.string().min(2).max(64)
 });
 
