@@ -17,6 +17,35 @@ const memoryStore: Map<string, MemoryContent> = new Map();
 
 export const runtime = "nodejs";
 
+export async function GET(req: NextRequest) {
+  const session = readBuyerSession(req);
+  if (!session) {
+    return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
+  }
+
+  const supabaseConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  if (supabaseConfigured) {
+    const supabase = supabaseServer();
+    const { data, error } = await supabase
+      .from("calendar_contents")
+      .select("day,type,content,title")
+      .eq("buyer_id", session.id)
+      .order("day", { ascending: true });
+
+    if (error) {
+      console.error("[calendar-contents] supabase fetch failed", error);
+      return NextResponse.json({ error: "Erreur récupération" }, { status: 500 });
+    }
+
+    return NextResponse.json({ items: data ?? [] });
+  }
+
+  const items = Array.from(memoryStore.values())
+    .filter((item) => item.buyer_id === session.id)
+    .map(({ day, type, content, title }) => ({ day, type, content, title }));
+  return NextResponse.json({ items });
+}
+
 export async function POST(req: NextRequest) {
   const session = readBuyerSession(req);
   if (!session) {

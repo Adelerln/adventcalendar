@@ -54,6 +54,32 @@ function NewCalendarPageContent() {
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
 
+  // Charger les contenus déjà enregistrés
+  useEffect(() => {
+    if (!session) return;
+    let cancelled = false;
+    fetch("/api/calendar-contents")
+      .then((res) => res.ok ? res.json() : Promise.reject(res))
+      .then((data) => {
+        if (cancelled || !data?.items) return;
+        const mapped: Record<number, DayContent> = {};
+        for (const item of data.items as Array<{ day: number; type: DayContent["type"]; content: string; title?: string | null }>) {
+          mapped[item.day] = {
+            type: item.type,
+            content: item.content,
+            title: item.title ?? undefined
+          };
+        }
+        setCalendarData(mapped);
+      })
+      .catch(() => {
+        /* silencieux */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [session]);
+
   useEffect(() => {
     if (stageParam === "plan") {
       setStep("plan");
