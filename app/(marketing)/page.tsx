@@ -136,6 +136,7 @@ function createDeterministicRandom(seed: number) {
 
 export default function MarketingHomePage() {
   const [ctaHref, setCtaHref] = useState("/pricing");
+  const [isClient, setIsClient] = useState(false);
   // Force le fond transparent sur cette page
   useEffect(() => {
     document.body.style.background = 'transparent';
@@ -144,12 +145,22 @@ export default function MarketingHomePage() {
     };
   }, []);
 
-  const [isClient, setIsClient] = useState(false);
   useEffect(() => {
     setIsClient(true);
     if (typeof window === "undefined") return;
-    const hasDraft = Object.keys(localStorage || {}).some((k) => k.startsWith("calendar_draft_"));
-    setCtaHref(hasDraft ? "/calendars/new?stage=creation" : "/pricing");
+    const draftKey = Object.keys(localStorage || {}).find((k) => k.startsWith("calendar_draft_"));
+    if (draftKey) {
+      try {
+        const raw = localStorage.getItem(draftKey);
+        const parsed = raw ? JSON.parse(raw) : null;
+        const planParam = parsed?.selectedPlan ? `&plan=${parsed.selectedPlan}` : "";
+        setCtaHref(`/calendars/new?stage=creation${planParam}`);
+      } catch {
+        setCtaHref("/calendars/new?stage=creation");
+      }
+    } else {
+      setCtaHref("/pricing");
+    }
   }, []);
 
   const sparkles = useMemo(() => {

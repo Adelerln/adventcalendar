@@ -48,7 +48,7 @@ function NewCalendarPageContent() {
   const [editingDay, setEditingDay] = useState<number | null>(null);
   const [session, setSession] = useState<{ id: string; name: string; plan: PlanKey } | null>(null);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
-  const draftLoadedRef = useRef(false);
+  const draftLoadedKeyRef = useRef<string | null>(null);
   const draftToastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const router = useRouter();
@@ -102,20 +102,29 @@ function NewCalendarPageContent() {
 
   // Charger un brouillon local si disponible
   useEffect(() => {
-    if (draftLoadedRef.current) return;
     if (typeof window === "undefined") return;
-    const raw = localStorage.getItem(draftKey);
-    if (raw) {
-      try {
+    const candidateKeys = [draftKey, "calendar_draft_guest"].filter(
+      (k, idx, arr) => k && arr.indexOf(k) === idx
+    ) as string[];
+
+    const nextKeyToLoad = candidateKeys.find(
+      (k) => k !== draftLoadedKeyRef.current && localStorage.getItem(k)
+    );
+
+    if (!nextKeyToLoad) return;
+
+    try {
+      const raw = localStorage.getItem(nextKeyToLoad);
+      if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed?.calendarData) setCalendarData(parsed.calendarData);
         if (parsed?.selectedPlan) setSelectedPlan(parsed.selectedPlan);
         if (parsed?.step) setStep(parsed.step);
-      } catch (err) {
-        console.warn("Impossible de charger le brouillon du calendrier:", err);
       }
+      draftLoadedKeyRef.current = nextKeyToLoad;
+    } catch (err) {
+      console.warn("Impossible de charger le brouillon du calendrier:", err);
     }
-    draftLoadedRef.current = true;
   }, [draftKey]);
 
   useEffect(() => {
@@ -170,13 +179,17 @@ function NewCalendarPageContent() {
 
   const handleSaveDraft = () => {
     if (typeof window === "undefined") return;
+    const candidateKeys = [draftKey, "calendar_draft_guest"].filter(
+      (k, idx, arr) => k && arr.indexOf(k) === idx
+    ) as string[];
     const payload = {
       calendarData,
       selectedPlan,
       step,
       updatedAt: Date.now()
     };
-    localStorage.setItem(draftKey, JSON.stringify(payload));
+    candidateKeys.forEach((k) => localStorage.setItem(k, JSON.stringify(payload)));
+    draftLoadedKeyRef.current = candidateKeys[0] || draftLoadedKeyRef.current;
     setSaveFeedback("Brouillon sauvegardé");
     if (draftToastRef.current) clearTimeout(draftToastRef.current);
     draftToastRef.current = setTimeout(() => setSaveFeedback(null), 3000);
@@ -188,13 +201,17 @@ function NewCalendarPageContent() {
     if (typeof window === "undefined") return;
     if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
     autoSaveRef.current = setTimeout(() => {
+      const candidateKeys = [draftKey, "calendar_draft_guest"].filter(
+        (k, idx, arr) => k && arr.indexOf(k) === idx
+      ) as string[];
       const payload = {
         calendarData,
         selectedPlan,
         step,
         updatedAt: Date.now()
       };
-      localStorage.setItem(draftKey, JSON.stringify(payload));
+      candidateKeys.forEach((k) => localStorage.setItem(k, JSON.stringify(payload)));
+      draftLoadedKeyRef.current = candidateKeys[0] || draftLoadedKeyRef.current;
       setSaveFeedback("Brouillon sauvegardé");
       if (draftToastRef.current) clearTimeout(draftToastRef.current);
       draftToastRef.current = setTimeout(() => setSaveFeedback(null), 2000);
