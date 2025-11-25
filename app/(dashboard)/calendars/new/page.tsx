@@ -378,6 +378,9 @@ function NewCalendarPageContent() {
         <div className="text-center space-y-4 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">{heroTitle}</h1>
           <p className="text-lg text-white/90 drop-shadow-md">{heroSubtitle}</p>
+          <p className="text-base md:text-lg font-bold text-[#d4af37] drop-shadow-md">
+            Après avoir payé, vous pourrez encore ajouter tous les éléments que vous souhaitez
+          </p>
         </div>
         <ParcoursBanner plan={activePlan} currentStep={currentParcoursStep} className="max-w-7xl mx-auto" />
         {/* Step 1: Plan selection */}

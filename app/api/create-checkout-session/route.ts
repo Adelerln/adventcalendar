@@ -4,7 +4,7 @@ import { z } from "zod";
 import { readBuyerSession } from "@/lib/server-session";
 import { getPlanPricing } from "@/lib/plan-pricing";
 import { createCheckoutSession, resolveAppHost } from "@/lib/stripe";
-import { markBuyerPaymentPending } from "@/lib/buyer-payment";
+import { markBuyerPaymentPending, markBuyerPaymentAsPaid } from "@/lib/buyer-payment";
 import {
   createProjectRecord,
   findProjectById,
@@ -17,7 +17,8 @@ export const runtime = "nodejs";
 const payloadSchema = z.object({
   projectId: z.string().uuid().optional(),
   imageFile: z.string().max(2048).nullable().optional(),
-  prompt: z.string().max(4000).nullable().optional()
+  prompt: z.string().max(4000).nullable().optional(),
+  promoCode: z.string().max(64).optional()
 });
 
 export async function POST(req: NextRequest) {
@@ -32,8 +33,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payload invalide", details: bodyResult.error.flatten() }, { status: 400 });
     }
 
-    const { projectId, imageFile, prompt } = bodyResult.data;
+    const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
+    const promoApplied = typeof promoCode === "string" && promoCode.trim().toUpperCase() === "X-HEC-2026";
 
     let project: ProjectRecord | null = null;
 
@@ -70,6 +72,27 @@ export async function POST(req: NextRequest) {
     }
 
     const host = resolveAppHost();
+
+    if (promoApplied) {
+      await updateProject(project.id, {
+        payment_status: "paid",
+        status: "paid",
+        payment_amount: 0,
+        stripe_checkout_session_id: null
+      });
+
+      await markBuyerPaymentAsPaid({
+        buyerId: session.id,
+        stripeSessionId: "promo-code",
+        paymentIntentId: null
+      }).catch((error) => console.error("[create-checkout-session] markBuyerPaymentAsPaid failed", error));
+
+      return NextResponse.json({
+        checkoutUrl: `${host}/dashboard?payment=success&promo=1`,
+        projectId: project.id
+      });
+    }
+
     const stripeSession = await createCheckoutSession({
       amountCents: pricing.amountCents,
       planLabel: pricing.label,
