@@ -1,5 +1,12 @@
+/**
+ * API Route: /api/calendar-contents
+ *
+ * Corrige VULN-006: Stockage XSS via contenu non sanitisé
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import DOMPurify from "isomorphic-dompurify";
 import { supabaseServer } from "@/lib/supabase";
 import { readBuyerSession } from "@/lib/server-session";
 import { DEFAULT_PLAN } from "@/lib/plan-theme";
@@ -7,9 +14,15 @@ import { DEFAULT_PLAN } from "@/lib/plan-theme";
 const schema = z.object({
   day: z.number().int().min(1).max(24),
   type: z.enum(["photo", "message", "drawing", "music", "voice", "ai_photo"]),
-  content: z.string().min(1),
-  title: z.string().max(255).optional(),
-  plan: z.enum(["plan_essentiel", "plan_premium"]).optional()
+  // ✅ Sanitiser le contenu pour éviter XSS
+  content: z.string().min(1).transform((val) => DOMPurify.sanitize(val)),
+  // ✅ Sanitiser le titre aussi
+  title: z
+    .string()
+    .max(255)
+    .optional()
+    .transform((val) => (val ? DOMPurify.sanitize(val) : val)),
+  plan: z.enum(["plan_essentiel", "plan_premium"]).optional(),
 });
 
 type MemoryContent = z.infer<typeof schema> & { buyer_id: string; updated_at: string; created_at: string };
@@ -18,7 +31,7 @@ const memoryStore: Map<string, MemoryContent> = new Map();
 export const runtime = "nodejs";
 
 export async function GET(req: NextRequest) {
-  const session = readBuyerSession(req);
+  const session = await readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
   }
@@ -47,7 +60,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = readBuyerSession(req);
+  const session = await readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
   }
@@ -91,7 +104,12 @@ export async function POST(req: NextRequest) {
   const key = `${session.id}-${data.day}`;
   const now = new Date().toISOString();
   memoryStore.set(key, {
-    ...data,
+    buyer_id: data.buyer_id,
+    day: data.day,
+    type: data.type,
+    content: data.content,
+    title: data.title ?? undefined,
+    plan: (data.plan === "plan_essentiel" || data.plan === "plan_premium") ? data.plan : undefined,
     created_at: memoryStore.get(key)?.created_at ?? now,
     updated_at: now
   });

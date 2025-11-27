@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-type BuyerPaymentStatus = "pending" | "paid";
+type BuyerPaymentStatus = "pending" | "paid" | "paid_with_code";
 
 type BuyerRecord = {
   id: string;

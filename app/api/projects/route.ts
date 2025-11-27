@@ -7,7 +7,7 @@ export const runtime = "nodejs";
 
 // Return the latest project for the logged-in buyer, falling back to payment info for backward compatibility.
 export async function GET(req: NextRequest) {
-  const session = readBuyerSession(req);
+  const session = await readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ project: null }, { status: 200 });
   }

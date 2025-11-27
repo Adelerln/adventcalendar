@@ -1,14 +1,41 @@
+/**
+ * POST /api/advent/recipient/open
+ * Ouvre le contenu d'un jour du calendrier pour un recipient authentifié
+ *
+ * Corrige VULN-004: Absence de contrôle d'accès sur endpoints recipient
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase";
 import { readBuyerSession } from "@/lib/server-session";
+import { authenticateRecipient } from "@/lib/recipient-auth";
 import { db } from "@/advent/adapters/db/db-memory";
 
 export async function POST(req: NextRequest) {
   await db.bootstrap();
-  const buyerSession = readBuyerSession(req as any);
-  const recipientCookie = req.cookies.get("recipient_session");
-  const recipientSession = recipientCookie ? JSON.parse(recipientCookie.value) : null;
-  const buyerId = buyerSession?.id ?? recipientSession?.buyer_id ?? recipientSession?.buyerId ?? null;
+
+  // ✅ Priorité 1: Session buyer authentifiée (propriétaire du calendrier)
+  const buyerSession = await readBuyerSession(req);
+  let buyerId: string | null = null;
+
+  if (buyerSession) {
+    // Le propriétaire peut voir son propre calendrier
+    buyerId = buyerSession.id;
+  } else {
+    // ✅ Priorité 2: Session recipient vérifiée avec JWT
+    const recipientAuth = await authenticateRecipient(req);
+
+    if (!recipientAuth.authenticated) {
+      return NextResponse.json(
+        { error: recipientAuth.error },
+        { status: recipientAuth.status }
+      );
+    }
+
+    // ✅ Utiliser le buyer_id vérifié depuis la DB (pas du cookie !)
+    buyerId = recipientAuth.session.buyer_id;
+  }
+
   if (!buyerId) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
@@ -42,10 +69,12 @@ export async function POST(req: NextRequest) {
   }
 
   // Fallback mémoire
-  const cookie = req.cookies.get("recipient_session");
-  if (!cookie) return new NextResponse("Unauthorized", { status: 401 });
-  const session = JSON.parse(cookie.value);
-  const calendar_id = session.calendarId || session.calendar_id;
+  const recipientAuth = await authenticateRecipient(req);
+  if (!recipientAuth.authenticated) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const calendar_id = recipientAuth.session.calendar_id;
   const updated = await db.markDayOpened(calendar_id, Number(finalDayNumber), new Date().toISOString());
   if (!updated) return NextResponse.json({ error: "locked or not found" }, { status: 400 });
 

@@ -1,16 +1,41 @@
+/**
+ * GET /api/advent/recipient/days
+ * Liste tous les jours d'un calendrier pour un recipient authentifié
+ *
+ * Corrige VULN-004: Absence de contrôle d'accès sur endpoints recipient
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/advent/adapters/db/db-memory";
 import { supabaseServer } from "@/lib/supabase";
 import { readBuyerSession } from "@/lib/server-session";
+import { authenticateRecipient } from "@/lib/recipient-auth";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 export async function GET(req: NextRequest) {
   await db.bootstrap();
-  // Priorité : session acheteur pour récupérer ses contenus
-  const buyerSession = readBuyerSession(req as any);
-  const recipientCookie = req.cookies.get("recipient_session");
-  const recipientSession = recipientCookie ? JSON.parse(recipientCookie.value) : null;
-  const buyerId = buyerSession?.id ?? recipientSession?.buyer_id ?? recipientSession?.buyerId ?? null;
+
+  // ✅ Priorité 1: Session buyer authentifiée (propriétaire du calendrier)
+  const buyerSession = await readBuyerSession(req);
+  let buyerId: string | null = null;
+
+  if (buyerSession) {
+    // Le propriétaire peut voir son propre calendrier
+    buyerId = buyerSession.id;
+  } else {
+    // ✅ Priorité 2: Session recipient vérifiée avec JWT
+    const recipientAuth = await authenticateRecipient(req);
+
+    if (!recipientAuth.authenticated) {
+      return NextResponse.json(
+        { error: recipientAuth.error },
+        { status: recipientAuth.status }
+      );
+    }
+
+    // ✅ Utiliser le buyer_id vérifié depuis la DB (pas du cookie !)
+    buyerId = recipientAuth.session.buyer_id;
+  }
 
   if (!buyerId) {
     return new NextResponse("Unauthorized", { status: 401 });
@@ -54,9 +79,12 @@ export async function GET(req: NextRequest) {
   }
 
   // Fallback mémoire : données de dev
-  const cookie = req.cookies.get("recipient_session");
-  if (!cookie) return new NextResponse("Unauthorized", { status: 401 });
-  const { calendar_id } = JSON.parse(cookie.value);
+  const recipientAuth = await authenticateRecipient(req);
+  if (!recipientAuth.authenticated) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
+
+  const calendar_id = recipientAuth.session.calendar_id;
   const opened = await db.listOpenDays(calendar_id, now);
   const openedSet = new Set(opened.map((d) => d.dayNumber));
   const days = Array.from({ length: 24 }, (_, idx) => {

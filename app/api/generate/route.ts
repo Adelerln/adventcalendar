@@ -6,7 +6,7 @@ import { findLatestProjectForUser } from "@/lib/projects-repository";
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
-  const session = readBuyerSession(req);
+  const session = await readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
   }

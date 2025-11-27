@@ -1,3 +1,10 @@
+/**
+ * POST /api/create-checkout-session
+ * Crée une session de paiement Stripe
+ *
+ * Corrige VULN-008: Code promo hardcodé
+ */
+
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { z } from "zod";
@@ -5,6 +12,8 @@ import { readBuyerSession } from "@/lib/server-session";
 import { getPlanPricing } from "@/lib/plan-pricing";
 import { createCheckoutSession, resolveAppHost } from "@/lib/stripe";
 import { markBuyerPaymentPending, markBuyerPaymentAsPaid, markBuyerPaymentAsPaidWithCode } from "@/lib/buyer-payment";
+import { sendPaymentConfirmationEmail } from "@/lib/email";
+import { validatePromoCode } from "@/lib/promo-codes";
 import {
   createProjectRecord,
   findProjectById,
@@ -23,7 +32,7 @@ const payloadSchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const session = readBuyerSession(req);
+    const session = await readBuyerSession(req);
     if (!session) {
       return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
     }
@@ -35,7 +44,31 @@ export async function POST(req: NextRequest) {
 
     const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
-    const promoApplied = typeof promoCode === "string" && promoCode.trim().toUpperCase() === "X-HEC-2026";
+
+    // ✅ Valider le code promo via DB au lieu de hardcodé
+    let promoApplied = false;
+    let promoId: string | null = null;
+
+    if (promoCode) {
+      const promoResult = await validatePromoCode(promoCode);
+
+      if (promoResult.valid) {
+        promoApplied = true;
+        promoId = promoResult.promoCodeId;
+
+        console.info("[create-checkout-session] Promo code applied", {
+          code: promoResult.code,
+          percentOff: promoResult.percentOff,
+          amountOff: promoResult.amountOff,
+        });
+      } else {
+        console.warn("[create-checkout-session] Invalid promo code", {
+          code: promoCode,
+          error: promoResult.error,
+        });
+        // On continue sans promo au lieu de bloquer
+      }
+    }
 
     let project: ProjectRecord | null = null;
 
@@ -84,6 +117,9 @@ export async function POST(req: NextRequest) {
       await markBuyerPaymentAsPaidWithCode({
         buyerId: session.id
       }).catch((error) => console.error("[create-checkout-session] markBuyerPaymentAsPaidWithCode failed", error));
+
+      // Send payment confirmation email for promo code usage
+      await sendPaymentConfirmationEmail(session.id);
 
       return NextResponse.json({
         checkoutUrl: `${host}/dashboard?payment=success&promo=1`,

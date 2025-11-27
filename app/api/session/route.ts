@@ -7,7 +7,7 @@ import { supabaseBrowser, supabaseServer } from "@/lib/supabase";
 import { DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 export async function GET(req: NextRequest) {
-  const session = readBuyerSession(req);
+  const session = await readBuyerSession(req);
   return NextResponse.json({ user: session ?? null });
 }
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
   }
 
   const payload = buyerSessionPayload(buyer);
-  return attachBuyerSession(NextResponse.json({ user: payload }, { status: 200 }), payload);
+  return await attachBuyerSession(NextResponse.json({ user: payload }, { status: 200 }), payload);
 }
 
 export async function DELETE() {
@@ -72,7 +72,7 @@ async function handleSupabaseSignIn(email: string, password: string) {
   };
 
   const response = NextResponse.json({ user: sessionPayload }, { status: 200 });
-  return attachBuyerSession(response, sessionPayload);
+  return await attachBuyerSession(response, sessionPayload);
 }
 
 async function findBuyerForFallback(email: string) {
