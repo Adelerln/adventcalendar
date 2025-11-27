@@ -4,7 +4,7 @@ import { z } from "zod";
 import { readBuyerSession } from "@/lib/server-session";
 import { getPlanPricing } from "@/lib/plan-pricing";
 import { createCheckoutSession, resolveAppHost } from "@/lib/stripe";
-import { markBuyerPaymentPending, markBuyerPaymentAsPaid, markBuyerPaymentAsPaidWithCode } from "@/lib/buyer-payment";
+import { markBuyerPaymentPending } from "@/lib/buyer-payment";
 import {
   createProjectRecord,
   findProjectById,
@@ -17,8 +17,7 @@ export const runtime = "nodejs";
 const payloadSchema = z.object({
   projectId: z.string().uuid().optional(),
   imageFile: z.string().max(2048).nullable().optional(),
-  prompt: z.string().max(4000).nullable().optional(),
-  promoCode: z.string().max(64).optional()
+  prompt: z.string().max(4000).nullable().optional()
 });
 
 export async function POST(req: NextRequest) {
@@ -33,9 +32,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payload invalide", details: bodyResult.error.flatten() }, { status: 400 });
     }
 
-    const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
+    const { projectId, imageFile, prompt } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
-    const promoApplied = typeof promoCode === "string" && promoCode.trim().toUpperCase() === "X-HEC-2026";
+    const promotionCodeId = (process.env.STRIPE_PROMOTION_CODE_ID ?? "promo_1SYBLtRnfGZyYNCotmXQ250s").trim() || undefined;
 
     let project: ProjectRecord | null = null;
 
@@ -73,24 +72,6 @@ export async function POST(req: NextRequest) {
 
     const host = resolveAppHost();
 
-    if (promoApplied) {
-      await updateProject(project.id, {
-        payment_status: "paid",
-        status: "paid",
-        payment_amount: 0,
-        stripe_checkout_session_id: null
-      });
-
-      await markBuyerPaymentAsPaidWithCode({
-        buyerId: session.id
-      }).catch((error) => console.error("[create-checkout-session] markBuyerPaymentAsPaidWithCode failed", error));
-
-      return NextResponse.json({
-        checkoutUrl: `${host}/dashboard?payment=success&promo=1`,
-        projectId: project.id
-      });
-    }
-
     const stripeSession = await createCheckoutSession({
       amountCents: pricing.amountCents,
       planLabel: pricing.label,
@@ -98,7 +79,10 @@ export async function POST(req: NextRequest) {
       projectId: project.id,
       successUrl: `${host}/dashboard?payment=success`,
       cancelUrl: `${host}/dashboard?payment=cancelled`,
-      metadata: { plan: pricing.plan }
+      metadata: {
+        plan: pricing.plan
+      },
+      promotionCodeId
     });
 
     if (!stripeSession.url) {

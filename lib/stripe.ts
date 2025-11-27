@@ -40,6 +40,7 @@ type BaseCheckoutParams = {
   successUrl?: string;
   cancelUrl?: string;
   metadata?: Record<string, string>;
+  promotionCodeId?: string;
 };
 
 type AmountCheckoutParams = BaseCheckoutParams & {
@@ -86,7 +87,8 @@ export async function createCheckoutSession(params: AmountCheckoutParams | Produ
           quantity: 1
         }
       ],
-      metadata: Object.keys(metadata).length ? metadata : undefined
+      metadata: Object.keys(metadata).length ? metadata : undefined,
+      discounts: "promotionCodeId" in params && params.promotionCodeId ? [{ promotion_code: params.promotionCodeId }] : undefined
     });
   }
 
@@ -121,7 +123,8 @@ export async function createCheckoutSession(params: AmountCheckoutParams | Produ
         quantity: 1
       }
     ],
-    metadata: Object.keys(metadata).length ? metadata : undefined
+    metadata: Object.keys(metadata).length ? metadata : undefined,
+    discounts: "promotionCodeId" in params && params.promotionCodeId ? [{ promotion_code: params.promotionCodeId }] : undefined
   });
 }
 
