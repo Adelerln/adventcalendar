@@ -20,6 +20,9 @@ type Props = {
   onClose: () => void;
 };
 
+const DRAWING_ACCENT = "#2563eb";
+const DRAWING_PALETTE = ["#2563eb", "#22c55e", "#0ea5e9", "#f472b6", "#f97316", "#fef102", "#ef4444", "#000000"];
+
 export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, onSave, onClose }: Props) {
   const [selectedType, setSelectedType] = useState<DayContent["type"] | null>(initialContent?.type || null);
   const [content, setContent] = useState(initialContent?.content || "");
@@ -295,7 +298,9 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               </div>
 
               <div className="bg-white/80 dark:bg-gray-900/70 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 p-4">
-                <h3 className="font-semibold text-lg text-[#4a0808] mb-3">Dessin</h3>
+                <h3 className="font-semibold text-lg mb-3" style={{ color: DRAWING_ACCENT }}>
+                  Dessin
+                </h3>
                 <DrawingPad
                   initialImage={content}
                   onSave={(data) => {
@@ -651,7 +656,7 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [brushColor, setBrushColor] = useState("#4a0808");
+  const [brushColor, setBrushColor] = useState(DRAWING_ACCENT);
   const [brushSize, setBrushSize] = useState(4);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -739,8 +744,8 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
     setTimeout(() => setStatus(null), 1500);
   };
 
-  const colors = ["#4a0808", "#d97706", "#b45309", "#78350f", "#f4f1eb", "#1f2937"];
-  const [customColor, setCustomColor] = useState("#4a0808");
+  const colors = DRAWING_PALETTE;
+  const [customColor, setCustomColor] = useState(DRAWING_ACCENT);
 
   return (
     <div className="space-y-3">
@@ -751,8 +756,8 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
               key={color}
               type="button"
               onClick={() => setBrushColor(color)}
-              className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 transition ${brushColor === color ? "border-[#4a0808]" : "border-transparent"}`}
-              style={{ backgroundColor: color }}
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 transition"
+              style={{ backgroundColor: color, borderColor: brushColor === color ? DRAWING_ACCENT : "transparent" }}
             />
           ))}
           <label className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-gray-500">
@@ -798,7 +803,10 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
           style={{ touchAction: "none" }}
         />
         {status && (
-          <div className="absolute top-3 right-3 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold text-[#4a0808] shadow">
+          <div
+            className="absolute top-3 right-3 rounded-full bg-white/80 px-3 py-1 text-xs font-semibold shadow"
+            style={{ color: DRAWING_ACCENT }}
+          >
             {status}
           </div>
         )}
@@ -807,7 +815,7 @@ function DrawingPad({ initialImage, onSave }: DrawingPadProps) {
         <button
           type="button"
           onClick={handleSave}
-          className="flex-1 min-w-[180px] rounded-full bg-[#4a0808] text-white font-semibold py-2 px-4 hover:bg-[#701010] transition-colors"
+          className="flex-1 min-w-[180px] rounded-full bg-[#2563eb] text-white font-semibold py-2 px-4 hover:bg-[#1e40af] transition-colors"
         >
           Enregistrer mon dessin
         </button>
