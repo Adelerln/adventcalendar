@@ -19,12 +19,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Champs manquants" }, { status: 400 });
   }
 
-  try {
-    const passwordHash = await hash(password, 12);
-    const normalizedEmail = email.toLowerCase();
-    const normalizedPhone = phone.trim() || null;
-    const pricing = getPlanPricing(plan);
+  const passwordHash = await hash(password, 12);
+  const normalizedEmail = email.toLowerCase();
+  const normalizedPhone = phone.trim() || null;
+  const pricing = getPlanPricing(plan);
 
+  try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const supabaseConfigured =
@@ -276,13 +276,13 @@ export async function POST(req: Request) {
     console.error("Error creating buyer, fallback to in-memory store", error);
     // Fallback en mémoire si la base Supabase/PG est indisponible
     const fallbackBuyer = saveBuyer({
-      plan: pricing.plan,
+      plan: "plan_essentiel",
       full_name: fullName,
-      phone: normalizedPhone ?? "",
+      phone: (typeof phone === "string" ? phone.trim() : "") || "",
       email: normalizedEmail,
       password_hash: passwordHash,
       payment_status: "pending",
-      payment_amount: pricing.amountCents / 100,
+      payment_amount: 0,
       stripe_checkout_session_id: null,
       stripe_payment_intent_id: null
     });
