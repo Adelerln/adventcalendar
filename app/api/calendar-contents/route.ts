@@ -14,15 +14,16 @@ import { DEFAULT_PLAN } from "@/lib/plan-theme";
 const schema = z.object({
   day: z.number().int().min(1).max(24),
   type: z.enum(["photo", "message", "drawing", "music", "voice", "ai_photo"]),
-  // ✅ Sanitiser le contenu pour éviter XSS
+  // ✅ Sanitize pour éviter XSS
   content: z.string().min(1).transform((val) => DOMPurify.sanitize(val)),
-  // ✅ Sanitiser le titre aussi
+  // ✅ Titre optionnel et nullable + sanitize
   title: z
     .string()
     .max(255)
+    .nullable()
     .optional()
     .transform((val) => (val ? DOMPurify.sanitize(val) : val)),
-  plan: z.enum(["plan_essentiel", "plan_premium"]).optional(),
+  plan: z.enum(["plan_essentiel", "plan_premium"]).optional()
 });
 
 type MemoryContent = z.infer<typeof schema> & { buyer_id: string; updated_at: string; created_at: string };
@@ -78,7 +79,7 @@ export async function POST(req: NextRequest) {
     type: result.data.type,
     content: result.data.content,
     title: result.data.title ?? null,
-    plan: result.data.plan ?? session.plan ?? DEFAULT_PLAN
+    plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
   };
 
   if (supabaseConfigured) {
@@ -109,7 +110,7 @@ export async function POST(req: NextRequest) {
     type: data.type,
     content: data.content,
     title: data.title ?? undefined,
-    plan: (data.plan === "plan_essentiel" || data.plan === "plan_premium") ? data.plan : undefined,
+    plan: data.plan,
     created_at: memoryStore.get(key)?.created_at ?? now,
     updated_at: now
   });
