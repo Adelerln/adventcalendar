@@ -41,6 +41,7 @@ export default function CreateAccountPage() {
 function CreateAccountContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [redirectingForPlan, setRedirectingForPlan] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [session, setSession] = useState<{ id: string; plan: PlanKey } | null>(null);
@@ -51,8 +52,18 @@ function CreateAccountContent() {
   const plan = PLAN_COPY[planKey];
   const theme = PLAN_APPEARANCE[planKey];
 
+  // Si aucun plan fourni, forcer un passage par la page pricing
+  useEffect(() => {
+    if (!planParam) {
+      const next = encodeURIComponent("/create-account");
+      setRedirectingForPlan(true);
+      router.replace(`/pricing?next=${next}`);
+    }
+  }, [planParam, router]);
+
   useEffect(() => {
     let ignore = false;
+    if (redirectingForPlan) return;
     fetch("/api/session")
       .then((res) => res.json())
       .then((data) => {
@@ -69,9 +80,10 @@ function CreateAccountContent() {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [redirectingForPlan]);
 
   useEffect(() => {
+    if (redirectingForPlan) return;
     if (session) {
       // Si le plan de la session est différent du plan demandé, mettre à jour le plan
       if (session.plan !== planKey) {
@@ -92,7 +104,15 @@ function CreateAccountContent() {
         router.replace(`/calendars/new?plan=${planKey}&stage=creation`);
       }
     }
-  }, [router, session, planKey]);
+  }, [router, session, planKey, redirectingForPlan]);
+
+  if (redirectingForPlan) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white">
+        Choisissez un forfait pour continuer...
+      </div>
+    );
+  }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (event) => {
     event.preventDefault();

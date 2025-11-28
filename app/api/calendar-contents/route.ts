@@ -31,6 +31,10 @@ const memoryStore: Map<string, MemoryContent> = new Map();
 
 export const runtime = "nodejs";
 
+const CALENDAR_BUCKET = "calendar-images";
+const isImageType = (t: string) => t === "photo" || t === "drawing" || t === "ai_photo";
+const isDataUrl = (val: string) => typeof val === "string" && val.startsWith("data:");
+
 export async function GET(req: NextRequest) {
   const session = await readBuyerSession(req);
   if (!session) {
@@ -82,24 +86,45 @@ export async function POST(req: NextRequest) {
     plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
   };
 
-  if (supabaseConfigured) {
-    const supabase = supabaseServer();
-    const { error } = await supabase
-      .from("calendar_contents")
-      .upsert(
-        {
-          ...data,
-          updated_at: new Date().toISOString()
-        },
-        { onConflict: "buyer_id,day,type" }
-      );
-
-    if (error) {
-      console.error("[calendar-contents] supabase upsert failed", error);
-      return NextResponse.json({ error: "Erreur enregistrement" }, { status: 500 });
+  // Si c'est une image en data URL et que Supabase est configuré, uploade dans le bucket
+  if (supabaseConfigured && isImageType(data.type) && isDataUrl(data.content)) {
+    try {
+      const uploadedUrl = await uploadDataUrlToSupabase({
+        bucket: CALENDAR_BUCKET,
+        buyerId: session.id,
+        day: data.day,
+        dataUrl: data.content
+      });
+      if (uploadedUrl) {
+        data.content = uploadedUrl;
+      }
+    } catch (err) {
+      console.error("[calendar-contents] upload image to supabase failed, keeping data URL", err);
     }
+  }
 
-    return NextResponse.json({ ok: true });
+  if (supabaseConfigured) {
+    try {
+      const supabase = supabaseServer();
+      const { error } = await supabase
+        .from("calendar_contents")
+        .upsert(
+          {
+            ...data,
+            updated_at: new Date().toISOString()
+          },
+          { onConflict: "buyer_id,day,type" }
+        );
+
+      if (!error) {
+        return NextResponse.json({ ok: true });
+      }
+
+      console.error("[calendar-contents] supabase upsert failed, falling back to memory store", error);
+    } catch (err) {
+      console.error("[calendar-contents] supabase upsert exception, falling back to memory store", err);
+      // Continue vers le fallback mémoire
+    }
   }
 
   const key = `${session.id}-${data.day}`;
@@ -115,4 +140,38 @@ export async function POST(req: NextRequest) {
     updated_at: now
   });
   return NextResponse.json({ ok: true, storage: "memory" });
+}
+
+async function uploadDataUrlToSupabase(params: {
+  bucket: string;
+  buyerId: string;
+  day: number;
+  dataUrl: string;
+}): Promise<string | null> {
+  const { bucket, buyerId, day, dataUrl } = params;
+  const supabase = supabaseServer();
+
+  const match = dataUrl.match(/^data:(.+?);base64,(.*)$/);
+  if (!match) return null;
+  const mimeType = match[1];
+  const base64 = match[2];
+  const buffer = Buffer.from(base64, "base64");
+
+  const extension = mimeType.split("/")[1] || "bin";
+  const daySlug = `day-${String(day).padStart(2, "0")}`;
+  const filename = `${Date.now()}.${extension}`;
+  const path = `${buyerId}/${daySlug}/${filename}`;
+
+  const { error } = await supabase.storage
+    .from(bucket)
+    .upload(path, buffer, { contentType: mimeType, upsert: true });
+
+  if (error) {
+    console.error("[calendar-contents] supabase storage upload failed", error);
+    return null;
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!baseUrl) return null;
+  return `${baseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
