@@ -32,10 +32,43 @@ export async function POST(req: Request) {
       let createdUserId: string | null = null;
 
       try {
-        // Si un buyer existe déjà en base, on retourne directement le conflit
+        // Si un buyer existe déjà en base, on le réutilise en mettant à jour ses infos
         const existingBuyer = await findBuyerByEmailSupabase(supabase, normalizedEmail);
         if (existingBuyer) {
-          return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+          // Mise à jour du compte auth si présent (nouveau mot de passe / téléphone / nom)
+          const existingUserId = await findAuthUserIdByEmail(supabase, normalizedEmail);
+          if (existingUserId) {
+            await supabase.auth.admin
+              .updateUserById(existingUserId, {
+                password,
+                phone: normalizedPhone ?? undefined,
+                user_metadata: { full_name: fullName }
+              })
+              .catch((updateError) => {
+                console.warn("Supabase auth update failed for existing user (reuse path)", updateError);
+              });
+          }
+
+          const { data: updatedBuyer, error: updateError } = await supabase
+            .from("buyers")
+            .update({
+              full_name: fullName,
+              phone_e164: normalizedPhone,
+              plan: pricing.plan
+            })
+            .eq("id", existingBuyer.id)
+            .select("id, plan, full_name")
+            .maybeSingle();
+
+          if (updateError || !updatedBuyer) {
+            throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
+          }
+
+          return respondWithSession({
+            id: updatedBuyer.id,
+            plan: updatedBuyer.plan ?? pricing.plan,
+            fullName: updatedBuyer.full_name ?? fullName
+          });
         }
 
         const { data: userResp, error: userError } = await supabase.auth.admin.createUser({
@@ -162,8 +195,33 @@ export async function POST(req: Request) {
               });
             }
 
-            // Buyer déjà existant pour cet email avec email renseigné
-            return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+            // Buyer déjà existant pour cet email avec email renseigné: on met à jour et on continue
+            await supabase.auth.admin
+              .updateUserById(existingUserId, { password, phone: normalizedPhone ?? undefined })
+              .catch((updateError) => {
+                console.warn("Supabase auth update failed for existing user", updateError);
+              });
+
+            const { data: updatedBuyer, error: updateError } = await supabase
+              .from("buyers")
+              .update({
+                full_name: fullName,
+                phone_e164: normalizedPhone,
+                plan: buyerRow.plan ?? pricing.plan
+              })
+              .eq("id", existingUserId)
+              .select("id, plan, full_name")
+              .maybeSingle();
+
+            if (updateError || !updatedBuyer) {
+              throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
+            }
+
+            return respondWithSession({
+              id: updatedBuyer.id,
+              plan: updatedBuyer.plan ?? pricing.plan,
+              fullName: updatedBuyer.full_name ?? fullName
+            });
           } catch (reuseError) {
             console.error("Supabase reuse existing auth user failed", reuseError);
             return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
