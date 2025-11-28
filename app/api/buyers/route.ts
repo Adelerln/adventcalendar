@@ -94,7 +94,7 @@ export async function POST(req: Request) {
             // Si aucun buyer associé, on le crée et on met à jour le mot de passe
             const { data: buyerRow } = await supabase
               .from("buyers")
-              .select("id, plan, full_name")
+              .select("id, plan, full_name, email, payment_status")
               .eq("id", existingUserId)
               .maybeSingle();
 
@@ -129,7 +129,40 @@ export async function POST(req: Request) {
               });
             }
 
-            // Buyer déjà existant pour cet email
+            const existingBuyerEmail = (buyerRow.email ?? "").trim();
+
+            // Buyer existe mais sans email: on met à jour ses infos et on continue
+            if (!existingBuyerEmail) {
+              await supabase.auth.admin
+                .updateUserById(existingUserId, { password, phone: normalizedPhone ?? undefined })
+                .catch((updateError) => {
+                  console.warn("Supabase auth update failed for existing user", updateError);
+                });
+
+              const { data: updatedBuyer, error: updateError } = await supabase
+                .from("buyers")
+                .update({
+                  email: normalizedEmail,
+                  phone_e164: normalizedPhone,
+                  full_name: buyerRow.full_name ?? fullName,
+                  plan: buyerRow.plan ?? pricing.plan
+                })
+                .eq("id", existingUserId)
+                .select("id, plan, full_name, payment_status")
+                .maybeSingle();
+
+              if (updateError || !updatedBuyer) {
+                throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
+              }
+
+              return respondWithSession({
+                id: updatedBuyer.id,
+                plan: updatedBuyer.plan ?? pricing.plan,
+                fullName: updatedBuyer.full_name ?? fullName
+              });
+            }
+
+            // Buyer déjà existant pour cet email avec email renseigné
             return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
           } catch (reuseError) {
             console.error("Supabase reuse existing auth user failed", reuseError);
