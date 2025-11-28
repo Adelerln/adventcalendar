@@ -44,6 +44,8 @@ export async function POST(req: NextRequest) {
 
     const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
+    const promotionCodeId =
+      (process.env.STRIPE_PROMOTION_CODE_ID ?? "promo_1SYBLtRnfGZyYNCotmXQ250s").trim() || undefined;
 
     // ✅ Valider le code promo via DB au lieu de hardcodé
     let promoApplied = false;
@@ -59,12 +61,12 @@ export async function POST(req: NextRequest) {
         console.info("[create-checkout-session] Promo code applied", {
           code: promoResult.code,
           percentOff: promoResult.percentOff,
-          amountOff: promoResult.amountOff,
+          amountOff: promoResult.amountOff
         });
       } else {
         console.warn("[create-checkout-session] Invalid promo code", {
           code: promoCode,
-          error: promoResult.error,
+          error: promoResult.error
         });
         // On continue sans promo au lieu de bloquer
       }
@@ -134,7 +136,8 @@ export async function POST(req: NextRequest) {
       projectId: project.id,
       successUrl: `${host}/dashboard?payment=success`,
       cancelUrl: `${host}/dashboard?payment=cancelled`,
-      metadata: { plan: pricing.plan }
+      metadata: { plan: pricing.plan },
+      promotionCodeId
     });
 
     if (!stripeSession.url) {
