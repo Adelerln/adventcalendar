@@ -72,6 +72,9 @@ export default function Header() {
           <Link href="/faq" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             FAQ
           </Link>
+          <Link href="/creations" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
+            Mes créations
+          </Link>
           <Link href="/dashboard" className="transition-colors text-white/90 hover:text-white drop-shadow-md">
             Essaie-le
           </Link>
@@ -145,6 +148,13 @@ export default function Header() {
               onClick={() => setMobileMenuOpen(false)}
             >
               FAQ
+            </Link>
+            <Link 
+              href="/creations" 
+              className="text-white/90 hover:text-white py-2 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Mes créations
             </Link>
             <Link 
               href="/dashboard" 
