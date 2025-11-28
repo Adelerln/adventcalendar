@@ -42,15 +42,18 @@ export async function POST(req: NextRequest) {
     const imageFile = data.get("image") as File | null;
     let imageUrl: string | undefined;
 
-    // Upload l'image d'entrée si fournie (ou l'encoder en data URL si pas de Supabase)
+    // Upload l'image d'entrée si fournie — on supporte deux modes:
+    // 1) si Supabase est configuré, upload et expose une URL publique
+    // 2) sinon on encode l'image en data URL (base64) pour la passer directement au modèle
     if (imageFile && imageFile.size > 0) {
+      const arrayBuffer = await imageFile.arrayBuffer();
       if (!supabase) {
-        console.warn("[api/ai-photo] Image fournie mais Supabase non configuré, on encode en data URL.");
-        const arrayBuffer = await imageFile.arrayBuffer();
-        const base64 = Buffer.from(arrayBuffer).toString("base64");
-        imageUrl = `data:${imageFile.type};base64,${base64}`;
+        // encode en data URL pour fournir l'image directement au modèle
+        const buf = Buffer.from(arrayBuffer);
+        const dataUrl = `data:${imageFile.type};base64,${buf.toString("base64")}`;
+        imageUrl = dataUrl;
+        console.warn("[api/ai-photo] Supabase non configuré — envoi de l'image en data URL au modèle");
       } else {
-        const arrayBuffer = await imageFile.arrayBuffer();
         const fileName = `ai-photo-input-${Date.now()}.png`;
         const { error } = await supabase.storage
           .from("ai-photos")
@@ -60,9 +63,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Appel Replicate
+    // Appel Replicate — enrichit l'input avec plusieurs clés possibles pour maximiser la compatibilité
     const input: Record<string, unknown> = { prompt };
-    if (imageUrl) input.image_input = [imageUrl];
+    if (imageUrl) {
+      // certains modèles attendent 'image', d'autres 'image_url', 'init_images' ou 'image_input'
+      input.image = imageUrl;
+      input.image_url = imageUrl;
+      input.init_image = imageUrl;
+      input.init_images = [imageUrl];
+      input.image_input = [imageUrl];
+    }
     const modelId = (process.env.REPLICATE_MODEL || DEFAULT_MODEL) as `${string}/${string}` | `${string}/${string}:${string}`;
     const output = await replicate.run(modelId, { input });
 
