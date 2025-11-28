@@ -6,6 +6,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const DEFAULT_MODEL = "google/nano-banana";
+const AI_BUCKET = "calendar-images";
+const AI_PREFIX = "ai-photo";
 
 function getSupabase(): SupabaseClient | null {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -54,12 +56,12 @@ export async function POST(req: NextRequest) {
         imageUrl = dataUrl;
         console.warn("[api/ai-photo] Supabase non configuré — envoi de l'image en data URL au modèle");
       } else {
-        const fileName = `ai-photo-input-${Date.now()}.png`;
+        const fileName = `${AI_PREFIX}/ai-photo-input-${Date.now()}.png`;
         const { error } = await supabase.storage
-          .from("ai-photos")
+          .from(AI_BUCKET)
           .upload(fileName, arrayBuffer, { contentType: imageFile.type });
         if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-        imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ai-photos/${fileName}`;
+        imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AI_BUCKET}/${fileName}`;
       }
     }
 
@@ -133,13 +135,13 @@ export async function POST(req: NextRequest) {
 
     // Stockage ou retour direct
     if (supabase) {
-      const outName = `ai-photo-output-${Date.now()}.jpg`;
+      const outName = `${AI_PREFIX}/ai-photo-output-${Date.now()}.jpg`;
       const uploadData = finalBuffer instanceof ArrayBuffer ? finalBuffer : (finalBuffer as Buffer).buffer;
       const { error: outError } = await supabase.storage
-        .from("ai-photos")
+        .from(AI_BUCKET)
         .upload(outName, uploadData as any, { contentType });
       if (outError) return NextResponse.json({ error: outError.message }, { status: 500 });
-      const finalUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ai-photos/${outName}`;
+      const finalUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${AI_BUCKET}/${outName}`;
       return NextResponse.json({ url: finalUrl });
     }
 
