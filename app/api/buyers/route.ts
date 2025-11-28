@@ -90,10 +90,7 @@ export async function POST(req: Request) {
         if (userError || !userResp?.user?.id) {
           const detail = userError?.message ?? "Impossible de créer l'utilisateur Supabase";
           console.error("Supabase auth createUser failed", userError);
-          return NextResponse.json(
-            { error: "Création utilisateur Supabase échouée", details: detail },
-            { status: 500 }
-          );
+          throw new Error(detail);
         }
 
         createdUserId = userResp.user.id;
