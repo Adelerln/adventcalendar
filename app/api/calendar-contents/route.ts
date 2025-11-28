@@ -151,12 +151,24 @@ async function uploadDataUrlToSupabase(params: {
   const filename = `${Date.now()}.${extension}`;
   const path = `${buyerId}/${daySlug}/${filename}`;
 
-  const { error } = await supabase.storage
-    .from(bucket)
-    .upload(path, buffer, { contentType: mimeType, upsert: true });
+  const uploadOnce = async () =>
+    supabase.storage.from(bucket).upload(path, buffer, { contentType: mimeType, upsert: true });
 
-  if (error) {
-    console.error("[calendar-contents] supabase storage upload failed", error);
+  let uploadError = await uploadOnce();
+
+  // Si le bucket n'existe pas, tenter de le créer puis réessayer
+  if (uploadError.error && uploadError.error.message?.toLowerCase().includes("not found")) {
+    console.warn("[calendar-contents] bucket manquant, tentative de création", bucket);
+    const { error: bucketErr } = await supabase.storage.createBucket(bucket, { public: true });
+    if (bucketErr) {
+      console.error("[calendar-contents] création bucket échouée", bucketErr);
+      return null;
+    }
+    uploadError = await uploadOnce();
+  }
+
+  if (uploadError.error) {
+    console.error("[calendar-contents] supabase storage upload failed", uploadError.error);
     return null;
   }
 
