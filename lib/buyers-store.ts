@@ -47,7 +47,7 @@ if (!globalStore.__buyersStore) {
   globalStore.__buyersStore = buyers;
 }
 
-class UniqueEmailError extends Error {
+export class UniqueEmailError extends Error {
   code = "23505";
   constructor() {
     super("Email déjà utilisé");

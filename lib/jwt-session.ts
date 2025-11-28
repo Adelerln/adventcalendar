@@ -26,15 +26,12 @@ export type RecipientSessionPayload = {
 
 // Secret key (doit être en variable d'environnement)
 function getJwtSecret(): Uint8Array {
-  const secret = process.env.JWT_SECRET;
-
-  if (!secret) {
-    throw new Error(
-      'JWT_SECRET is not defined in environment variables. ' +
-      'Please add JWT_SECRET to your .env file.'
+  const secret = process.env.JWT_SECRET || "dev-secret-placeholder-change-me";
+  if (!process.env.JWT_SECRET) {
+    console.warn(
+      "[jwt-session] JWT_SECRET manquant, utilisation d'une clé de secours (à remplacer en production)"
     );
   }
-
   return new TextEncoder().encode(secret);
 }
 

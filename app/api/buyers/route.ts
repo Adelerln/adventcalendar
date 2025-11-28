@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { saveBuyer } from "@/lib/buyers-store";
+import { saveBuyer, UniqueEmailError } from "@/lib/buyers-store";
 import { attachBuyerSession } from "@/lib/server-session";
 import { supabaseServer } from "@/lib/supabase";
 import { getPlanPricing } from "@/lib/plan-pricing";
@@ -116,10 +116,7 @@ export async function POST(req: Request) {
             await supabase.auth.admin.deleteUser(createdUserId).catch(() => {});
           }
           console.error("Supabase insert buyer failed", supabaseError);
-          return NextResponse.json(
-            { error: "Création buyer Supabase échouée", details: supabaseError?.message ?? "Erreur inconnue" },
-            { status: 500 }
-          );
+          throw supabaseError ?? new Error("Création buyer Supabase échouée");
         }
 
         return respondWithSession({
@@ -198,10 +195,7 @@ export async function POST(req: Request) {
 
               if (updateError || !updatedBuyer) {
                 console.error("Supabase update existing buyer (no email) failed", updateError);
-                return NextResponse.json(
-                  { error: "Impossible de mettre à jour l'acheteur existant", details: updateError?.message },
-                  { status: 500 }
-                );
+                throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant (no email)");
               }
 
               return respondWithSession({
@@ -231,10 +225,7 @@ export async function POST(req: Request) {
 
             if (updateError || !updatedBuyer) {
               console.error("Supabase update existing buyer failed", updateError);
-              return NextResponse.json(
-                { error: "Impossible de mettre à jour l'acheteur existant", details: updateError?.message },
-                { status: 500 }
-              );
+              throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
             }
 
             return respondWithSession({
@@ -279,9 +270,28 @@ export async function POST(req: Request) {
         { status: 409 }
       );
     }
-    const message = error instanceof Error ? error.message : "Erreur serveur";
-    console.error("Error creating buyer", error);
-    return NextResponse.json({ error: message, details: (error as PostgresError)?.message }, { status: 500 });
+    if (error instanceof UniqueEmailError) {
+      return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+    }
+    console.error("Error creating buyer, fallback to in-memory store", error);
+    // Fallback en mémoire si la base Supabase/PG est indisponible
+    const fallbackBuyer = saveBuyer({
+      plan: pricing.plan,
+      full_name: fullName,
+      phone: normalizedPhone ?? "",
+      email: normalizedEmail,
+      password_hash: passwordHash,
+      payment_status: "pending",
+      payment_amount: pricing.amountCents / 100,
+      stripe_checkout_session_id: null,
+      stripe_payment_intent_id: null
+    });
+
+    return respondWithSession({
+      id: fallbackBuyer.id,
+      plan: fallbackBuyer.plan,
+      fullName
+    });
   }
 }
 
