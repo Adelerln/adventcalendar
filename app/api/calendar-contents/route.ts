@@ -86,60 +86,71 @@ export async function POST(req: NextRequest) {
     plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
   };
 
-  // Si c'est une image en data URL et que Supabase est configuré, uploade dans le bucket
-  if (supabaseConfigured && isImageType(data.type) && isDataUrl(data.content)) {
-    try {
-      const uploadedUrl = await uploadDataUrlToSupabase({
-        bucket: CALENDAR_BUCKET,
-        buyerId: session.id,
-        day: data.day,
-        dataUrl: data.content
-      });
-      if (uploadedUrl) {
-        data.content = uploadedUrl;
+  try {
+    // Si c'est une image en data URL et que Supabase est configuré, uploade dans le bucket
+    if (supabaseConfigured && isImageType(data.type) && isDataUrl(data.content)) {
+      try {
+        const uploadedUrl = await uploadDataUrlToSupabase({
+          bucket: CALENDAR_BUCKET,
+          buyerId: session.id,
+          day: data.day,
+          dataUrl: data.content
+        });
+        if (uploadedUrl) {
+          data.content = uploadedUrl;
+        }
+      } catch (err) {
+        console.error("[calendar-contents] upload image to supabase failed, keeping data URL", err);
       }
-    } catch (err) {
-      console.error("[calendar-contents] upload image to supabase failed, keeping data URL", err);
     }
+
+    if (supabaseConfigured) {
+      try {
+        const supabase = supabaseServer();
+        const { error } = await supabase
+          .from("calendar_contents")
+          .upsert(
+            {
+              ...data,
+              updated_at: new Date().toISOString()
+            },
+            { onConflict: "buyer_id,day,type" }
+          );
+
+        if (!error) {
+          return NextResponse.json({ ok: true });
+        }
+
+        console.error("[calendar-contents] supabase upsert failed, falling back to memory store", error);
+      } catch (err) {
+        console.error("[calendar-contents] supabase upsert exception, falling back to memory store", err);
+        // Continue vers le fallback mémoire
+      }
+    }
+  } catch (err) {
+    console.error("[calendar-contents] unexpected error, fallback to memory", err);
+    // Continue vers fallback mémoire
   }
 
-  if (supabaseConfigured) {
-    try {
-      const supabase = supabaseServer();
-      const { error } = await supabase
-        .from("calendar_contents")
-        .upsert(
-          {
-            ...data,
-            updated_at: new Date().toISOString()
-          },
-          { onConflict: "buyer_id,day,type" }
-        );
-
-      if (!error) {
-        return NextResponse.json({ ok: true });
-      }
-
-      console.error("[calendar-contents] supabase upsert failed, falling back to memory store", error);
-    } catch (err) {
-      console.error("[calendar-contents] supabase upsert exception, falling back to memory store", err);
-      // Continue vers le fallback mémoire
-    }
+  // Fallback mémoire (toujours renvoyer 200)
+  try {
+    const key = `${session.id}-${data.day}`;
+    const now = new Date().toISOString();
+    memoryStore.set(key, {
+      buyer_id: data.buyer_id,
+      day: data.day,
+      type: data.type,
+      content: data.content,
+      title: data.title ?? undefined,
+      plan: data.plan,
+      created_at: memoryStore.get(key)?.created_at ?? now,
+      updated_at: now
+    });
+    return NextResponse.json({ ok: true, storage: "memory" });
+  } catch (memErr) {
+    console.error("[calendar-contents] memory fallback failed", memErr);
+    return NextResponse.json({ error: "Impossible d'enregistrer le jour" }, { status: 500 });
   }
-
-  const key = `${session.id}-${data.day}`;
-  const now = new Date().toISOString();
-  memoryStore.set(key, {
-    buyer_id: data.buyer_id,
-    day: data.day,
-    type: data.type,
-    content: data.content,
-    title: data.title ?? undefined,
-    plan: data.plan,
-    created_at: memoryStore.get(key)?.created_at ?? now,
-    updated_at: now
-  });
-  return NextResponse.json({ ok: true, storage: "memory" });
 }
 
 async function uploadDataUrlToSupabase(params: {
