@@ -284,7 +284,7 @@ function isSupabaseEmailConflict(error: unknown) {
     error &&
     typeof error === "object" &&
     "status" in error &&
-    (error as { status?: number }).status === 422
+    ((error as { status?: number }).status === 422 || (error as { status?: number }).status === 409)
   );
 }
 
