@@ -18,12 +18,19 @@ export async function POST(req: NextRequest) {
   }
 
   const normalizedEmail = email.toLowerCase();
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const supabaseConfigured =
+    !!supabaseUrl && !!supabaseServiceRole && !!supabaseAnon;
 
-  if (supabaseUrl && supabaseServiceRole && supabaseAnon) {
-    return handleSupabaseSignIn(normalizedEmail, password);
+  if (supabaseConfigured) {
+    try {
+      return await handleSupabaseSignIn(normalizedEmail, password);
+    } catch (err) {
+      console.error("[api/session] supabase sign-in failed", err);
+      // On passe au fallback in-memory
+    }
   }
 
   const buyer = await findBuyerForFallback(normalizedEmail);
@@ -76,6 +83,8 @@ async function handleSupabaseSignIn(email: string, password: string) {
 }
 
 async function findBuyerForFallback(email: string) {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
   if (db) {
     const { rows } = await db.query(
       `SELECT id, plan, full_name, password_hash FROM buyers WHERE email = $1 LIMIT 1`,
@@ -86,8 +95,6 @@ async function findBuyerForFallback(email: string) {
     }
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (supabaseUrl && supabaseServiceRole) {
     try {
       const supabase = supabaseServer();
