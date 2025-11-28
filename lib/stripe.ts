@@ -26,9 +26,12 @@ function resolveAppHost() {
 
 export function getStripeClient(): Stripe {
   if (stripeClient) return stripeClient;
-  const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey) {
-    throw new Error("STRIPE_SECRET_KEY is not set");
+  const secretKey = process.env.STRIPE_SECRET_KEY || "sk_test_dummy";
+  if (secretKey === "sk_test_dummy") {
+    console.warn(
+      "[stripe] STRIPE_SECRET_KEY manquant. Utilisation d'une clé factice pour éviter l'échec du build. " +
+        "Les appels Stripe réels échoueront tant que la clé n'est pas configurée."
+    );
   }
   const apiVersion = process.env.STRIPE_API_VERSION as Stripe.LatestApiVersion | undefined;
   stripeClient = new Stripe(secretKey, apiVersion ? { apiVersion } : undefined);

@@ -27,8 +27,13 @@ export async function POST(req: Request) {
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const supabaseConfigured =
+      !!supabaseUrl &&
+      !!supabaseServiceRole &&
+      supabaseUrl.trim().length > 0 &&
+      supabaseServiceRole.trim().length > 0;
 
-    if (supabaseUrl && supabaseServiceRole) {
+    if (supabaseConfigured) {
       const supabase = supabaseServer();
       let createdUserId: string | null = null;
 
