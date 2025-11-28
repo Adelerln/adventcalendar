@@ -27,7 +27,6 @@ const schema = z.object({
 });
 
 type MemoryContent = z.infer<typeof schema> & { buyer_id: string; updated_at: string; created_at: string };
-const memoryStore: Map<string, MemoryContent> = new Map();
 
 export const runtime = "nodejs";
 
@@ -35,120 +34,99 @@ const CALENDAR_BUCKET = "calendar-images";
 const isImageType = (t: string) => t === "photo" || t === "drawing" || t === "ai_photo";
 const isDataUrl = (val: string) => typeof val === "string" && val.startsWith("data:");
 
+export function OPTIONS() {
+  // Autoriser les preflight ou appels tests
+  return NextResponse.json({ ok: true });
+}
+
 export async function GET(req: NextRequest) {
   const session = await readBuyerSession(req);
   if (!session) {
     return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
   }
 
-  const supabaseConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  if (supabaseConfigured) {
-    const supabase = supabaseServer();
-    const { data, error } = await supabase
-      .from("calendar_contents")
-      .select("day,type,content,title")
-      .eq("buyer_id", session.id)
-      .order("day", { ascending: true });
-
-    if (error) {
-      console.error("[calendar-contents] supabase fetch failed", error);
-      return NextResponse.json({ error: "Erreur récupération" }, { status: 500 });
-    }
-
-    return NextResponse.json({ items: data ?? [] });
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+  if (!supabaseUrl || !supabaseServiceRole) {
+    return NextResponse.json({ error: "Supabase non configuré" }, { status: 500 });
   }
 
-  const items = Array.from(memoryStore.values())
-    .filter((item) => item.buyer_id === session.id)
-    .map(({ day, type, content, title }) => ({ day, type, content, title }));
-  return NextResponse.json({ items });
+  const supabase = supabaseServer();
+  const { data, error } = await supabase
+    .from("calendar_contents")
+    .select("day,type,content,title")
+    .eq("buyer_id", session.id)
+    .order("day", { ascending: true });
+
+  if (error) {
+    console.error("[calendar-contents] supabase fetch failed", error);
+    return NextResponse.json({ error: "Erreur récupération" }, { status: 500 });
+  }
+
+  return NextResponse.json({ items: data ?? [] });
 }
 
 export async function POST(req: NextRequest) {
-  const session = await readBuyerSession(req);
-  if (!session) {
-    return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
-  }
-
-  const payload = await req.json().catch(() => ({}));
-  const result = schema.safeParse(payload);
-  if (!result.success) {
-    return NextResponse.json({ error: "Payload invalide", details: result.error.flatten() }, { status: 400 });
-  }
-
-  const supabaseConfigured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
-  const data = {
-    buyer_id: session.id,
-    day: result.data.day,
-    type: result.data.type,
-    content: result.data.content,
-    title: result.data.title ?? null,
-    plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
-  };
-
   try {
-    // Si c'est une image en data URL et que Supabase est configuré, uploade dans le bucket
-    if (supabaseConfigured && isImageType(data.type) && isDataUrl(data.content)) {
-      try {
-        const uploadedUrl = await uploadDataUrlToSupabase({
-          bucket: CALENDAR_BUCKET,
-          buyerId: session.id,
-          day: data.day,
-          dataUrl: data.content
-        });
-        if (uploadedUrl) {
-          data.content = uploadedUrl;
-        }
-      } catch (err) {
-        console.error("[calendar-contents] upload image to supabase failed, keeping data URL", err);
-      }
+    const session = await readBuyerSession(req);
+    if (!session) {
+      return NextResponse.json({ error: "Utilisateur non authentifié" }, { status: 401 });
     }
 
-    if (supabaseConfigured) {
-      try {
-        const supabase = supabaseServer();
-        const { error } = await supabase
-          .from("calendar_contents")
-          .upsert(
-            {
-              ...data,
-              updated_at: new Date().toISOString()
-            },
-            { onConflict: "buyer_id,day,type" }
-          );
-
-        if (!error) {
-          return NextResponse.json({ ok: true });
-        }
-
-        console.error("[calendar-contents] supabase upsert failed, falling back to memory store", error);
-      } catch (err) {
-        console.error("[calendar-contents] supabase upsert exception, falling back to memory store", err);
-        // Continue vers le fallback mémoire
-      }
+    const payload = await req.json().catch(() => ({}));
+    const result = schema.safeParse(payload);
+    if (!result.success) {
+      return NextResponse.json({ error: "Payload invalide", details: result.error.flatten() }, { status: 400 });
     }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const supabaseServiceRole = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+    if (!supabaseUrl || !supabaseServiceRole) {
+      return NextResponse.json({ error: "Supabase non configuré" }, { status: 500 });
+    }
+
+    const data = {
+      buyer_id: session.id,
+      day: result.data.day,
+      type: result.data.type,
+      content: result.data.content,
+      title: result.data.title ?? null,
+      plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
+    };
+
+    // Upload image vers Supabase Storage si data URL
+    if (isImageType(data.type) && isDataUrl(data.content)) {
+      const uploadedUrl = await uploadDataUrlToSupabase({
+        bucket: CALENDAR_BUCKET,
+        buyerId: session.id,
+        day: data.day,
+        dataUrl: data.content
+      });
+      if (!uploadedUrl) {
+        return NextResponse.json({ error: "Upload image Supabase échoué" }, { status: 500 });
+      }
+      data.content = uploadedUrl;
+    }
+
+    const supabase = supabaseServer();
+    const { error } = await supabase
+      .from("calendar_contents")
+      .upsert(
+        {
+          ...data,
+          updated_at: new Date().toISOString()
+        },
+        { onConflict: "buyer_id,day,type" }
+      );
+
+    if (error) {
+      console.error("[calendar-contents] supabase upsert failed", error);
+      return NextResponse.json({ error: "Erreur enregistrement Supabase" }, { status: 500 });
+    }
+
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error("[calendar-contents] unexpected error, fallback to memory", err);
-    // Continue vers fallback mémoire
-  }
-
-  // Fallback mémoire (toujours renvoyer 200)
-  try {
-    const key = `${session.id}-${data.day}`;
-    const now = new Date().toISOString();
-    memoryStore.set(key, {
-      buyer_id: data.buyer_id,
-      day: data.day,
-      type: data.type,
-      content: data.content,
-      title: data.title ?? undefined,
-      plan: data.plan,
-      created_at: memoryStore.get(key)?.created_at ?? now,
-      updated_at: now
-    });
-    return NextResponse.json({ ok: true, storage: "memory" });
-  } catch (memErr) {
-    console.error("[calendar-contents] memory fallback failed", memErr);
+    console.error("[calendar-contents] fatal error", err);
     return NextResponse.json({ error: "Impossible d'enregistrer le jour" }, { status: 500 });
   }
 }
@@ -183,6 +161,9 @@ async function uploadDataUrlToSupabase(params: {
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!baseUrl) return null;
+  if (!baseUrl) {
+    console.error("[calendar-contents] NEXT_PUBLIC_SUPABASE_URL manquant pour générer l'URL publique");
+    return null;
+  }
   return `${baseUrl}/storage/v1/object/public/${bucket}/${path}`;
 }
