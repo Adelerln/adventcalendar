@@ -9,6 +9,7 @@ export const runtime = "nodejs";
 
 type PostgresError = {
   code?: string;
+  message?: string;
 };
 
 export async function POST(req: Request) {
@@ -82,7 +83,12 @@ export async function POST(req: Request) {
         });
 
         if (userError || !userResp?.user?.id) {
-          throw userError ?? new Error("Impossible de créer l'utilisateur Supabase");
+          const detail = userError?.message ?? "Impossible de créer l'utilisateur Supabase";
+          console.error("Supabase auth createUser failed", userError);
+          return NextResponse.json(
+            { error: "Création utilisateur Supabase échouée", details: detail },
+            { status: 500 }
+          );
         }
 
         createdUserId = userResp.user.id;
@@ -107,7 +113,11 @@ export async function POST(req: Request) {
           if (createdUserId) {
             await supabase.auth.admin.deleteUser(createdUserId).catch(() => {});
           }
-          throw supabaseError ?? new Error("Impossible d'enregistrer l'acheteur");
+          console.error("Supabase insert buyer failed", supabaseError);
+          return NextResponse.json(
+            { error: "Création buyer Supabase échouée", details: supabaseError?.message ?? "Erreur inconnue" },
+            { status: 500 }
+          );
         }
 
         return respondWithSession({
@@ -185,7 +195,11 @@ export async function POST(req: Request) {
                 .maybeSingle();
 
               if (updateError || !updatedBuyer) {
-                throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
+                console.error("Supabase update existing buyer (no email) failed", updateError);
+                return NextResponse.json(
+                  { error: "Impossible de mettre à jour l'acheteur existant", details: updateError?.message },
+                  { status: 500 }
+                );
               }
 
               return respondWithSession({
@@ -214,7 +228,11 @@ export async function POST(req: Request) {
               .maybeSingle();
 
             if (updateError || !updatedBuyer) {
-              throw updateError ?? new Error("Impossible de mettre à jour l'acheteur existant");
+              console.error("Supabase update existing buyer failed", updateError);
+              return NextResponse.json(
+                { error: "Impossible de mettre à jour l'acheteur existant", details: updateError?.message },
+                { status: 500 }
+              );
             }
 
             return respondWithSession({
@@ -224,7 +242,10 @@ export async function POST(req: Request) {
             });
           } catch (reuseError) {
             console.error("Supabase reuse existing auth user failed", reuseError);
-            return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+            return NextResponse.json(
+              { error: "Email déjà utilisé", details: reuseError instanceof Error ? reuseError.message : String(reuseError) },
+              { status: 409 }
+            );
           }
         }
         console.error("Supabase buyers insert failed, falling back to in-memory store", error);
@@ -251,11 +272,14 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     if (isPgUniqueViolation(error)) {
-      return NextResponse.json({ error: "Email déjà utilisé" }, { status: 409 });
+      return NextResponse.json(
+        { error: "Email déjà utilisé", details: (error as PostgresError)?.message },
+        { status: 409 }
+      );
     }
     const message = error instanceof Error ? error.message : "Erreur serveur";
     console.error("Error creating buyer", error);
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message, details: (error as PostgresError)?.message }, { status: 500 });
   }
 }
 
