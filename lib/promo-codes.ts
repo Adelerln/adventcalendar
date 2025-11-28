@@ -13,9 +13,21 @@
 
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  apiVersion: "2025-10-29.clover",
-});
+let stripeClient: Stripe | null = null;
+
+function getPromoStripe() {
+  if (stripeClient) return stripeClient;
+  const secret = process.env.STRIPE_SECRET_KEY || "sk_test_dummy";
+  if (secret === "sk_test_dummy") {
+    console.warn(
+      "[promo-codes] STRIPE_SECRET_KEY manquant. Utilisation d'une clé factice (les appels Stripe réels échoueront)."
+    );
+  }
+  stripeClient = new Stripe(secret, {
+    apiVersion: "2025-10-29.clover",
+  });
+  return stripeClient;
+}
 
 export type StripePromoCode = {
   id: string;
@@ -61,6 +73,7 @@ export async function validatePromoCode(
   const normalizedCode = code.trim().toUpperCase();
 
   try {
+    const stripe = getPromoStripe();
     // ✅ Récupérer le promotion code depuis Stripe
     const promoCodes = await stripe.promotionCodes.list({
       code: normalizedCode,
@@ -143,6 +156,7 @@ export async function getPromoCodeById(
   promoCodeId: string
 ): Promise<StripePromoCode | null> {
   try {
+    const stripe = getPromoStripe();
     const promoCode = (await stripe.promotionCodes.retrieve(promoCodeId, {
       expand: ['coupon'],
     })) as any;
@@ -181,6 +195,7 @@ export async function createStripePromoCode(params: {
   expiresAt?: number; // Unix timestamp
 }): Promise<StripePromoCode | null> {
   try {
+    const stripe = getPromoStripe();
     // 1. Créer le Coupon
     const couponParams: Stripe.CouponCreateParams = {
       name: params.code,
