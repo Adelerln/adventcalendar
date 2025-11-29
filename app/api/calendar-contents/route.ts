@@ -126,9 +126,10 @@ export async function POST(req: NextRequest) {
         source: data.content
       });
       if (!uploadedAudio) {
-        return NextResponse.json({ error: "Upload audio Supabase échoué" }, { status: 500 });
+        console.warn("[calendar-contents] upload audio échoué, conservation du lien original");
+      } else {
+        data.content = uploadedAudio;
       }
-      data.content = uploadedAudio;
     }
 
     const supabase = supabaseServer();
