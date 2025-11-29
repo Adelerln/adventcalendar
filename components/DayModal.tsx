@@ -147,7 +147,7 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                     className="rounded-xl"
                   ></iframe>
                 </div>
-              ) : (
+              ) : isAudioPlayable(content.music) ? (
                 /* Fallback pour les fichiers audio classiques */
                 <audio 
                   controls 
@@ -156,6 +156,10 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                 >
                   Votre navigateur ne supporte pas la lecture audio.
                 </audio>
+              ) : (
+                <p className="text-sm text-green-900 dark:text-green-100 italic">
+                  Fichier audio indisponible ou lien invalide.
+                </p>
               )}
             </div>
           )}
@@ -173,4 +177,10 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
       </div>
     </div>
   );
+}
+
+function isAudioPlayable(src: string) {
+  if (!src) return false;
+  const lower = src.toLowerCase();
+  return lower.startsWith("http") || lower.startsWith("data:audio") || lower.startsWith("blob:");
 }

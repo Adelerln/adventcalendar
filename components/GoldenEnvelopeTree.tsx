@@ -1169,20 +1169,40 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
               </motion.span>
               <h3 className="text-2xl font-bold text-emerald-200 drop-shadow-lg">Musique du jour</h3>
             </div>
-            <audio 
-              controls 
-              className="w-full h-16 rounded-xl" 
-              src={content.music} 
-              autoPlay
-              style={{
-                filter: 'drop-shadow(0 4px 20px rgba(16,185,129,0.4))',
-              }}
-            >
-              Votre navigateur ne supporte pas la lecture audio.
-            </audio>
+            {content.music.includes("spotify.com") ? (
+              <iframe
+                src={content.music.replace("open.spotify.com/track/", "open.spotify.com/embed/track/") + "?theme=0"}
+                width="100%"
+                height="152"
+                frameBorder="0"
+                allow="encrypted-media"
+                title="Spotify player"
+                className="rounded-xl"
+              ></iframe>
+            ) : isAudioPlayable(content.music) ? (
+              <audio 
+                controls 
+                className="w-full h-16 rounded-xl" 
+                src={content.music} 
+                autoPlay
+                style={{
+                  filter: 'drop-shadow(0 4px 20px rgba(16,185,129,0.4))',
+                }}
+              >
+                Votre navigateur ne supporte pas la lecture audio.
+              </audio>
+            ) : (
+              <p className="text-sm text-white/80 italic">Fichier audio indisponible ou lien invalide.</p>
+            )}
           </motion.div>
         )}
       </motion.div>
     </motion.div>
   );
+}
+
+function isAudioPlayable(src: string) {
+  if (!src) return false;
+  const lower = src.toLowerCase();
+  return lower.startsWith("http") || lower.startsWith("data:audio") || lower.startsWith("blob:");
 }
