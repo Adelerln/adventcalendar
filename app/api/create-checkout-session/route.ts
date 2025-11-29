@@ -128,13 +128,15 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    const funnelReturn = `${host}/checkout?plan=${pricing.plan}&payment=success`;
+
     const stripeSession = await createCheckoutSession({
       amountCents: pricing.amountCents,
       planLabel: pricing.label,
       buyerId: session.id,
       projectId: project.id,
-      successUrl: `${host}/dashboard?payment=success`,
-      cancelUrl: `${host}/dashboard?payment=cancelled`,
+      successUrl: funnelReturn,
+      cancelUrl: `${host}/checkout?plan=${pricing.plan}&payment=cancelled`,
       metadata: { plan: pricing.plan },
       promotionCodeId
     });
