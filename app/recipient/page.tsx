@@ -28,6 +28,24 @@ function RecipientPageContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Prefill depuis un stockage local
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem("recipient_info");
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data.fullName) setFullName(data.fullName);
+        if (data.email) setEmail(data.email);
+        if (data.phone) setPhone(data.phone);
+        if (data.relationship) setRelationship(data.relationship);
+        if (data.notes) setNotes(data.notes);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setError(null);
@@ -46,6 +64,12 @@ function RecipientPageContent() {
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || "Impossible d'enregistrer le receveur");
+      }
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "recipient_info",
+          JSON.stringify({ fullName, email, phone, relationship, notes })
+        );
       }
       const params = new URLSearchParams({
         plan: planKey,

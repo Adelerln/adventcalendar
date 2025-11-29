@@ -55,10 +55,11 @@ function CheckoutPageContent() {
     setError(null);
     setLoading(true);
     try {
+      const search = typeof window !== "undefined" ? window.location.search : "";
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({})
+        body: JSON.stringify({ query: search })
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));

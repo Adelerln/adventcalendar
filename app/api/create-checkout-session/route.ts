@@ -27,7 +27,8 @@ const payloadSchema = z.object({
   projectId: z.string().uuid().optional(),
   imageFile: z.string().max(2048).nullable().optional(),
   prompt: z.string().max(4000).nullable().optional(),
-  promoCode: z.string().max(64).optional()
+  promoCode: z.string().max(64).optional(),
+  query: z.string().optional()
 });
 
 export async function POST(req: NextRequest) {
@@ -42,9 +43,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payload invalide", details: bodyResult.error.flatten() }, { status: 400 });
     }
 
-    const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
+    const { projectId, imageFile, prompt, promoCode, query } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
     const promotionCodeId = process.env.STRIPE_PROMOTION_CODE_ID?.trim() || undefined;
+    const baseQuery = query?.replace(/^\?/, "") || `plan=${pricing.plan}`;
+    const successQuery = baseQuery.includes("payment=") ? baseQuery : `${baseQuery}&payment=success`;
+    const cancelQuery = baseQuery.includes("payment=") ? baseQuery : `${baseQuery}&payment=cancelled`;
 
     // ✅ Valider le code promo via DB au lieu de hardcodé
     let promoApplied = false;
@@ -128,7 +132,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const funnelReturn = `${host}/checkout/success?plan=${pricing.plan}&payment=success`;
+    const funnelReturn = `${host}/checkout/success?${successQuery}`;
 
     const stripeSession = await createCheckoutSession({
       amountCents: pricing.amountCents,
@@ -136,7 +140,7 @@ export async function POST(req: NextRequest) {
       buyerId: session.id,
       projectId: project.id,
       successUrl: funnelReturn,
-      cancelUrl: `${host}/checkout/cancel?plan=${pricing.plan}&payment=cancelled`,
+      cancelUrl: `${host}/checkout?${cancelQuery}`,
       metadata: { plan: pricing.plan },
       promotionCodeId
     });
