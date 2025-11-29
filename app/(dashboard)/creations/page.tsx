@@ -125,13 +125,6 @@ export default function CreationsPage() {
               Retrouve tes calendriers en cours et continue la confection sans rien perdre.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => router.push("/calendars/new?stage=plan")}
-            className={`${planTheme.ctaBg} ${planTheme.ctaHover} ${planTheme.ctaText} px-4 py-3 rounded-full font-semibold shadow-lg`}
-          >
-            Créer un nouveau projet
-          </button>
         </div>
 
         {loading && (
@@ -192,6 +185,13 @@ export default function CreationsPage() {
                       className="px-5 py-3 rounded-full bg-white text-red-700 font-semibold shadow-md"
                     >
                       Continuer la confection
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/recipient/dashboard")}
+                      className="px-5 py-3 rounded-full border-2 border-white/60 text-white font-semibold hover:bg-white/10"
+                    >
+                      Aperçu côté destinataire
                     </button>
                   </div>
                 </div>
