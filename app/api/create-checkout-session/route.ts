@@ -44,8 +44,7 @@ export async function POST(req: NextRequest) {
 
     const { projectId, imageFile, prompt, promoCode } = bodyResult.data;
     const pricing = getPlanPricing(session.plan);
-    const promotionCodeId =
-      (process.env.STRIPE_PROMOTION_CODE_ID ?? "promo_1SYBLtRnfGZyYNCotmXQ250s").trim() || undefined;
+    const promotionCodeId = process.env.STRIPE_PROMOTION_CODE_ID?.trim() || undefined;
 
     // ✅ Valider le code promo via DB au lieu de hardcodé
     let promoApplied = false;
