@@ -29,14 +29,19 @@ export default function CreationsPage() {
     setLoading(true);
     setError(null);
     fetch("/api/calendar-contents")
-      .then((res) => {
+      .then(async (res) => {
+        const text = await res.text();
+        let json: any = null;
+        try {
+          json = text ? JSON.parse(text) : null;
+        } catch {
+          /* ignore parse error */
+        }
         if (!res.ok) {
           if (res.status === 401) throw new Error("Reconnecte-toi pour récupérer tes créations.");
-          return res.json().then((b) => {
-            throw new Error(b?.error || "Impossible de charger tes créations.");
-          });
+          throw new Error(json?.error || "Impossible de charger tes créations.");
         }
-        return res.json();
+        return json;
       })
       .then((data) => {
         if (cancelled) return;

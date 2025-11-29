@@ -262,15 +262,23 @@ export default function MarketingHomePage() {
               Offre 24 jours de surprises personnalisées avec des messages, photos, dessins et musiques
             </p>
 
-            <a 
-              href={ctaHref}
-              className="inline-block px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
-              style={{
-                background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
-              }}
-            >
-              Continuer le calendrier
-            </a>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <a 
+                href={ctaHref}
+                className="inline-block px-8 sm:px-10 py-3 sm:py-4 text-base sm:text-lg font-bold text-[#4a0808] rounded-full shadow-2xl hover:scale-105 transition-transform duration-300 border-2 border-[#4a0808]"
+                style={{
+                  background: 'linear-gradient(135deg, #d4af37 0%, #e8d5a8 50%, #d4af37 100%)',
+                }}
+              >
+                Crée ton calendrier
+              </a>
+              <a
+                href="/creations"
+                className="inline-block px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold text-white rounded-full border-2 border-white/40 bg-white/10 hover:bg-white/20 transition"
+              >
+                Continue tes créations
+              </a>
+            </div>
           </motion.div>
 
           {/* Exemple miniature à droite */}
