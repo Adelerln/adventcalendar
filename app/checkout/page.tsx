@@ -47,6 +47,7 @@ function CheckoutPageContent() {
   const relationship = searchParams?.get("relationship") || "Proche";
   const deliveryDate = searchParams?.get("delivery_date") ? new Date(searchParams.get("delivery_date")!).toLocaleDateString("fr-FR") : null;
   const recipientEmail = searchParams?.get("recipient_email");
+  const recipientPhone = searchParams?.get("recipient_phone");
   const notes = searchParams?.get("notes");
   const filled = searchParams?.get("filled");
 
@@ -173,6 +174,9 @@ function CheckoutPageContent() {
               )}
               {recipientEmail && (
                 <p className="text-sm text-white/70">Email : {recipientEmail}</p>
+              )}
+              {recipientPhone && (
+                <p className="text-sm text-white/70">Téléphone : {recipientPhone}</p>
               )}
               {notes && (
                 <div>

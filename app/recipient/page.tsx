@@ -22,6 +22,7 @@ function RecipientPageContent() {
   const filled = Number(searchParams?.get("filled") ?? "0");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [relationship, setRelationship] = useState("");
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,7 @@ function RecipientPageContent() {
         body: JSON.stringify({
           fullName,
           email,
-          phone: null,
+          phone,
           relationship
         })
       });
@@ -51,6 +52,7 @@ function RecipientPageContent() {
         filled: String(filled),
         recipient_name: fullName,
         recipient_email: email,
+        recipient_phone: phone,
         relationship,
         notes
       });
@@ -147,6 +149,17 @@ function RecipientPageContent() {
               </div>
 
               <div className="grid gap-6">
+                <label className="text-sm font-semibold text-white">
+                  Téléphone du receveur (optionnel)
+                  <input
+                    name="recipient_phone"
+                    type="tel"
+                    placeholder="+33 6 12 34 56 78"
+                    className="mt-2 w-full rounded-2xl border-2 border-white/20 bg-white/10 backdrop-blur px-4 py-3 text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-[#d4af37]"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
+                </label>
                 <label className="text-sm font-semibold text-white">
                   Relation
                   <input
