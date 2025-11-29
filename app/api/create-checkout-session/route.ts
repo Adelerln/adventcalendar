@@ -136,7 +136,7 @@ export async function POST(req: NextRequest) {
       buyerId: session.id,
       projectId: project.id,
       successUrl: funnelReturn,
-      cancelUrl: `${host}/checkout?plan=${pricing.plan}&payment=cancelled`,
+      cancelUrl: `${host}/checkout/cancel?plan=${pricing.plan}&payment=cancelled`,
       metadata: { plan: pricing.plan },
       promotionCodeId
     });
