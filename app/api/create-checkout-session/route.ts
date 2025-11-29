@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const funnelReturn = `${host}/checkout?plan=${pricing.plan}&payment=success`;
+    const funnelReturn = `${host}/checkout/success?plan=${pricing.plan}&payment=success`;
 
     const stripeSession = await createCheckoutSession({
       amountCents: pricing.amountCents,
