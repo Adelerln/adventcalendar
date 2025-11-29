@@ -1,9 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { PLAN_APPEARANCE, type PlanKey, DEFAULT_PLAN } from "@/lib/plan-theme";
+
+const GoldenEnvelopeTree = dynamic(() => import("@/components/GoldenEnvelopeTree"), { ssr: false });
 
 type CalendarItem = {
   day: number;
@@ -76,6 +79,34 @@ export default function CreationsPage() {
 
   const planTheme = PLAN_APPEARANCE[stats.plan];
   const empty = items.length === 0;
+
+  const days = useMemo(() => {
+    const perDay = new Map<
+      number,
+      { day: number; photo: string | null; message: string | null; drawing: string | null; music: string | null }
+    >();
+    for (const item of items) {
+      const existing = perDay.get(item.day) ?? { day: item.day, photo: null, message: null, drawing: null, music: null };
+      if (item.type === "photo" || item.type === "ai_photo") existing.photo = item.content;
+      if (item.type === "message") existing.message = item.content;
+      if (item.type === "drawing") existing.drawing = item.content;
+      if (item.type === "music" || item.type === "voice") existing.music = item.content;
+      perDay.set(item.day, existing);
+    }
+    return Array.from({ length: 24 }, (_, idx) => {
+      const dayNum = idx + 1;
+      const data = perDay.get(dayNum);
+      return {
+        day: dayNum,
+        isUnlocked: Boolean(data),
+        isToday: false,
+        photo: data?.photo ?? null,
+        message: data?.message ?? null,
+        drawing: data?.drawing ?? null,
+        music: data?.music ?? null
+      };
+    });
+  }, [items]);
 
   const handleNameChange = (value: string) => {
     setCalendarName(value);
@@ -176,6 +207,15 @@ export default function CreationsPage() {
                     <InfoPill label="Dessins" value={stats.counts.drawing ?? 0} />
                     <InfoPill label="Messages" value={stats.counts.message ?? 0} />
                     <InfoPill label="Audio/Musique" value={(stats.counts.music ?? 0) + (stats.counts.voice ?? 0)} />
+                  </div>
+
+                  <div className="rounded-2xl border border-white/15 bg-white/10 p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm text-white/80">Aperçu côté receveur</p>
+                    </div>
+                    <div className="rounded-xl overflow-hidden bg-white/5 border border-white/10 p-2">
+                      <GoldenEnvelopeTree days={days} onDayClick={() => {}} hideBackground />
+                    </div>
                   </div>
 
                   <div className="flex gap-3 flex-wrap">
