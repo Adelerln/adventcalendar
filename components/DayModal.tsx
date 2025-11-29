@@ -98,10 +98,10 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
 
           {/* Drawing */}
           {content.drawing && (
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950 dark:to-blue-950 rounded-xl sm:rounded-2xl p-4 sm:p-6 border-2 border-purple-200 dark:border-purple-800">
+            <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950 dark:to-orange-950 rounded-xl sm:rounded-2xl p-4 sm:p-6 border-2 border-amber-200/70 dark:border-amber-800/70 shadow-lg">
               <div className="flex items-start gap-2 sm:gap-3 mb-3">
                 <span className="text-2xl sm:text-3xl flex-shrink-0">🎨</span>
-                <h3 className="font-bold text-base sm:text-lg text-purple-800 dark:text-purple-200">Dessin personnalisé</h3>
+                <h3 className="font-bold text-base sm:text-lg text-amber-800 dark:text-amber-100">Dessin personnalisé</h3>
               </div>
               <div className="rounded-xl overflow-hidden bg-white dark:bg-gray-900 p-2 sm:p-4">
                 <img 
@@ -115,11 +115,11 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
 
           {/* Music */}
           {content.music && (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950 dark:to-emerald-950 rounded-xl sm:rounded-2xl p-4 sm:p-6 border-2 border-green-200 dark:border-green-800">
+            <div className="bg-gradient-to-br from-amber-50 to-emerald-50 dark:from-amber-950 dark:to-emerald-900 rounded-xl sm:rounded-2xl p-4 sm:p-6 border-2 border-amber-200/70 dark:border-amber-800/70 shadow-lg">
               <div className="flex items-start gap-2 sm:gap-3 mb-3 sm:mb-4">
                 <span className="text-2xl sm:text-3xl flex-shrink-0">🎵</span>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-base sm:text-lg text-green-800 dark:text-green-200">
+                  <h3 className="font-bold text-base sm:text-lg text-emerald-900 dark:text-emerald-100">
                     Musique du jour
                   </h3>
                 </div>
@@ -127,8 +127,8 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
               
               {/* Message personnel si présent */}
               {content.musicTitle && (
-                <div className="mb-4 p-3 sm:p-4 bg-white/50 dark:bg-black/20 rounded-lg border border-green-200 dark:border-green-700">
-                  <p className="text-sm sm:text-base text-green-900 dark:text-green-100 italic whitespace-pre-wrap">
+                <div className="mb-4 p-3 sm:p-4 bg-white/60 dark:bg-black/20 rounded-lg border border-amber-200/60 dark:border-amber-700/60">
+                  <p className="text-sm sm:text-base text-emerald-900 dark:text-emerald-100 italic whitespace-pre-wrap">
                     "{content.musicTitle}"
                   </p>
                 </div>
@@ -153,11 +153,12 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                   controls 
                   className="w-full rounded-lg"
                   src={content.music}
+                  preload="metadata"
                 >
                   Votre navigateur ne supporte pas la lecture audio.
                 </audio>
               ) : (
-                <p className="text-sm text-green-900 dark:text-green-100 italic">
+                <p className="text-sm text-emerald-900 dark:text-emerald-100 italic">
                   Fichier audio indisponible ou lien invalide.
                 </p>
               )}

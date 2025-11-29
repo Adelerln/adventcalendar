@@ -1150,10 +1150,10 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
             transition={{ delay: 0.7, duration: 0.5, type: "spring" }}
             className="mb-8 rounded-2xl p-8 relative overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(5,150,105,0.2) 100%)',
+              background: 'linear-gradient(135deg, rgba(255,237,213,0.3) 0%, rgba(253,230,138,0.25) 100%)',
               backdropFilter: 'blur(10px)',
-              border: '2px solid rgba(16,185,129,0.4)',
-              boxShadow: '0 0 40px rgba(16,185,129,0.3)',
+              border: '2px solid rgba(251,191,36,0.4)',
+              boxShadow: '0 0 40px rgba(251,191,36,0.25)',
             }}
           >
             <div className="flex items-center gap-4 mb-6">
@@ -1167,7 +1167,7 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
               >
                 🎵
               </motion.span>
-              <h3 className="text-2xl font-bold text-emerald-200 drop-shadow-lg">Musique du jour</h3>
+              <h3 className="text-2xl font-bold text-amber-200 drop-shadow-lg">Musique du jour</h3>
             </div>
             {content.music.includes("spotify.com") ? (
               <iframe
@@ -1184,9 +1184,9 @@ function EnvelopeContent({ content, onClose }: { content: DayBox | null; onClose
                 controls 
                 className="w-full h-16 rounded-xl" 
                 src={content.music} 
-                autoPlay
+                preload="metadata"
                 style={{
-                  filter: 'drop-shadow(0 4px 20px rgba(16,185,129,0.4))',
+                  filter: 'drop-shadow(0 4px 20px rgba(251,191,36,0.35))',
                 }}
               >
                 Votre navigateur ne supporte pas la lecture audio.
