@@ -32,6 +32,8 @@ function NewCalendarPageContent() {
   const searchParams = useSearchParams();
   const planFromUrl = searchParams.get("plan") as Plan | null;
   const stageParam = searchParams.get("stage");
+  const isNewCalendar = searchParams.get("new") === "true";
+  
   const planFromQuery = useMemo<Plan>(() => {
     if (planFromUrl === "plan_essentiel" || planFromUrl === "plan_premium") {
       return planFromUrl;
@@ -49,17 +51,51 @@ function NewCalendarPageContent() {
   const [session, setSession] = useState<{ id: string; name: string; plan: PlanKey } | null>(null);
   const [sessionLoaded, setSessionLoaded] = useState(false);
   const [saveFeedback, setSaveFeedback] = useState<string | null>(null);
+  const [currentCalendarId, setCurrentCalendarId] = useState<string | null>(null);
   const draftLoadedRef = useRef(false);
   const draftLoadedKeyRef = useRef<string | null>(null);
   const draftToastRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoSaveRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const newCalendarInitializedRef = useRef(false);
   const router = useRouter();
 
-  // Charger les contenus déjà enregistrés
+  // Initialiser ou récupérer le calendar_id depuis localStorage
   useEffect(() => {
-    if (!session) return;
+    if (typeof window === "undefined") return;
+    const storedCalendarId = localStorage.getItem("current_calendar_id");
+    if (storedCalendarId) {
+      setCurrentCalendarId(storedCalendarId);
+    } else {
+      // Pour les anciens calendriers, utiliser null (calendrier par défaut)
+      setCurrentCalendarId(null);
+    }
+  }, []);
+
+  // Si c'est un nouveau calendrier, ne pas charger les anciennes données
+  useEffect(() => {
+    if (isNewCalendar && !newCalendarInitializedRef.current) {
+      newCalendarInitializedRef.current = true;
+      // Générer un nouvel ID unique pour ce calendrier
+      const newId = crypto.randomUUID();
+      setCurrentCalendarId(newId);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("current_calendar_id", newId);
+      }
+      // Ne rien charger, garder les états vides
+      setCalendarData({});
+      setSaveFeedback("✨ Nouveau calendrier créé ! Commence à ajouter du contenu.");
+      setTimeout(() => setSaveFeedback(null), 4000);
+    }
+  }, [isNewCalendar]);
+
+  // Charger les contenus déjà enregistrés (seulement si ce n'est pas un nouveau calendrier)
+  useEffect(() => {
+    if (!session || isNewCalendar || currentCalendarId === undefined) return;
     let cancelled = false;
-    fetch("/api/calendar-contents")
+    const url = currentCalendarId 
+      ? `/api/calendar-contents?calendar_id=${currentCalendarId}`
+      : "/api/calendar-contents";
+    fetch(url)
       .then((res) => res.ok ? res.json() : Promise.reject(res))
       .then((data) => {
         if (cancelled || !data?.items) return;
@@ -79,7 +115,7 @@ function NewCalendarPageContent() {
     return () => {
       cancelled = true;
     };
-  }, [session]);
+  }, [session, isNewCalendar, currentCalendarId]);
 
   useEffect(() => {
     if (stageParam === "plan") {
@@ -135,9 +171,9 @@ function NewCalendarPageContent() {
     }
   }, [sessionLoaded, session, router]);
 
-  // Charger un brouillon local si disponible
+  // Charger un brouillon local si disponible (sauf si c'est un nouveau calendrier)
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isNewCalendar) return;
     const candidateKeys = [draftKey, "calendar_draft_guest"].filter(
       (k, idx, arr) => k && arr.indexOf(k) === idx
     ) as string[];
@@ -161,7 +197,7 @@ function NewCalendarPageContent() {
     } catch (err) {
       console.warn("Impossible de charger le brouillon du calendrier:", err);
     }
-  }, [draftKey]);
+  }, [draftKey, isNewCalendar]);
 
   useEffect(() => {
     return () => {
@@ -194,7 +230,8 @@ function NewCalendarPageContent() {
           type: content.type,
           content: content.content,
           title: content.title,
-          plan: selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN
+          plan: selectedPlan ?? planFromQuery ?? session?.plan ?? DEFAULT_PLAN,
+          calendar_id: currentCalendarId
         })
       });
       if (!res.ok) {

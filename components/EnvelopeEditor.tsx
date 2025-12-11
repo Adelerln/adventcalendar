@@ -36,7 +36,13 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   // --- IA Photo (nano-banana) ---
   const [aiPhotoFile, setAiPhotoFile] = useState<File | null>(null);
   const [aiPhotoPrompt, setAiPhotoPrompt] = useState("");
-  const [aiPhotoUrl, setAiPhotoUrl] = useState<string | null>(null);
+  const [aiPhotoUrl, setAiPhotoUrl] = useState<string | null>(() => {
+    // Initialiser avec le contenu existant si c'est une photo IA
+    if (initialContent?.type === "ai_photo" && initialContent.content) {
+      return initialContent.content;
+    }
+    return null;
+  });
   const [aiPhotoLoading, setAiPhotoLoading] = useState(false);
 
   async function handleGenerateAiPhoto() {
@@ -90,10 +96,19 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
   const selectionButtonClass = `h-full text-left p-6 border-2 border-gray-200 dark:border-gray-700 rounded-xl transition-all group flex flex-col justify-between ${selectionHover} dark:hover:bg-gray-900/40`;
 
   const handleSave = () => {
-    if (!selectedType || !content) return;
-
+    if (!selectedType) return;
+    
+    // Pour les photos IA, utiliser aiPhotoUrl
+    let finalContent = content;
+    if (selectedType === "ai_photo" && aiPhotoUrl) {
+      finalContent = aiPhotoUrl;
+    }
     // Pour la musique, si on a un lien MP3, l'utiliser en priorité
-    const finalContent = selectedType === "music" && mp3Url ? mp3Url : content;
+    else if (selectedType === "music" && mp3Url) {
+      finalContent = mp3Url;
+    }
+
+    if (!finalContent) return;
 
     onSave({
       type: selectedType,
@@ -243,6 +258,22 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                 </div>
               )}
 
+              {/* Champ de message optionnel */}
+              {content && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
+                    Message avec la photo (optionnel) 💌
+                  </label>
+                  <textarea
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Ajoute un petit mot pour accompagner cette photo..."
+                    rows={3}
+                    className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium mb-2">Titre (optionnel)</label>
                 <div className="relative">
@@ -332,6 +363,22 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
               {content && (
                 <div className="relative rounded-lg overflow-hidden bg-gray-50 dark:bg-gray-900 p-4">
                   <img src={content} alt="Drawing preview" className="w-full h-auto" />
+                </div>
+              )}
+              
+              {/* Champ de message optionnel */}
+              {content && (
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
+                    Message avec le dessin (optionnel) 💌
+                  </label>
+                  <textarea
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Ajoute un petit mot pour accompagner ce dessin..."
+                    rows={3}
+                    className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500"
+                  />
                 </div>
               )}
             </div>
@@ -484,6 +531,20 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                     <audio controls src={content} className="w-full rounded-lg" />
                   </div>
                   
+                  {/* Champ de message optionnel */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
+                      Message écrit avec le vocal (optionnel) 💌
+                    </label>
+                    <textarea
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Ajoute un petit mot pour accompagner ce message vocal..."
+                      rows={3}
+                      className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500"
+                    />
+                  </div>
+                  
                   <button
                     onClick={() => setContent("")}
                     className="w-full py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-900 dark:text-gray-100"
@@ -567,6 +628,21 @@ export default function EnvelopeEditor({ day, initialContent, allowMusic, plan, 
                       ⬇️
                     </a>
                   </div>
+                  
+                  {/* Champ de message optionnel */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
+                      Message avec l'image IA (optionnel) 💌
+                    </label>
+                    <textarea
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Ajoute un petit mot pour accompagner cette image..."
+                      rows={3}
+                      className="w-full border-2 border-gray-200 dark:border-gray-700 rounded-lg p-3 bg-white dark:bg-gray-900 resize-none text-gray-900 dark:text-gray-100 placeholder:text-gray-500"
+                    />
+                  </div>
+                  
                   <button
                     type="button"
                     onClick={() => {

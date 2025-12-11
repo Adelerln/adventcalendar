@@ -10,9 +10,12 @@ type DayBox = {
   isUnlocked: boolean;
   isToday: boolean;
   photo?: string | null;
+  photoTitle?: string | null;
   message?: string | null;
   drawing?: string | null;
+  drawingTitle?: string | null;
   music?: string | null;
+  musicTitle?: string | null;
 };
 
 type GoldenEnvelopeTreeProps = {

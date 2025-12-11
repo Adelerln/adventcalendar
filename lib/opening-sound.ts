@@ -3,6 +3,9 @@
  * Paillettes scintillantes continues pendant toute l'animation d'ouverture
  */
 export function playOpeningSound() {
+  // Son désactivé
+  return;
+  
   const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
   const now = audioContext.currentTime;
   const duration = 2.5; // Durée totale pour accompagner l'animation

@@ -6,8 +6,10 @@ import { playOpeningSound } from "@/lib/opening-sound";
 type DayContent = {
   day: number;
   photo?: string | null;
+  photoTitle?: string | null;
   message?: string | null;
   drawing?: string | null;
+  drawingTitle?: string | null;
   music?: string | null;
   musicTitle?: string | null;
 };
@@ -72,12 +74,24 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
         <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Photo */}
           {content.photo && (
-            <div className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
-              <img 
-                src={content.photo} 
-                alt={`Jour ${content.day}`}
-                className="w-full h-auto object-cover"
-              />
+            <div className="space-y-3">
+              <div className="rounded-xl sm:rounded-2xl overflow-hidden shadow-lg">
+                <img 
+                  src={content.photo} 
+                  alt={`Jour ${content.day}`}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+              {content.photoTitle && (
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950 dark:to-cyan-950 rounded-xl p-4 border-2 border-blue-200 dark:border-blue-800">
+                  <div className="flex items-start gap-2">
+                    <span className="text-xl flex-shrink-0">💌</span>
+                    <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed italic">
+                      "{content.photoTitle}"
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -110,6 +124,16 @@ export default function DayModal({ isOpen, onClose, content }: DayModalProps) {
                   className="w-full h-auto"
                 />
               </div>
+              {content.drawingTitle && (
+                <div className="mt-3 p-3 bg-white/60 dark:bg-black/20 rounded-lg border border-amber-200/60 dark:border-amber-700/60">
+                  <div className="flex items-start gap-2">
+                    <span className="text-lg flex-shrink-0">💌</span>
+                    <p className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap leading-relaxed italic">
+                      "{content.drawingTitle}"
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

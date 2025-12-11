@@ -25,7 +25,9 @@ const schema = z.object({
     .nullable()
     .optional()
     .transform((val) => (val ? sanitize(val) : val)),
-  plan: z.enum(["plan_essentiel", "plan_premium"]).optional()
+  plan: z.enum(["plan_essentiel", "plan_premium"]).optional(),
+  // ✅ Ajouter calendar_id (optionnel pour compatibilité)
+  calendar_id: z.string().uuid().nullable().optional()
 });
 
 type MemoryContent = z.infer<typeof schema> & { buyer_id: string; updated_at: string; created_at: string };
@@ -62,19 +64,32 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Supabase non configuré" }, { status: 500 });
   }
 
+  // Récupérer le calendar_id depuis les query params (optionnel)
+  const { searchParams } = new URL(req.url);
+  const calendarId = searchParams.get("calendar_id");
+
   const supabase = supabaseServer();
-  const { data, error } = await supabase
+  let query = supabase
     .from("calendar_contents")
-    .select("day,type,content,title")
-    .eq("buyer_id", session.id)
-    .order("day", { ascending: true });
+    .select("day,type,content,title,calendar_id")
+    .eq("buyer_id", session.id);
+
+  // Filtrer par calendar_id si fourni
+  if (calendarId) {
+    query = query.eq("calendar_id", calendarId);
+  } else {
+    // Si pas de calendar_id spécifié, charger le calendrier "par défaut" (calendar_id = null)
+    query = query.is("calendar_id", null);
+  }
+
+  const { data, error } = await query.order("day", { ascending: true });
 
   if (error) {
     console.error("[calendar-contents] supabase fetch failed", error);
     return NextResponse.json({ error: "Erreur récupération" }, { status: 500 });
   }
 
-  return NextResponse.json({ items: data ?? [] });
+  return NextResponse.json({ items: data ?? [], calendar_id: calendarId });
 }
 
 export async function POST(req: NextRequest) {
@@ -102,7 +117,8 @@ export async function POST(req: NextRequest) {
       type: result.data.type,
       content: result.data.content,
       title: result.data.title ?? null,
-      plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium"
+      plan: (result.data.plan ?? session.plan ?? DEFAULT_PLAN) as "plan_essentiel" | "plan_premium",
+      calendar_id: result.data.calendar_id ?? null
     };
 
     // Upload image vers Supabase Storage si data URL
@@ -128,10 +144,13 @@ export async function POST(req: NextRequest) {
         source: data.content
       });
       if (!uploadedAudio) {
-        console.warn("[calendar-contents] upload audio échoué, conservation du lien original");
-      } else {
-        data.content = uploadedAudio;
+        console.error("[calendar-contents] upload audio échoué pour", data.type, "jour", data.day);
+        return NextResponse.json({ error: "Upload audio Supabase échoué" }, { status: 500 });
       }
+      data.content = uploadedAudio;
+    } else if ((data.type === "music" || data.type === "voice") && !isHttpUrl(data.content) && !isDataUrl(data.content)) {
+      // Si c'est juste un lien Spotify ou autre qui n'est pas HTTP/Data URL, le garder tel quel
+      console.log("[calendar-contents] keeping original link for", data.type, data.content.substring(0, 100));
     }
 
     const supabase = supabaseServer();
@@ -228,19 +247,30 @@ async function uploadAudioToSupabase(params: {
     const ext = mimeType.split("/")[1];
     if (ext) extension = ext;
   } else if (isHttpUrl(source)) {
-    const res = await fetch(source);
-    if (!res.ok) {
-      console.error("[calendar-contents] audio fetch failed", res.status, await res.text().catch(() => ""));
+    try {
+      console.log("[calendar-contents] downloading audio from URL:", source.substring(0, 100));
+      const res = await fetch(source, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; AdventCalendar/1.0)'
+        }
+      });
+      if (!res.ok) {
+        console.error("[calendar-contents] audio fetch failed", res.status, await res.text().catch(() => ""));
+        return null;
+      }
+      mimeType = res.headers.get("content-type") || mimeType;
+      const urlExt = source.split(".").pop();
+      if (urlExt && urlExt.length <= 4) {
+        extension = urlExt.split(/[?#]/)[0] || extension;
+      } else if (mimeType.includes("/")) {
+        extension = mimeType.split("/")[1];
+      }
+      buffer = await res.arrayBuffer();
+      console.log("[calendar-contents] audio downloaded successfully, size:", buffer.byteLength, "bytes");
+    } catch (fetchError: any) {
+      console.error("[calendar-contents] audio fetch exception", fetchError.message || fetchError);
       return null;
     }
-    mimeType = res.headers.get("content-type") || mimeType;
-    const urlExt = source.split(".").pop();
-    if (urlExt && urlExt.length <= 4) {
-      extension = urlExt.split(/[?#]/)[0] || extension;
-    } else if (mimeType.includes("/")) {
-      extension = mimeType.split("/")[1];
-    }
-    buffer = await res.arrayBuffer();
   } else {
     return null;
   }
