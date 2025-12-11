@@ -6,23 +6,25 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import DOMPurify from "isomorphic-dompurify";
 import { supabaseServer } from "@/lib/supabase";
 import { readBuyerSession } from "@/lib/server-session";
 import { DEFAULT_PLAN } from "@/lib/plan-theme";
+
+// Minimal server-safe sanitizer to avoid jsdom/ESM issues in serverless
+const sanitize = (val: string) => val.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const schema = z.object({
   day: z.number().int().min(1).max(24),
   type: z.enum(["photo", "message", "drawing", "music", "voice", "ai_photo"]),
   // ✅ Sanitize pour éviter XSS
-  content: z.string().min(1).transform((val) => DOMPurify.sanitize(val)),
+  content: z.string().min(1).transform((val) => sanitize(val)),
   // ✅ Titre optionnel et nullable + sanitize
   title: z
     .string()
     .max(255)
     .nullable()
     .optional()
-    .transform((val) => (val ? DOMPurify.sanitize(val) : val)),
+    .transform((val) => (val ? sanitize(val) : val)),
   plan: z.enum(["plan_essentiel", "plan_premium"]).optional()
 });
 
