@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { sparkleRandom } from "@/lib/sparkle-random";
@@ -18,7 +19,7 @@ const mockDays = Array.from({ length: 24 }, (_, idx) => ({
   music: null
 }));
 
-export default function CheckoutCancelPage() {
+function CheckoutCancelPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planParam = (searchParams?.get("plan") as PlanKey | null) ?? null;
@@ -139,5 +140,13 @@ export default function CheckoutCancelPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function CheckoutCancelPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Chargement…</div>}>
+      <CheckoutCancelPageContent />
+    </Suspense>
   );
 }

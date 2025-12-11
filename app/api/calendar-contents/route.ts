@@ -213,7 +213,7 @@ async function uploadAudioToSupabase(params: {
   const { bucket, buyerId, day, source } = params;
   const supabase = supabaseServer();
 
-  let buffer: ArrayBuffer;
+  let buffer: ArrayBuffer | Uint8Array;
   let mimeType = "audio/mpeg";
   let extension = "mp3";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import { sparkleRandom } from "@/lib/sparkle-random";
@@ -9,14 +9,14 @@ import { PLAN_APPEARANCE, DEFAULT_PLAN, type PlanKey } from "@/lib/plan-theme";
 
 const GoldenEnvelopeTree = dynamic(() => import("@/components/GoldenEnvelopeTree"), { ssr: false });
 
- type CalendarItem = {
+type CalendarItem = {
   day: number;
   type: "photo" | "message" | "drawing" | "music" | "voice" | "ai_photo";
   content: string;
   title?: string | null;
  };
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const planParam = (searchParams?.get("plan") as PlanKey | null) ?? null;
@@ -200,5 +200,13 @@ export default function CheckoutSuccessPage() {
         }
       `}</style>
     </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-white">Chargement…</div>}>
+      <CheckoutSuccessPageContent />
+    </Suspense>
   );
 }

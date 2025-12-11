@@ -1,6 +1,7 @@
 export type PlanKey = "plan_essentiel" | "plan_premium";
 
 export type PlanAppearance = {
+  name: string;
   border: string;
   accentText: string;
   mutedText: string;
@@ -26,6 +27,7 @@ export type PlanAppearance = {
 
 export const PLAN_APPEARANCE: Record<PlanKey, PlanAppearance> = {
   plan_essentiel: {
+    name: "Plan Essentiel",
     border: "border-[#e5e9ef]",
     accentText: "text-[#6f7782]",
     mutedText: "text-[#8d94a1]",
@@ -49,6 +51,7 @@ export const PLAN_APPEARANCE: Record<PlanKey, PlanAppearance> = {
     }
   },
   plan_premium: {
+    name: "Plan Premium",
     border: "border-[#f5e6d4]",
     accentText: "text-[#c89b65]",
     mutedText: "text-[#c89b65]",
